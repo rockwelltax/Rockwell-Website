@@ -1,0 +1,142 @@
+/* ============================================================
+   ROCKWELL — Legal Pages (Privacy Policy & Terms of Use)
+   ============================================================ */
+
+/* ── Header ── */
+.legal-header {
+  padding-top: calc(var(--nav-height) + var(--space-16));
+  padding-bottom: var(--space-12);
+  background: var(--color-bg-warm);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.legal-header h1 {
+  margin-block: var(--space-3) var(--space-4);
+  font-size: clamp(2rem, 4vw, 3rem);
+}
+
+.legal-meta {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  max-width: 100%;
+}
+
+/* ── Body ── */
+.legal-body {
+  background: var(--color-white);
+}
+
+/* ── Blocks ── */
+.legal-block {
+  padding-block: var(--space-10);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.legal-block:last-of-type {
+  border-bottom: none;
+}
+
+.legal-block h2 {
+  font-size: clamp(var(--text-lg), 2.5vw, var(--text-2xl));
+  margin-bottom: var(--space-5);
+  color: var(--color-brown);
+}
+
+.legal-block h3 {
+  font-size: var(--text-md);
+  font-weight: var(--fw-semibold);
+  font-family: var(--font-sans);
+  color: var(--color-brown);
+  margin-top: var(--space-6);
+  margin-bottom: var(--space-3);
+}
+
+.legal-block p {
+  font-size: var(--text-base);
+  color: var(--color-text-muted);
+  line-height: var(--leading-relaxed);
+  margin-bottom: var(--space-4);
+  max-width: 68ch;
+}
+
+.legal-block p:last-child {
+  margin-bottom: 0;
+}
+
+.legal-block a {
+  color: var(--color-teal);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.legal-block a:hover {
+  color: var(--color-brown);
+}
+
+/* ── List ── */
+.legal-list {
+  list-style: none;
+  padding: 0;
+  margin: var(--space-4) 0 var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.legal-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  line-height: var(--leading-relaxed);
+}
+
+.legal-list li::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  min-width: 6px;
+  border-radius: 50%;
+  background-color: var(--color-teal);
+  margin-top: 0.5em;
+}
+
+/* ── Callout ── */
+.legal-callout {
+  background: var(--color-teal-10);
+  border: 1px solid rgba(56, 146, 169, 0.25);
+  border-left: 3px solid var(--color-teal);
+  border-radius: var(--radius-md);
+  padding: var(--space-5) var(--space-6);
+  margin-block: var(--space-6);
+}
+
+.legal-callout p {
+  font-size: var(--text-sm);
+  color: var(--color-brown);
+  margin-bottom: 0;
+  max-width: 100%;
+}
+
+/* ── Bottom Nav ── */
+.legal-nav {
+  display: flex;
+  gap: var(--space-4);
+  padding-top: var(--space-10);
+  flex-wrap: wrap;
+}
+
+/* ── Responsive ── */
+@media (max-width: 599px) {
+  .legal-header {
+    padding-top: calc(var(--nav-height) + var(--space-10));
+  }
+  .legal-nav {
+    flex-direction: column;
+  }
+  .legal-nav .btn {
+    text-align: center;
+    justify-content: center;
+  }
+}

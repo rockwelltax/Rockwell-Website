@@ -1,0 +1,23 @@
+{
+  "rewrites": [
+    { "source": "/services",                   "destination": "/pages/services/services.html" },
+    { "source": "/services/tax-preparation",   "destination": "/pages/tax-preparation/tax-preparation.html" },
+    { "source": "/services/bookkeeping",       "destination": "/pages/bookkeeping/bookkeeping.html" },
+    { "source": "/services/digital-services",  "destination": "/pages/digital-services/digital-services.html" },
+    { "source": "/about",                      "destination": "/pages/about/about.html" },
+    { "source": "/contact",                    "destination": "/pages/contact/contact.html" },
+    { "source": "/start-your-tax-return",      "destination": "/pages/start-your-tax-return/start-your-tax-return.html" },
+    { "source": "/privacy-policy",             "destination": "/pages/legal/privacy-policy.html" },
+    { "source": "/terms-of-use",               "destination": "/pages/legal/terms-of-use.html" }
+  ],
+  "headers": [
+    {
+      "source": "**/*",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache" }
+      ]
+    }
+  ],
+  "trailingSlash": false,
+  "cleanUrls": true
+}
