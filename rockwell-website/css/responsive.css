@@ -557,19 +557,9 @@ a:hover .link-arrow,
   }
 
   .about-story__inner {
-    grid-template-columns: 1fr 1.6fr;
-    gap: 5rem;
-  }
-
-  .about-story__photo-wrap {
-    position: sticky;
-    top: calc(var(--nav-height) + 2rem);
-  }
-
-  .about-story__photo {
-    max-height: 480px;
-    aspect-ratio: 3/4;
-    margin: 0;
+    display: block;
+    max-width: 760px;
+    margin-inline: auto;
   }
 
   .how-we-work__grid {

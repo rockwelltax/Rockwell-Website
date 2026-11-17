@@ -1,4 +1,4 @@
-/* ============================================================
+﻿/* ============================================================
    ROCKWELL — About Page
    ============================================================ */
 
@@ -34,36 +34,16 @@
 .about-story { background: var(--color-white); }
 
 .about-story__inner {
-  display: grid;
-  grid-template-columns: 1fr 1.6fr;
-  gap: var(--space-20);
-  align-items: start;
+  display: block;
+  max-width: 760px;
+  margin-inline: auto;
 }
 
-.about-story__photo-wrap {
-  position: sticky;
-  top: calc(var(--nav-height) + var(--space-8));
-}
 
-.about-story__photo {
-  width: 100%;
-  aspect-ratio: 3/4;
-  border-radius: var(--radius-xl);
-  font-size: var(--text-sm);
-  color: rgba(41,33,29,0.4);
-  background: linear-gradient(145deg, rgba(188,161,138,0.4), rgba(188,161,138,0.15));
-  border: 1px solid var(--color-border);
-  max-height: 480px;
-}
 
-.about-story__photo-caption {
-  margin-top: var(--space-4);
-  font-size: var(--text-sm);
-  color: var(--color-text-muted);
-  line-height: var(--leading-relaxed);
-  text-align: center;
-  font-style: normal;
-}
+
+
+
 
 .about-story__content h2 { margin-top: var(--space-3); }
 
@@ -210,8 +190,8 @@
   .about-header__inner { grid-template-columns: 1fr; }
   .about-header__accent-line { display: none; }
   .about-story__inner { grid-template-columns: 1fr; }
-  .about-story__photo-wrap { position: static; }
-  .about-story__photo { max-height: 320px; aspect-ratio: 4/3; }
+  
+  
   .how-we-work__grid { grid-template-columns: repeat(2, 1fr); }
   .about-cta__inner { flex-direction: column; text-align: center; }
   .about-cta__actions { flex-direction: row; flex-wrap: wrap; justify-content: center; }
@@ -239,3 +219,4 @@
 .about-story__photo-img:hover {
   transform: scale(1.015);
 }
+

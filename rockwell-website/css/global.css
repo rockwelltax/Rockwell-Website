@@ -1,4 +1,4 @@
-/* ============================================================
+﻿/* ============================================================
    ROCKWELL — Global Base Styles
    ============================================================ */
 
@@ -173,7 +173,7 @@ button:focus-visible {
     color var(--transition-base),
     transform var(--transition-fast),
     box-shadow var(--transition-base);
-  white-space: nowrap;
+  white-space: nowrap; /* overridden per-button on mobile */
   cursor: pointer;
   border: 2px solid transparent;
 }
@@ -423,3 +423,12 @@ button:hover .link-arrow {
 .items-center { align-items: center; }
 .gap-4 { gap: var(--space-4); }
 .gap-6 { gap: var(--space-6); }
+
+/* Mobile: allow buttons to wrap text so they don't overflow */
+@media (max-width: 639px) {
+  .btn {
+    white-space: normal;
+    word-break: break-word;
+    text-align: center;
+  }
+}

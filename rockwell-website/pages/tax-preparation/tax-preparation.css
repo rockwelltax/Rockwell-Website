@@ -1,4 +1,4 @@
-/* ============================================================
+﻿/* ============================================================
    ROCKWELL — Tax Preparation Page
    ============================================================ */
 
@@ -271,8 +271,31 @@
 .fee-calculator__action {
   margin-top: var(--space-6);
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 1rem;
 }
+
+/* Mobile: short label, full-width button */
+.btn-text-full  { display: none; }
+.btn-text-short { display: inline; }
+
+.calc-proceed-btn {
+  width: 100%;
+  justify-content: center;
+  white-space: normal;
+  text-align: center;
+  overflow: hidden;
+}
+
+/* 640px+: full label, auto-width */
+@media (min-width: 640px) {
+  .btn-text-full  { display: inline; }
+  .btn-text-short { display: none; }
+  .calc-proceed-btn {
+    width: auto;
+    white-space: nowrap;
+  }
+}
+
