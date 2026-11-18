@@ -427,6 +427,10 @@
   flex-wrap: wrap;
 }
 
+.admin-type-select {
+  display: none;
+}
+
 .type-tab {
   background: none;
   border: 1px solid transparent;
@@ -455,6 +459,7 @@
 
 .search-field {
   width: 100%;
+  box-sizing: border-box;
   padding: 0.5rem 0.85rem;
   font-size: 0.8125rem;
   border: 1px solid #DCD5CD;
@@ -876,14 +881,15 @@
     gap: 0.75rem;
   }
   .admin-type-tabs {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    padding-bottom: 0.25rem;
-    -webkit-overflow-scrolling: touch;
+    display: none;
   }
-  .type-tab {
-    white-space: nowrap;
-    flex-shrink: 0;
+  .admin-type-select {
+    display: block;
+    width: 100%;
+    padding: 0.55rem 0.85rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border-radius: 6px;
   }
   .admin-search-wrap {
     width: 100%;

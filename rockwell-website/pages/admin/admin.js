@@ -301,14 +301,28 @@
     });
 
     // Type tabs
+    const typeFilterSelect = document.getElementById('type-filter-select');
+
     typeTabs.forEach(function (tab) {
       tab.addEventListener('click', function () {
         typeTabs.forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
         currentFilter = tab.getAttribute('data-type');
+        if (typeFilterSelect) typeFilterSelect.value = currentFilter;
         renderInquiries();
       });
     });
+
+    // Mobile combo box filter
+    if (typeFilterSelect) {
+      typeFilterSelect.addEventListener('change', function (e) {
+        currentFilter = e.target.value;
+        typeTabs.forEach(t => {
+          t.classList.toggle('active', t.getAttribute('data-type') === currentFilter);
+        });
+        renderInquiries();
+      });
+    }
 
     // Export CSV
     btnExportCsv.addEventListener('click', exportCSV);
