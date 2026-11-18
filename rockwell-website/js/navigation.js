@@ -208,7 +208,7 @@
       <div class="footer-brand">
         <a href="${homeHref}" class="footer-logo" aria-label="Rockwell — Home">
           <div style="display: flex; align-items: center; gap: 0.625rem; margin-bottom: 0.25rem;">
-            <img src="${logoSrc}" alt="" class="footer-logo__icon" width="28" height="28" aria-hidden="true" style="filter: brightness(0) invert(1);" />
+            <img src="${logoSrc}" alt="" class="footer-logo__icon" width="32" height="32" aria-hidden="true" style="object-fit: contain; border-radius: 6px; display: block;" />
             <span class="footer-logo__primary">Rockwell</span>
           </div>
           <span class="footer-logo__sub">Tax &amp; Digital Strategies Inc.</span>
@@ -241,7 +241,32 @@
         <p class="footer-nav__heading">Contact</p>
         <address class="footer-contact-address">
           <p class="footer-contact__item footer-contact__pending">Direct phone &amp; official email address will be published upon verified setup prior to launch.</p>
-          <p class="footer-contact__item" style="margin-top: 0.75rem;">
+          <div class="footer-social" aria-label="Rockwell Social Media">
+            <a href="https://www.facebook.com/profile.php?id=61577544215130" target="_blank" rel="noopener noreferrer" class="footer-social__link" aria-label="Rockwell on Facebook">
+              <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="12" fill="#1877F2"/>
+                <path d="M13.6 19v-6.4h2.15l.32-2.5H13.6V8.5c0-.72.2-1.22 1.24-1.22h1.32V5.05c-.23-.03-1.01-.1-1.93-.1-1.9 0-3.2 1.16-3.2 3.3v1.85H8.88v2.5h2.15V19h2.57z" fill="#FFFFFF"/>
+              </svg>
+              <span>Facebook</span>
+            </a>
+            <a href="https://www.instagram.com/rockwelltax/?utm_source=ig_web_button_share_sheet" target="_blank" rel="noopener noreferrer" class="footer-social__link" aria-label="Rockwell on Instagram">
+              <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+                <defs>
+                  <linearGradient id="ig-grad-footer" x1="0%" y1="100%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#FD5949"/>
+                    <stop offset="50%" stop-color="#D6249F"/>
+                    <stop offset="100%" stop-color="#285AEB"/>
+                  </linearGradient>
+                </defs>
+                <rect x="2" y="2" width="20" height="20" rx="5.5" fill="url(#ig-grad-footer)"/>
+                <rect x="6.5" y="6.5" width="11" height="11" rx="3.2" fill="none" stroke="#FFFFFF" stroke-width="1.7"/>
+                <circle cx="12" cy="12" r="2.7" fill="none" stroke="#FFFFFF" stroke-width="1.7"/>
+                <circle cx="15.6" cy="8.4" r="0.9" fill="#FFFFFF"/>
+              </svg>
+              <span>Instagram</span>
+            </a>
+          </div>
+          <p class="footer-contact__item" style="margin-top: 0.85rem;">
             <a href="${contactHref}" class="btn btn--outline-white btn--sm" style="font-size: 0.8125rem; padding: 0.5rem 1rem;">Inquiry Form &rarr;</a>
           </p>
         </address>

@@ -96,6 +96,37 @@
   font-style: italic;
 }
 
+.footer-social {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: var(--space-3);
+}
+
+.footer-social__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: var(--text-xs);
+  font-weight: var(--fw-semibold);
+  text-decoration: none;
+  font-style: normal;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.footer-social__link:hover {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: var(--color-white);
+  transform: translateY(-1px);
+}
+
 /* ── Footer Bottom ── */
 .footer-bottom {
   padding-top: var(--space-8);
