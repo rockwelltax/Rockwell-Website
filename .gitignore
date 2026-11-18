@@ -1,0 +1,23 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment variables & secrets (CRITICAL)
+.env
+.env.*
+*.env
+
+# Dependencies
+node_modules/
+package-lock.json
+
+# Build & caches
+.neon
+*.log
+npm-debug.log*

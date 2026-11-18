@@ -6,6 +6,54 @@
 (function () {
   'use strict';
 
+  function initPathSelector() {
+    const btnW2 = document.getElementById('btn-path-w2');
+    const btn1099 = document.getElementById('btn-path-1099');
+    if (!btnW2 || !btn1099) return;
+
+    function setPath(path) {
+      const is1099 = path === '1099' || path === 'self_employed';
+      
+      // Update button styling
+      btnW2.style.borderColor = is1099 ? 'var(--color-border)' : 'var(--color-teal)';
+      btnW2.querySelector('span').textContent = is1099 ? 'Click to select' : 'Selected';
+      btnW2.querySelector('span').style.background = is1099 ? 'transparent' : 'var(--color-teal)';
+      btnW2.querySelector('span').style.color = is1099 ? 'var(--color-text-muted)' : '#fff';
+
+      btn1099.style.borderColor = is1099 ? 'var(--color-teal)' : 'var(--color-border)';
+      btn1099.querySelector('span').textContent = is1099 ? 'Selected' : 'Click to select';
+      btn1099.querySelector('span').style.background = is1099 ? 'var(--color-teal)' : 'transparent';
+      btn1099.querySelector('span').style.color = is1099 ? '#fff' : 'var(--color-text-muted)';
+
+      // Auto check appropriate selfEmployed radio in questionnaire
+      const seRadio = document.querySelector(`input[name="selfEmployed"][value="${is1099 ? 'yes' : 'no'}"]`);
+      if (seRadio) {
+        seRadio.checked = true;
+        seRadio.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+
+      // If W-2 path selected, default to 1-6 W-2s
+      if (!is1099) {
+        const w2Radio = document.querySelector('input[name="w2Count"][value="1-6"]');
+        if (w2Radio && !document.querySelector('input[name="w2Count"]:checked')) {
+          w2Radio.checked = true;
+        }
+      }
+    }
+
+    btnW2.addEventListener('click', () => setPath('w2'));
+    btn1099.addEventListener('click', () => setPath('1099'));
+
+    // Check URL params
+    const params = new URLSearchParams(window.location.search);
+    const pathParam = params.get('path');
+    if (pathParam === '1099' || pathParam === 'self_employed' || params.get('self_employed') === 'yes') {
+      setPath('1099');
+    } else {
+      setPath('w2');
+    }
+  }
+
   function initPreFill() {
     const params = new URLSearchParams(window.location.search);
 
@@ -96,6 +144,7 @@
   }
 
   function init() {
+    initPathSelector();
     initPreFill();
     initDynamicGuidance();
     initSsnDetection();

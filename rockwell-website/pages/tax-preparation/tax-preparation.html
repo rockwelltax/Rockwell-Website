@@ -9,6 +9,9 @@
   <meta property="og:description" content="Personal and self-employed tax preparation. Transparent pricing. Review before filing." />
   <meta property="og:type" content="website" />
   <link rel="canonical" href="https://rockwelltaxdigital.com/tax-preparation" />
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="../../assets/icons/favicon.png" />
+  <link rel="apple-touch-icon" href="../../assets/icons/apple-touch-icon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
@@ -63,103 +66,87 @@
           <p class="lead text-center" style="margin-inline: auto;">Starting prices listed below. Your exact fee is confirmed after Rockwell reviews your inquiry—no payment is collected before that.</p>
         </header>
 
-        <div class="pricing-grid">
+        <div class="pricing-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
 
-          <!-- INDIVIDUAL CARD -->
+          <!-- INDIVIDUAL W-2 CARD -->
           <article class="pricing-card reveal reveal--d1" aria-labelledby="tier-individual">
             <div class="pricing-card__header">
-              <p class="label" style="color: var(--color-teal);">Individual</p>
-              <h3 id="tier-individual" class="pricing-card__title">Personal Tax Return</h3>
+              <p class="label" style="color: var(--color-teal);">Individual Filers</p>
+              <h3 id="tier-individual" class="pricing-card__title">Individual Taxes | W-2</h3>
             </div>
             <div class="pricing-card__price">
-              <span class="price">$100<span class="pricing-card__plus">+</span></span>
+              <span class="price">$100<span class="pricing-card__plus">*</span></span>
               <p class="price__qualifier">Starting price &mdash; exact fee confirmed after inquiry review</p>
             </div>
             <div class="pricing-card__body">
-              <p>For a typical personal return with up to 6 W-2 forms. Includes single and married filers. Extra work may cost more.</p>
+              <p>For employees and individual filers with W-2 income. Includes single, married filing jointly, and head of household.</p>
               <ul class="pricing-card__features" role="list" aria-label="What's included in individual return">
                 <li>Up to 6 W-2 forms</li>
-                <li>Single filers</li>
-                <li>Married Filing Jointly (MFJ)</li>
-                <li>Married Filing Separately (MFS)</li>
+                <li>Single &amp; Married filers</li>
                 <li>Federal return preparation</li>
-                <li>Review together with client before filing</li>
+                <li>Careful document review</li>
+                <li>Review together before filing</li>
               </ul>
             </div>
-            <a href="../start-your-tax-return/start-your-tax-return.html?filing=individual&w2=1-6" class="btn btn--primary" style="width:100%; justify-content: center; margin-top: auto;">Start an Inquiry</a>
+            <a href="../start-your-tax-return/start-your-tax-return.html?path=w2" class="btn btn--primary" style="width:100%; justify-content: center; margin-top: auto;">Get Started &mdash; W-2</a>
           </article>
 
-          <!-- SELF-EMPLOYED CARD -->
+          <!-- SELF-EMPLOYED 1099 CARD -->
           <article class="pricing-card pricing-card--featured reveal reveal--d2" aria-labelledby="tier-selfemployed">
-            <div class="pricing-card__badge" aria-label="Schedule C filers">Self-Employed</div>
+            <div class="pricing-card__badge" aria-label="Schedule C filers">Freelancers &amp; 1099</div>
             <div class="pricing-card__header">
               <p class="label" style="color: var(--color-teal);">Self-Employed</p>
-              <h3 id="tier-selfemployed" class="pricing-card__title">Freelancers &amp; Side-Business Owners</h3>
+              <h3 id="tier-selfemployed" class="pricing-card__title">Self-Employed | 1099</h3>
             </div>
             <div class="pricing-card__price">
-              <span class="price">$250<span class="pricing-card__plus">+</span></span>
+              <span class="price">$250<span class="pricing-card__plus">*</span></span>
               <p class="price__qualifier">Starting price &mdash; exact fee confirmed after inquiry review</p>
             </div>
             <div class="pricing-card__body">
-              <p>For people who work for themselves, such as freelancers, side-business owners and independent contractors with Schedule C income.</p>
+              <p>For freelancers, independent contractors, and Schedule C filers who need careful reporting and deduction guidance.</p>
               <ul class="pricing-card__features" role="list" aria-label="What's included in self-employed return">
-                <li>Schedule C business income reporting</li>
-                <li>Freelancers and independent contractors</li>
-                <li>Side-business owners</li>
-                <li>Expense categorization assistance</li>
+                <li>Schedule C business income</li>
+                <li>1099-NEC &amp; 1099-K income</li>
+                <li>Expense record categorization</li>
                 <li>Federal return preparation</li>
-                <li>Review together with client before filing</li>
+                <li>Review together before filing</li>
               </ul>
             </div>
-            <a href="../start-your-tax-return/start-your-tax-return.html?filing=self-employed&w2=0" class="btn btn--primary" style="width:100%; justify-content: center; margin-top: auto;">Start an Inquiry</a>
+            <a href="../start-your-tax-return/start-your-tax-return.html?path=1099" class="btn btn--primary" style="width:100%; justify-content: center; margin-top: auto;">Get Started &mdash; 1099</a>
+          </article>
+
+          <!-- TAX FIRM SUPPORT CARD (Slide 4 & 7) -->
+          <article class="pricing-card reveal reveal--d3" aria-labelledby="tier-firm">
+            <div class="pricing-card__header">
+              <p class="label" style="color: var(--color-teal);">B2B Professional Support</p>
+              <h3 id="tier-firm" class="pricing-card__title">Tax Firm Support</h3>
+            </div>
+            <div class="pricing-card__price">
+              <span class="price" style="font-size: var(--text-2xl);">Custom Scope</span>
+              <p class="price__qualifier">Pricing depends on weekly hours &amp; volume</p>
+            </div>
+            <div class="pricing-card__body">
+              <p>Reliable back-office assistance for CPA and tax firms needing administrative follow-up, client intake, and data entry.</p>
+              <ul class="pricing-card__features" role="list" aria-label="What's included in firm support">
+                <li>Client intake &amp; document organization</li>
+                <li>Tax software data entry</li>
+                <li>Scheduling &amp; administrative follow-up</li>
+                <li>Coordinated under firm review</li>
+                <li>Strict confidentiality &amp; NDA</li>
+              </ul>
+            </div>
+            <a href="../start-your-tax-return/start-your-tax-return.html?path=firm_support" class="btn btn--outline-dark" style="width:100%; justify-content: center; margin-top: auto;">Explore Firm Support</a>
           </article>
 
         </div>
 
-        <!-- Interactive Fee Estimator Widget -->
-        <div class="fee-calculator reveal" aria-labelledby="calculator-heading">
-          <div class="fee-calculator__header">
-            <div>
-              <p class="section-eyebrow" style="margin-bottom: 0.25rem;">Interactive Tool</p>
-              <h3 id="calculator-heading" class="fee-calculator__title">Estimate Your Starting Base Fee</h3>
-            </div>
-            <div class="fee-calculator__result">
-              <p class="fee-calculator__result-label">Estimated Starting Fee</p>
-              <p class="fee-calculator__result-price" id="calc-price-display">$100+</p>
-            </div>
-          </div>
-
-          <div class="fee-calculator__controls">
-            <div class="fee-calculator__group">
-              <label for="calc-filing-type">Filing Situation</label>
-              <select id="calc-filing-type" class="fee-calculator__select">
-                <option value="individual">Individual (Single or Married) — From $100+</option>
-                <option value="self-employed">Self-Employed / Schedule C — From $250+</option>
-              </select>
-            </div>
-
-            <div class="fee-calculator__group">
-              <label for="calc-w2-count">Number of W-2 Forms</label>
-              <select id="calc-w2-count" class="fee-calculator__select">
-                <option value="0">0 W-2 Forms</option>
-                <option value="1-6" selected>1–6 W-2 Forms (Standard)</option>
-                <option value="7+">7+ W-2 Forms (Additional complexity)</option>
-              </select>
-            </div>
-          </div>
-
-          <p class="fee-calculator__note" id="calc-note">
-            Standard individual return with up to 6 W-2 forms starts at $100+. Additional schedules or forms will be reviewed and confirmed upfront.
+        <!-- Starting Price Transparency Banner -->
+        <div class="pricing-transparency-card reveal" style="background:#FFFFFF; border:1px solid #E2DCD5; border-radius:12px; padding:2rem; margin-top:2.5rem; text-align:center;">
+          <h3 style="font-family:var(--font-serif); font-size:1.4rem; color:#29211D; margin:0 0 0.5rem 0;">Clear, Honest Starting Prices Before You Pay</h3>
+          <p style="max-width:700px; margin:0 auto 1.25rem auto; color:#6B625B; font-size:0.9375rem; line-height:1.6;">
+            *Starting prices reflect typical returns ($100 for Individual W-2 and $250 for Self-Employed/1099). We review your information first and provide a confirmed quote afterward. <strong>No payment is collected until you review and approve the final quote.</strong>
           </p>
-
-          <div class="fee-calculator__action">
-            <span style="font-size: 0.8125rem; color: var(--color-text-muted);">No payment is collected now. Your exact fee is confirmed after Rockwell reviews your inquiry.</span>
-            <a href="../start-your-tax-return/start-your-tax-return.html" id="calc-proceed-btn" class="btn btn--primary calc-proceed-btn">
-              <span class="btn-text-full">Proceed to Inquiry with These Selections</span>
-              <span class="btn-text-short">Start My Tax Inquiry</span>
-              <svg aria-hidden="true" class="link-arrow" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="14" height="14"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </a>
-          </div>
+          <a href="../start-your-tax-return/start-your-tax-return.html" class="btn btn--primary">Start Your Tax Return &rarr;</a>
         </div>
 
         <!-- Disclaimer -->

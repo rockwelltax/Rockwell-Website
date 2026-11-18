@@ -1,4 +1,4 @@
-﻿/* ============================================================
+/* ============================================================
    ROCKWELL — About Page
    ============================================================ */
 
@@ -34,9 +34,10 @@
 .about-story { background: var(--color-white); }
 
 .about-story__inner {
-  display: block;
-  max-width: 760px;
-  margin-inline: auto;
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: var(--space-12);
+  align-items: start;
 }
 
 

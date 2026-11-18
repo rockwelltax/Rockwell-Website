@@ -37,9 +37,23 @@
 ══════════════════════════════════════════ */
 .nav-logo {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 0.625rem;
   text-decoration: none;
   flex-shrink: 0;
+}
+
+.nav-logo__icon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  flex-shrink: 0;
+  display: block;
+}
+
+.nav-logo__text {
+  display: flex;
+  flex-direction: column;
   line-height: 1.15;
   gap: 2px;
 }
@@ -135,6 +149,101 @@
 .nav-links__link:focus-visible {
   outline: 2px solid #3892A9;
   outline-offset: 2px;
+}
+
+/* ══════════════════════════════════════════
+   NAV DROPDOWN (Services)
+   ══════════════════════════════════════════ */
+.nav-dropdown {
+  position: relative;
+}
+
+.nav-dropdown__trigger {
+  display: flex !important;
+  align-items: center;
+  gap: 4px;
+}
+
+.nav-dropdown__arrow {
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.nav-dropdown:hover .nav-dropdown__arrow,
+.nav-dropdown:focus-within .nav-dropdown__arrow {
+  transform: rotate(180deg);
+}
+
+.nav-dropdown__menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 220px;
+  background-color: #FFFFFF;
+  border-radius: 10px;
+  box-shadow: 0 12px 36px rgba(41, 33, 29, 0.16);
+  border: 1px solid rgba(188, 161, 138, 0.35);
+  padding: 0.5rem 0;
+  list-style: none;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 1000;
+}
+
+.nav-dropdown:hover .nav-dropdown__menu,
+.nav-dropdown:focus-within .nav-dropdown__menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.nav-dropdown__link {
+  display: block;
+  padding: 0.65rem 1.25rem;
+  font-family: var(--font-sans);
+  font-size: 0.84rem;
+  color: #29211D;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.nav-dropdown__link:hover {
+  background-color: rgba(56, 146, 169, 0.08);
+  color: #3892A9;
+  padding-left: 1.45rem;
+}
+
+/* Mobile sublinks */
+.nav-mobile__group {
+  margin: 0.75rem 0;
+  padding-left: 0.75rem;
+  border-left: 2px solid rgba(56, 146, 169, 0.4);
+}
+
+.nav-mobile__group-title {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #3892A9;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+}
+
+.nav-mobile__sublink {
+  display: block;
+  padding: 0.4rem 0.5rem;
+  font-size: 0.9375rem;
+  color: #29211D;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.15s;
+}
+
+.nav-mobile__sublink:hover {
+  color: #3892A9;
 }
 
 /* ══════════════════════════════════════════
