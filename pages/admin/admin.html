@@ -212,7 +212,15 @@
 
         <!-- Inquiries Table / Content -->
         <div class="admin-table-card">
-          <div id="table-loading" class="admin-table-status">Loading inquiries from database...</div>
+          <div id="table-loading" class="admin-table-status admin-loading-state">
+            <div class="admin-spinner" aria-hidden="true"></div>
+            <div class="admin-loading-text">Loading inquiries from database...</div>
+            <div class="admin-skeleton-rows" aria-hidden="true">
+              <div class="admin-skeleton-row"></div>
+              <div class="admin-skeleton-row"></div>
+              <div class="admin-skeleton-row"></div>
+            </div>
+          </div>
           <div id="table-empty" class="admin-table-status" style="display:none;">No inquiries found matching your filters.</div>
 
           <div class="table-responsive" id="table-wrap">

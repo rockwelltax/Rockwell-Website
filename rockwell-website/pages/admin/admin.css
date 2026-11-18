@@ -484,6 +484,74 @@
   font-size: 0.9375rem;
 }
 
+.admin-loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 2.5rem 1.5rem;
+}
+
+.admin-spinner {
+  width: 34px;
+  height: 34px;
+  border: 3px solid #E5DFD8;
+  border-top-color: #3892A9;
+  border-radius: 50%;
+  animation: admin-spin 0.75s linear infinite;
+}
+
+.admin-loading-state.is-error .admin-spinner,
+.admin-loading-state.is-error .admin-skeleton-rows {
+  display: none;
+}
+
+.admin-loading-state.is-error .admin-loading-text {
+  color: #C53B27;
+  font-weight: 600;
+}
+
+.admin-loading-text {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6B625B;
+}
+
+.admin-skeleton-rows {
+  width: 100%;
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin-top: 0.5rem;
+}
+
+.admin-skeleton-row {
+  height: 44px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #F3EFEA 25%, #FAF8F5 50%, #F3EFEA 75%);
+  background-size: 200% 100%;
+  animation: admin-shimmer 1.3s ease-in-out infinite;
+}
+
+.admin-btn-icon.is-loading svg {
+  animation: admin-spin 0.75s linear infinite;
+}
+
+.admin-btn-icon:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+@keyframes admin-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes admin-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
 .table-responsive {
   width: 100%;
   overflow-x: auto;

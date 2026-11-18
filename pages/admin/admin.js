@@ -362,9 +362,17 @@
 
   /* ── 4. Fetch Inquiries from Database ── */
   async function fetchInquiries() {
-    tableLoading.style.display = 'block';
+    const loadingTextEl = tableLoading.querySelector('.admin-loading-text');
+    tableLoading.classList.remove('is-error');
+    if (loadingTextEl) loadingTextEl.textContent = 'Loading inquiries from database...';
+    tableLoading.style.display = 'flex';
     tableEmpty.style.display = 'none';
     tableWrap.style.display = 'none';
+
+    if (btnRefresh) {
+      btnRefresh.disabled = true;
+      btnRefresh.classList.add('is-loading');
+    }
 
     try {
       const res = await fetch(API_INQUIRIES, {
@@ -389,7 +397,17 @@
       updateMetrics();
       renderInquiries();
     } catch (err) {
-      tableLoading.textContent = 'Error connecting to database. Please refresh or check connection.';
+      tableLoading.classList.add('is-error');
+      if (loadingTextEl) {
+        loadingTextEl.textContent = 'Error connecting to database. Please refresh or check connection.';
+      } else {
+        tableLoading.textContent = 'Error connecting to database. Please refresh or check connection.';
+      }
+    } finally {
+      if (btnRefresh) {
+        btnRefresh.disabled = false;
+        btnRefresh.classList.remove('is-loading');
+      }
     }
   }
 
