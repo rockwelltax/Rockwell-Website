@@ -97,16 +97,20 @@ module.exports = async function handler(req, res) {
 
       const saved = result.rows[0];
 
-      // Async email notifications (don't block client response if email is delayed)
-      Promise.allSettled([
+      // Await email notifications before returning response (Vercel freezes unawaited work)
+      const [clientEmailRes, adminEmailRes] = await Promise.allSettled([
         sendClientConfirmation({ to: email, name, type, details }),
         sendAdminNotification({ inquiry: saved })
-      ]).catch(e => console.error('Email notification background error:', e));
+      ]);
 
       return res.status(201).json({
         success: true,
         message: 'Your inquiry has been submitted successfully. A confirmation email has been sent.',
-        inquiryId: saved.id
+        inquiryId: saved.id,
+        emailStatus: {
+          client: clientEmailRes.status === 'fulfilled' ? clientEmailRes.value : { success: false, error: 'Promise rejected' },
+          admin: adminEmailRes.status === 'fulfilled' ? adminEmailRes.value : { success: false, error: 'Promise rejected' }
+        }
       });
     } catch (err) {
       console.error('Error creating inquiry:', err);

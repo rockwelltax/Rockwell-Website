@@ -174,14 +174,21 @@
 
       const isTax = form.id === 'tax-inquiry-form';
       const taxType = data.selfEmployed === 'yes' ? '1099_tax' : 'w2_tax';
+      const subjectMap = {
+        'tax-inquiry': 'w2_tax',
+        'bookkeeping': 'bookkeeping',
+        'digital-services': 'digital_services',
+        'general': 'general_contact'
+      };
+      const contactType = subjectMap[data.subject] || data.service || 'general_contact';
       const payload = {
         name: data.fullName || data.name || 'Anonymous Client',
         email: data.email || '',
         phone: data.phone || '',
-        type: isTax ? taxType : (data.service || 'general_contact'),
+        type: isTax ? taxType : contactType,
         service_requested: isTax
           ? (taxType === '1099_tax' ? 'Self-Employed / 1099 Tax Return' : 'Individual Tax Return (W-2)')
-          : (data.service || 'General Inquiry'),
+          : (data.subject || data.service || 'General Inquiry'),
         details: data
       };
 
