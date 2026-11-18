@@ -8,16 +8,14 @@ Thumbs.db
 *.swp
 *.swo
 
-# Environment variables & secrets (CRITICAL)
-.env
-.env.*
-*.env
-
-# Dependencies
-node_modules/
-package-lock.json
-
-# Build & caches
-.neon
+# Logs
 *.log
+
+# Environment files
+.env
+.env.local
+
+# Node (if any tooling is added later)
+node_modules/
 npm-debug.log*
+.neon

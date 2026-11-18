@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Portal &mdash; Rockwell Tax &amp; Digital Strategies Inc.</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="../../assets/icons/favicon.png" />
+  <link rel="apple-touch-icon" href="../../assets/icons/apple-touch-icon.png" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="../../css/variables.css" />
+  <link rel="stylesheet" href="../../css/global.css" />
+  <link rel="stylesheet" href="../../css/typography.css" />
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body class="admin-body">
+
+  <!-- ══════════════════════════════════════════════
+       1. LOGIN VIEW
+       ══════════════════════════════════════════════ -->
+  <main class="admin-auth-wrapper" id="auth-view">
+    <div class="admin-auth-card">
+      <div class="admin-auth-header">
+        <a href="../../index.html" class="admin-brand-link">
+          <img src="../../assets/icons/favicon.png" alt="Rockwell Shield" class="admin-brand-logo" width="40" height="40" />
+          <div>
+            <span class="admin-brand-name">Rockwell</span>
+            <span class="admin-brand-sub">Tax &amp; Digital Strategies Inc.</span>
+          </div>
+        </a>
+        <div class="admin-badge">Admin Portal</div>
+      </div>
+
+      <div class="admin-auth-body" id="login-step">
+        <h1 class="admin-auth-title">Welcome Back</h1>
+        <p class="admin-auth-desc">Sign in to manage client inquiries, tax filings, and consult requests.</p>
+
+        <div id="login-alert" class="admin-alert admin-alert--error" style="display:none;" role="alert"></div>
+
+        <form id="login-form" novalidate>
+          <div class="form-group">
+            <label for="admin-email" class="form-label">Email Address</label>
+            <input type="email" id="admin-email" class="form-control" placeholder="Kaelmendiola26@gmail.com" value="Kaelmendiola26@gmail.com" required autocomplete="email" />
+          </div>
+
+          <div class="form-group">
+            <div class="form-label-row">
+              <label for="admin-password" class="form-label">Password</label>
+              <button type="button" class="btn-text" id="btn-show-forgot">Forgot Password?</button>
+            </div>
+            <input type="password" id="admin-password" class="form-control" placeholder="••••••••" required autocomplete="current-password" />
+          </div>
+
+          <button type="submit" id="btn-login" class="btn btn--primary btn--full">
+            <span>Sign In to Dashboard</span>
+          </button>
+        </form>
+
+        <p class="admin-auth-footer-note">Authorized Rockwell administrative personnel only.</p>
+      </div>
+
+      <!-- Forgot Password View -->
+      <div class="admin-auth-body" id="forgot-step" style="display:none;">
+        <h2 class="admin-auth-title">Reset Password</h2>
+        <p class="admin-auth-desc">We will send a 6-digit verification code to your verified admin email address. The code expires in <strong>2 minutes</strong>.</p>
+
+        <div id="forgot-alert" class="admin-alert" style="display:none;" role="alert"></div>
+
+        <!-- Step A: Enter Email -->
+        <div id="forgot-sub-email">
+          <div class="form-group">
+            <label for="forgot-email" class="form-label">Admin Email</label>
+            <input type="email" id="forgot-email" class="form-control" value="Kaelmendiola26@gmail.com" required />
+          </div>
+          <button type="button" id="btn-send-code" class="btn btn--primary btn--full">
+            <span>Send 2-Min Verification Code</span>
+          </button>
+        </div>
+
+        <!-- Step B: Enter Code & New Password -->
+        <div id="forgot-sub-verify" style="display:none;">
+          <div class="timer-box" id="timer-box">
+            <span class="timer-icon">⏱️</span>
+            <span>Code expires in: <strong id="timer-countdown">02:00</strong></span>
+          </div>
+
+          <div class="form-group">
+            <label for="reset-code" class="form-label">6-Digit Code</label>
+            <input type="text" id="reset-code" class="form-control text-center code-input" placeholder="000000" maxlength="6" />
+          </div>
+
+          <div class="form-group">
+            <label for="new-password" class="form-label">New Password</label>
+            <input type="password" id="new-password" class="form-control" placeholder="At least 6 characters" />
+          </div>
+
+          <div class="form-group">
+            <label for="confirm-password" class="form-label">Confirm New Password</label>
+            <input type="password" id="confirm-password" class="form-control" placeholder="Re-enter new password" />
+          </div>
+
+          <button type="button" id="btn-submit-reset" class="btn btn--primary btn--full">
+            <span>Confirm &amp; Update Password</span>
+          </button>
+        </div>
+
+        <button type="button" class="btn-text btn-back" id="btn-back-login">&larr; Back to Sign In</button>
+      </div>
+
+    </div>
+  </main>
+
+
+  <!-- ══════════════════════════════════════════════
+       2. DASHBOARD VIEW (Shown when authenticated)
+       ══════════════════════════════════════════════ -->
+  <div class="admin-app" id="dashboard-view" style="display:none;">
+    <!-- Topbar -->
+    <header class="admin-topbar">
+      <div class="admin-topbar__inner">
+        <div class="admin-topbar__brand">
+          <img src="../../assets/icons/favicon.png" alt="Rockwell Shield" width="32" height="32" />
+          <div>
+            <span class="admin-brand-name">Rockwell</span>
+            <span class="admin-brand-sub">Client Management</span>
+          </div>
+        </div>
+
+        <div class="admin-topbar__actions">
+          <a href="../../index.html" target="_blank" class="admin-link-website" title="View live website">
+            Live Site &nearr;
+          </a>
+          <button id="btn-refresh" class="admin-btn-icon" title="Refresh Inquiries">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          </button>
+          <div class="admin-user-pill">
+            <span class="admin-user-dot"></span>
+            <span id="user-display-email">Kaelmendiola26@gmail.com</span>
+          </div>
+          <button id="btn-logout" class="btn btn--outline-dark btn--sm">Log Out</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <div class="admin-container">
+
+        <!-- Title & Sub -->
+        <div class="admin-header-row">
+          <div>
+            <h1 class="admin-page-title">Client Inquiries &amp; Leads</h1>
+            <p class="admin-page-sub">Review incoming client requests, update status, and manage client communications.</p>
+          </div>
+          <div class="admin-header-buttons">
+            <button id="btn-export-csv" class="btn btn--outline-dark btn--sm">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+              Export CSV
+            </button>
+          </div>
+        </div>
+
+        <!-- Metrics Strip -->
+        <div class="admin-metrics-grid">
+          <div class="metric-card">
+            <span class="metric-label">Total Inquiries</span>
+            <span class="metric-val" id="metric-total">0</span>
+            <span class="metric-sub">All logged inquiries</span>
+          </div>
+          <div class="metric-card metric-card--new">
+            <span class="metric-label">New / Pending</span>
+            <span class="metric-val" id="metric-new">0</span>
+            <span class="metric-sub">Requires initial review</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Tax Filings</span>
+            <span class="metric-val" id="metric-tax">0</span>
+            <span class="metric-sub">W-2 &amp; 1099 requests</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Firm &amp; Business Support</span>
+            <span class="metric-val" id="metric-business">0</span>
+            <span class="metric-sub">Bookkeeping &amp; digital services</span>
+          </div>
+        </div>
+
+        <!-- Filter & Search Controls -->
+        <div class="admin-controls-card">
+          <div class="admin-filters-row">
+            <div class="admin-type-tabs" role="tablist">
+              <button class="type-tab active" data-type="all">All Inquiries</button>
+              <button class="type-tab" data-type="w2_tax">W-2 Individual</button>
+              <button class="type-tab" data-type="1099_tax">1099 Self-Employed</button>
+              <button class="type-tab" data-type="firm_support">Tax Firm Support</button>
+              <button class="type-tab" data-type="bookkeeping">Bookkeeping</button>
+              <button class="type-tab" data-type="digital_services">Digital Services</button>
+              <button class="type-tab" data-type="general_contact">General Contact</button>
+            </div>
+
+            <div class="admin-search-wrap">
+              <input type="text" id="search-input" class="search-field" placeholder="Search by name, email, phone..." />
+            </div>
+          </div>
+        </div>
+
+        <!-- Inquiries Table / Content -->
+        <div class="admin-table-card">
+          <div id="table-loading" class="admin-table-status">Loading inquiries from database...</div>
+          <div id="table-empty" class="admin-table-status" style="display:none;">No inquiries found matching your filters.</div>
+
+          <div class="table-responsive" id="table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Date &amp; Time</th>
+                  <th>Client Name</th>
+                  <th>Contact Info</th>
+                  <th>Inquiry Type</th>
+                  <th>Status</th>
+                  <th class="text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="inquiries-tbody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════
+       3. INQUIRY DETAILS MODAL
+       ══════════════════════════════════════════════ -->
+  <div class="modal-backdrop" id="detail-modal" style="display:none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <span class="modal-eyebrow" id="modal-type-badge">Individual Tax Return</span>
+          <h2 class="modal-title" id="modal-client-name">Client Name</h2>
+        </div>
+        <button class="modal-close" id="btn-close-modal">&times;</button>
+      </div>
+
+      <div class="modal-body" id="modal-content">
+        <!-- Dynamically rendered -->
+      </div>
+
+      <div class="modal-footer">
+        <div class="modal-status-select-wrap">
+          <label for="modal-status-select">Update Status:</label>
+          <select id="modal-status-select" class="form-control form-control--sm">
+            <option value="new">New</option>
+            <option value="reviewed">Reviewed</option>
+            <option value="contacted">Contacted</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+        <div class="modal-actions">
+          <a id="modal-email-btn" href="#" class="btn btn--outline-dark btn--sm">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2zM22 6l-10 7L2 6"/></svg>
+            Email Client
+          </a>
+          <button id="modal-save-btn" class="btn btn--primary btn--sm">Save Changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>
