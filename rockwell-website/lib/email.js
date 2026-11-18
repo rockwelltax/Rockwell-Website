@@ -1,8 +1,10 @@
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 const { Resend } = require('resend');
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY || '';
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'Kaelmendiola26@gmail.com';
-const resend = new Resend(RESEND_API_KEY);
+const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null;
 
 // Standard verified testing sender or custom
 const FROM_EMAIL = 'Rockwell Tax & Digital <onboarding@resend.dev>';
