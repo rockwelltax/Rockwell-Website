@@ -125,10 +125,39 @@
     });
   }
 
-  /* ── Form Submission (Real Endpoint + Fallback) ── */
+  /* ── Form Submission (Real Endpoint with Error Handling) ── */
+  function showSubmitError(form, message) {
+    let errBox = form.querySelector('.form-submit-error');
+    if (!errBox) {
+      errBox = document.createElement('div');
+      errBox.className = 'form-submit-error notice notice--warning';
+      errBox.setAttribute('role', 'alert');
+      errBox.style.cssText = 'margin-bottom: 1rem; padding: 0.85rem 1rem; border-radius: 8px; background: #FDF2F0; color: #C53B27; border: 1px solid #F9D2CB; font-size: 0.875rem; font-weight: 500;';
+      const submitBtn = form.querySelector('[type="submit"]');
+      if (submitBtn && submitBtn.parentNode) {
+        submitBtn.parentNode.insertBefore(errBox, submitBtn);
+      } else {
+        form.appendChild(errBox);
+      }
+    }
+    errBox.textContent = message;
+    errBox.hidden = false;
+    errBox.scrollIntoView && errBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function clearSubmitError(form) {
+    const errBox = form.querySelector('.form-submit-error');
+    if (errBox) {
+      errBox.hidden = true;
+      errBox.textContent = '';
+    }
+  }
+
   async function submitForm(form) {
     const btn = form.querySelector('[type="submit"]');
     const successEl = document.getElementById('form-success');
+
+    clearSubmitError(form);
 
     // Loading state
     if (btn) {
@@ -144,12 +173,15 @@
       formData.forEach((val, key) => { data[key] = val; });
 
       const isTax = form.id === 'tax-inquiry-form';
+      const taxType = data.selfEmployed === 'yes' ? '1099_tax' : 'w2_tax';
       const payload = {
         name: data.fullName || data.name || 'Anonymous Client',
         email: data.email || '',
         phone: data.phone || '',
-        type: isTax ? 'tax_inquiry' : (data.service || 'general_contact'),
-        service_requested: isTax ? 'Tax Preparation' : (data.service || 'General Inquiry'),
+        type: isTax ? taxType : (data.service || 'general_contact'),
+        service_requested: isTax
+          ? (taxType === '1099_tax' ? 'Self-Employed / 1099 Tax Return' : 'Individual Tax Return (W-2)')
+          : (data.service || 'General Inquiry'),
         details: data
       };
 
@@ -160,22 +192,28 @@
         body: JSON.stringify(payload)
       });
 
-      if (!res.ok) {
-        console.warn('API returned non-200 status, displaying success message for UI stability.');
+      const resData = await res.json().catch(() => ({}));
+
+      if (!res.ok || !resData.success) {
+        const msg = resData.error || `Submission failed (HTTP ${res.status}). Please try again.`;
+        showSubmitError(form, msg);
+        return;
+      }
+
+      form.style.display = 'none';
+      if (successEl) {
+        successEl.hidden = false;
+        successEl.focus();
       }
     } catch (err) {
-      console.warn('Network submission fallback:', err);
+      showSubmitError(
+        form,
+        'Unable to submit your inquiry right now. Please check your connection and make sure you are on the live site or http://localhost:3000.'
+      );
     } finally {
       if (btn) {
         btn.disabled = false;
         btn.textContent = btn.getAttribute('data-original') || 'Submit';
-      }
-
-      form.style.display = 'none';
-
-      if (successEl) {
-        successEl.hidden = false;
-        successEl.focus();
       }
     }
   }
