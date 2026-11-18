@@ -240,7 +240,6 @@
       <div class="footer-contact">
         <p class="footer-nav__heading">Contact</p>
         <address class="footer-contact-address">
-          <p class="footer-contact__item footer-contact__pending">Direct phone &amp; official email address will be published upon verified setup prior to launch.</p>
           <div class="footer-social" aria-label="Rockwell Social Media">
             <a href="https://www.facebook.com/profile.php?id=61577544215130" target="_blank" rel="noopener noreferrer" class="footer-social__link" aria-label="Rockwell on Facebook">
               <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
