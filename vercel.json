@@ -1,0 +1,38 @@
+{
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "redirects": [
+    { "source": "/pages/services/services(.html)?", "destination": "/services", "permanent": true },
+    { "source": "/pages/tax-preparation/tax-preparation(.html)?", "destination": "/services/tax-preparation", "permanent": true },
+    { "source": "/pages/bookkeeping/bookkeeping(.html)?", "destination": "/services/bookkeeping", "permanent": true },
+    { "source": "/pages/digital-services/digital-services(.html)?", "destination": "/services/digital-services", "permanent": true },
+    { "source": "/pages/about/about(.html)?", "destination": "/about", "permanent": true },
+    { "source": "/pages/contact/contact(.html)?", "destination": "/contact", "permanent": true },
+    { "source": "/pages/start-your-tax-return/start-your-tax-return(.html)?", "destination": "/start-your-tax-return", "permanent": true },
+    { "source": "/pages/legal/privacy-policy(.html)?", "destination": "/privacy-policy", "permanent": true },
+    { "source": "/pages/legal/terms-of-use(.html)?", "destination": "/terms-of-use", "permanent": true }
+  ],
+  "rewrites": [
+    { "source": "/services",                  "destination": "/rockwell-website/pages/services/services.html" },
+    { "source": "/services/tax-preparation",  "destination": "/rockwell-website/pages/tax-preparation/tax-preparation.html" },
+    { "source": "/services/bookkeeping",      "destination": "/rockwell-website/pages/bookkeeping/bookkeeping.html" },
+    { "source": "/services/digital-services", "destination": "/rockwell-website/pages/digital-services/digital-services.html" },
+    { "source": "/about",                     "destination": "/rockwell-website/pages/about/about.html" },
+    { "source": "/contact",                   "destination": "/rockwell-website/pages/contact/contact.html" },
+    { "source": "/admin",                     "destination": "/rockwell-website/pages/admin/admin.html" },
+    { "source": "/start-your-tax-return",     "destination": "/rockwell-website/pages/start-your-tax-return/start-your-tax-return.html" },
+    { "source": "/privacy-policy",            "destination": "/rockwell-website/pages/legal/privacy-policy.html" },
+    { "source": "/terms-of-use",              "destination": "/rockwell-website/pages/legal/terms-of-use.html" },
+    { "source": "/(.*)",                      "destination": "/rockwell-website/$1" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options",        "value": "DENY" },
+        { "key": "X-XSS-Protection",       "value": "1; mode=block" }
+      ]
+    }
+  ]
+}
