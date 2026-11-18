@@ -4,8 +4,7 @@
   "description": "Rockwell Tax & Digital Strategies Inc. Official Website & Admin Portal",
   "scripts": {
     "start": "node server.js",
-    "init-db": "node scripts/init-db.js",
-    "build": "node -e \"console.log('Build verified successfully')\""
+    "init-db": "node scripts/init-db.js"
   },
   "dependencies": {
     "@neon/config": "^1.14.3",
