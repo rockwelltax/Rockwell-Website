@@ -7,8 +7,13 @@
   'use strict';
 
   // API Base resolution
-  const API_AUTH = '/api/auth';
-  const API_INQUIRIES = '/api/inquiries';
+  const isStaticLocal =
+    window.location.protocol === 'file:' ||
+    ((window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') &&
+      window.location.port !== '3000');
+  const API_BASE = isStaticLocal ? 'http://localhost:3000' : '';
+  const API_AUTH = `${API_BASE}/api/auth`;
+  const API_INQUIRIES = `${API_BASE}/api/inquiries`;
 
   // State
   let authToken = localStorage.getItem('rockwell_admin_token') || null;

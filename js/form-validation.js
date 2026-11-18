@@ -185,12 +185,33 @@
         details: data
       };
 
-      // POST to /api/inquiries
-      const res = await fetch('/api/inquiries', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
+      const isStaticLocal =
+        window.location.protocol === 'file:' ||
+        ((window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') &&
+          window.location.port !== '3000');
+
+      const endpoints = isStaticLocal
+        ? ['http://localhost:3000/api/inquiries', 'https://rockwellwebsite.vercel.app/api/inquiries']
+        : ['/api/inquiries'];
+
+      let res = null;
+      let lastErr = null;
+      for (const endpoint of endpoints) {
+        try {
+          res = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          break;
+        } catch (e) {
+          lastErr = e;
+        }
+      }
+
+      if (!res) {
+        throw lastErr || new Error('Unable to reach API server.');
+      }
 
       const resData = await res.json().catch(() => ({}));
 
