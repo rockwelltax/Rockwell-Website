@@ -742,6 +742,21 @@
     }, 4500);
   }
 
+  // ── Confirmation Modal Functions (Module Level Scope) ──
+  function openPublishModal(action) {
+    pendingPublishingAction = action;
+    if (pubModalEyebrow) pubModalEyebrow.textContent = action.eyebrow;
+    if (pubModalTitle) pubModalTitle.textContent = action.title;
+    if (pubModalMessage) pubModalMessage.textContent = action.message;
+    if (pubModalImpact) pubModalImpact.textContent = action.impact;
+    if (pubConfirmModal) pubConfirmModal.style.display = 'flex';
+  }
+
+  function closePublishModal() {
+    pendingPublishingAction = null;
+    if (pubConfirmModal) pubConfirmModal.style.display = 'none';
+  }
+
   async function fetchPublishingStatus() {
     try {
       const res = await fetch(API_SITE_STATUS);
@@ -1091,24 +1106,13 @@
     });
 
     // 8. Confirmation Modal events
-    function openPublishModal(action) {
-      pendingPublishingAction = action;
-      pubModalEyebrow.textContent = action.eyebrow;
-      pubModalTitle.textContent = action.title;
-      pubModalMessage.textContent = action.message;
-      pubModalImpact.textContent = action.impact;
-      pubConfirmModal.style.display = 'flex';
-    }
+    btnClosePubModal?.addEventListener('click', closePublishModal);
+    btnCancelPubModal?.addEventListener('click', closePublishModal);
+    pubConfirmModal?.addEventListener('click', (e) => {
+      if (e.target === pubConfirmModal) closePublishModal();
+    });
 
-    function closePublishModal() {
-      pendingPublishingAction = null;
-      pubConfirmModal.style.display = 'none';
-    }
-
-    btnClosePubModal.addEventListener('click', closePublishModal);
-    btnCancelPubModal.addEventListener('click', closePublishModal);
-
-    btnExecutePubModal.addEventListener('click', async () => {
+    btnExecutePubModal?.addEventListener('click', async () => {
       if (!pendingPublishingAction) return;
 
       const { status } = pendingPublishingAction;
