@@ -51,27 +51,31 @@ module.exports = async function handler(req, res) {
   // ── GET /api/site-status ──────────────────────────────────
   if (req.method === 'GET') {
     try {
-      const result = await db.query("SELECT value FROM site_settings WHERE key = 'publishing'");
-      let setting = {
+      // Query PostgreSQL for current UTC time and publishing setting in 1 query
+      const result = await db.query(`
+        SELECT 
+          NOW() AT TIME ZONE 'UTC' as db_time, 
+          (SELECT value FROM site_settings WHERE key = 'publishing') as value
+      `);
+
+      const dbTimeRaw = result.rows[0]?.db_time || new Date();
+      const dbNow = new Date(dbTimeRaw).getTime();
+      const serverIsoTime = new Date(dbTimeRaw).toISOString();
+
+      let setting = result.rows[0]?.value || {
         status: 'coming_soon',
         scheduled_at: null,
-        updated_at: new Date().toISOString()
+        updated_at: serverIsoTime
       };
 
-      if (result.rows.length > 0) {
-        setting = result.rows[0].value;
-      }
-
-      const now = Date.now();
-
-      // Check if scheduled launch has arrived
+      // Check if scheduled launch has arrived (strictly according to server database clock)
       if (setting.status === 'scheduled' && setting.scheduled_at) {
         const schedTime = new Date(setting.scheduled_at).getTime();
-        if (schedTime <= now) {
-          // Time has passed -> auto-transition to 'published'
+        if (schedTime <= dbNow) {
+          // Time has passed on server -> auto-transition to 'published'
           setting.status = 'published';
           setting.scheduled_at = null;
-          setting.updated_at = new Date().toISOString();
+          setting.updated_at = serverIsoTime;
           setting.auto_published = true;
 
           await db.query(
@@ -83,8 +87,13 @@ module.exports = async function handler(req, res) {
 
       const isPublished = setting.status === 'published';
       const remainingSeconds = (setting.status === 'scheduled' && setting.scheduled_at)
-        ? Math.max(0, Math.floor((new Date(setting.scheduled_at).getTime() - now) / 1000))
+        ? Math.max(0, Math.floor((new Date(setting.scheduled_at).getTime() - dbNow) / 1000))
         : 0;
+
+      // Prevent any caching across CDNs, browsers, or reverse proxies
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
 
       return res.status(200).json({
         success: true,
@@ -92,7 +101,8 @@ module.exports = async function handler(req, res) {
         is_published: isPublished,
         scheduled_at: setting.scheduled_at,
         remaining_seconds: remainingSeconds,
-        server_time: new Date().toISOString(),
+        server_time: serverIsoTime,
+        server_timestamp: dbNow,
         updated_at: setting.updated_at,
         updated_by: setting.updated_by || 'Admin'
       });
@@ -103,6 +113,8 @@ module.exports = async function handler(req, res) {
         success: true,
         status: 'coming_soon',
         is_published: false,
+        remaining_seconds: 0,
+        server_time: new Date().toISOString(),
         error: 'Database read error, defaulting to safe coming soon mode'
       });
     }
@@ -117,6 +129,10 @@ module.exports = async function handler(req, res) {
     try {
       const body = parseBody(req);
       const { status, scheduled_at } = body;
+
+      // Check PostgreSQL server time for authoritative scheduling comparison
+      const timeCheck = await db.query("SELECT NOW() AT TIME ZONE 'UTC' as db_time");
+      const dbNow = new Date(timeCheck.rows[0]?.db_time || Date.now()).getTime();
 
       // Extract admin email from token
       const authHeader = req.headers['authorization'] || '';
@@ -137,7 +153,7 @@ module.exports = async function handler(req, res) {
 
       let validatedScheduledAt = null;
 
-      // If scheduled, strictly validate date and ensure it is in the future
+      // If scheduled, strictly validate date against server database time
       if (status === 'scheduled') {
         if (!scheduled_at) {
           return res.status(400).json({
@@ -146,7 +162,6 @@ module.exports = async function handler(req, res) {
         }
 
         const scheduledTime = new Date(scheduled_at).getTime();
-        const now = Date.now();
 
         if (isNaN(scheduledTime)) {
           return res.status(400).json({
@@ -154,8 +169,8 @@ module.exports = async function handler(req, res) {
           });
         }
 
-        // Strict rule: past times NOT allowed
-        if (scheduledTime <= now + 10000) {
+        // Strict rule: past times NOT allowed based on server time
+        if (scheduledTime <= dbNow + 5000) {
           return res.status(400).json({
             error: 'Cannot schedule launch in the past. Please select a future date and time.'
           });
@@ -167,7 +182,7 @@ module.exports = async function handler(req, res) {
       const newSetting = {
         status: status,
         scheduled_at: validatedScheduledAt,
-        updated_at: new Date().toISOString(),
+        updated_at: new Date(dbNow).toISOString(),
         updated_by: adminEmail
       };
 

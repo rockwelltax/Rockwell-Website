@@ -1,6 +1,6 @@
 /**
  * Rockwell Tax & Digital Strategies Inc.
- * Strict Site Publication Guard & Zero-Flash Gatekeeper
+ * Strict Site Publication Guard & Zero-Flash Gatekeeper with Live Sync
  */
 (function() {
   const path = window.location.pathname.toLowerCase();
@@ -37,25 +37,30 @@
     window.location.replace('/coming-soon');
   }
 
-  // 2. Check site status from server
-  fetch('/api/site-status')
+  function checkAdminPreview() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const hasExplicitPreview = urlParams.get('preview') === 'admin';
+    const adminToken = localStorage.getItem('rockwell_admin_token');
+    return hasExplicitPreview && !!adminToken;
+  }
+
+  // 2. Initial Gatekeeper Check from server
+  fetch('/api/site-status?t=' + Date.now(), {
+    cache: 'no-store',
+    headers: { 'Pragma': 'no-cache', 'Cache-Control': 'no-cache' }
+  })
     .then(res => res.json())
     .then(data => {
       const isPublished = data && data.is_published;
 
       if (!isPublished) {
         // Site is NOT published (either Coming Soon or Scheduled)
-        // Check if explicitly requesting admin preview mode with valid token
-        const urlParams = new URLSearchParams(window.location.search);
-        const hasExplicitPreview = urlParams.get('preview') === 'admin';
-        const adminToken = localStorage.getItem('rockwell_admin_token');
-
-        if (hasExplicitPreview && adminToken) {
+        if (checkAdminPreview()) {
           // Allow explicit preview with top indicator bar
           revealPage();
           showAdminPreviewBanner(data.status, data.scheduled_at);
         } else {
-          // STRICT RULE: All visitors (including admins visiting normal URL) redirected to Coming Soon
+          // STRICT RULE: All visitors redirected to Coming Soon
           redirectToComingSoon();
         }
       } else {
@@ -68,8 +73,46 @@
       redirectToComingSoon();
     });
 
+  // 3. Live Heartbeat Sync: automatically eject public visitors if site is unpublished
+  function pollLiveStatus() {
+    fetch('/api/site-status?t=' + Date.now(), {
+      cache: 'no-store',
+      headers: { 'Pragma': 'no-cache', 'Cache-Control': 'no-cache' }
+    })
+      .then(res => res.json())
+      .then(data => {
+        const isPublished = data && data.is_published;
+        const isAdminPreview = checkAdminPreview();
+
+        if (!isPublished && !isAdminPreview) {
+          // Site was unpublished by admin while user is browsing: smooth transition out
+          if (document.body) {
+            document.body.style.transition = 'opacity 0.5s ease';
+            document.body.style.opacity = '0';
+          }
+          setTimeout(() => {
+            redirectToComingSoon();
+          }, 450);
+        } else if (isAdminPreview) {
+          updateAdminPreviewBanner(data.status, data.scheduled_at);
+        }
+      })
+      .catch(() => {});
+  }
+
+  setInterval(pollLiveStatus, 3000);
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      pollLiveStatus();
+    }
+  });
+
   function showAdminPreviewBanner(status, scheduledAt) {
-    if (document.getElementById('rockwell-admin-preview-bar')) return;
+    if (document.getElementById('rockwell-admin-preview-bar')) {
+      updateAdminPreviewBanner(status, scheduledAt);
+      return;
+    }
 
     const banner = document.createElement('div');
     banner.id = 'rockwell-admin-preview-bar';
@@ -99,7 +142,7 @@
     banner.innerHTML = `
       <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
         <span style="background:rgba(188,161,138,0.2); border:1px solid #BCA18A; color:#BCA18A; font-weight:700; font-size:10px; letter-spacing:0.08em; padding:2px 8px; border-radius:9999px; text-transform:uppercase;">Admin Preview</span>
-        <span style="color:#d6c4b2;">● ${statusText} &mdash; Public visitors are redirected to the Coming Soon page.</span>
+        <span id="rockwell-preview-status-text" style="color:#d6c4b2;">● ${statusText} &mdash; Public visitors are redirected to the Coming Soon page.</span>
       </div>
       <div style="display:flex; align-items:center; gap:10px;">
         <a href="/admin" style="background:#3892A9; color:#ffffff; text-decoration:none; font-weight:600; font-size:12px; padding:4px 12px; border-radius:6px; transition:opacity 0.2s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
@@ -112,6 +155,16 @@
       document.body.prepend(banner);
     } else {
       window.addEventListener('DOMContentLoaded', () => document.body.prepend(banner));
+    }
+  }
+
+  function updateAdminPreviewBanner(status, scheduledAt) {
+    const label = document.getElementById('rockwell-preview-status-text');
+    if (label) {
+      const statusText = status === 'scheduled' && scheduledAt
+        ? `Scheduled Launch: ${new Date(scheduledAt).toLocaleString()}`
+        : `Coming Soon Mode Active`;
+      label.textContent = `● ${statusText} — Public visitors are redirected to the Coming Soon page.`;
     }
   }
 })();

@@ -121,6 +121,7 @@
       showDashboard();
       fetchInquiries();
       fetchPublishingStatus();
+      startPublishingLiveSync();
     } else {
       showAuth();
     }
@@ -179,6 +180,7 @@
         showDashboard();
         fetchInquiries();
         fetchPublishingStatus();
+        startPublishingLiveSync();
       } catch (err) {
         showLoginAlert('Unable to reach auth server. Please check your network connection.');
         btn.disabled = false;
@@ -757,9 +759,25 @@
     if (pubConfirmModal) pubConfirmModal.style.display = 'none';
   }
 
+  let livePublishingSyncTimer = null;
+  function startPublishingLiveSync() {
+    clearInterval(livePublishingSyncTimer);
+    livePublishingSyncTimer = setInterval(() => {
+      // Avoid interrupting admin if drawer or modal is active
+      const isDrawerOpen = pubScheduleDrawer && pubScheduleDrawer.style.display === 'block';
+      const isModalOpen = pubConfirmModal && pubConfirmModal.style.display === 'flex';
+      if (isDrawerOpen || isModalOpen) return;
+
+      fetchPublishingStatus();
+    }, 3500);
+  }
+
   async function fetchPublishingStatus() {
     try {
-      const res = await fetch(API_SITE_STATUS);
+      const res = await fetch(`${API_SITE_STATUS}?t=${Date.now()}`, {
+        cache: 'no-store',
+        headers: { 'Pragma': 'no-cache', 'Cache-Control': 'no-cache' }
+      });
       const data = await res.json();
       currentSitePublishing = data;
       renderPublishingUI(data);
@@ -872,18 +890,26 @@
         });
       }
 
+      // Anti-tamper monotonic countdown for admin display
+      const serverRemaining = typeof data.remaining_seconds === 'number'
+        ? data.remaining_seconds
+        : Math.max(0, Math.floor((targetTime - Date.now()) / 1000));
+      const anchorPerf = performance.now();
+
       function updateStatusCountdown() {
-        const diff = targetTime - Date.now();
-        if (diff <= 0) {
+        const elapsed = (performance.now() - anchorPerf) / 1000;
+        const currentRemaining = Math.max(0, Math.floor(serverRemaining - elapsed));
+
+        if (currentRemaining <= 0) {
           clearInterval(liveStatusCountdownTimer);
           fetchPublishingStatus();
           return;
         }
 
-        const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
-        const m = Math.floor((diff / (1000 * 60)) % 60);
-        const s = Math.floor((diff / 1000) % 60);
+        const d = Math.floor(currentRemaining / 86400);
+        const h = Math.floor((currentRemaining % 86400) / 3600);
+        const m = Math.floor((currentRemaining % 3600) / 60);
+        const s = currentRemaining % 60;
 
         const cdStr = `${d}d ${h}h ${m}m ${s}s`;
         pubStatusDetail.textContent = `Go-live in ${cdStr} (${timeFormatted})`;

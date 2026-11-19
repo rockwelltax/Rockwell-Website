@@ -1,13 +1,25 @@
 (function() {
-  // 1. Fetch site status & dynamic launch controller
   let countdownTimer = null;
+  let heartbeatTimer = null;
   let launchTriggered = false;
+
+  // Anti-tamper clock state anchored to server & CPU monotonic counter
+  let anchorRemainingSeconds = null;
+  let anchorPerfTime = null;
+  let targetScheduledAt = null;
 
   function triggerLaunchReveal() {
     if (launchTriggered) return;
     launchTriggered = true;
 
     clearInterval(countdownTimer);
+    clearInterval(heartbeatTimer);
+
+    // Set countdown displays to zero
+    ['cd-days', 'cd-hours', 'cd-mins', 'cd-secs'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = '00';
+    });
 
     // Show launch celebration overlay
     const overlay = document.getElementById('cs-launch-overlay');
@@ -22,9 +34,9 @@
       // Smooth elevation on Lottie player
       const lottieWrap = document.querySelector('.cs-lottie-wrap');
       if (lottieWrap) {
-        lottieWrap.style.transition = 'transform 2s ease, filter 2s ease';
-        lottieWrap.style.transform = 'scale(1.15) translateY(-15px)';
-        lottieWrap.style.filter = 'drop-shadow(0 20px 40px rgba(56, 146, 169, 0.4))';
+        lottieWrap.style.transition = 'transform 2s cubic-bezier(0.16, 1, 0.3, 1), filter 2s ease';
+        lottieWrap.style.transform = 'scale(1.12) translateY(-10px)';
+        lottieWrap.style.filter = 'drop-shadow(0 20px 40px rgba(56, 146, 169, 0.45))';
       }
 
       // Smooth dissolve into live homepage
@@ -40,9 +52,45 @@
     }
   }
 
-  async function checkStatus() {
+  function updateDisplay(secondsLeft) {
+    const total = Math.max(0, Math.floor(secondsLeft));
+    const days = Math.floor(total / 86400);
+    const hours = Math.floor((total % 86400) / 3600);
+    const mins = Math.floor((total % 3600) / 60);
+    const secs = total % 60;
+
+    const elD = document.getElementById('cd-days');
+    const elH = document.getElementById('cd-hours');
+    const elM = document.getElementById('cd-mins');
+    const elS = document.getElementById('cd-secs');
+
+    if (elD) elD.textContent = String(days).padStart(2, '0');
+    if (elH) elH.textContent = String(hours).padStart(2, '0');
+    if (elM) elM.textContent = String(mins).padStart(2, '0');
+    if (elS) elS.textContent = String(secs).padStart(2, '0');
+  }
+
+  function tickCountdown() {
+    if (anchorRemainingSeconds === null || anchorPerfTime === null) return;
+
+    // Elapsed monotonic time since anchor: CANNOT be tampered with by changing device clock/calendar
+    const elapsedSeconds = (performance.now() - anchorPerfTime) / 1000;
+    const currentRemaining = Math.max(0, anchorRemainingSeconds - elapsedSeconds);
+
+    updateDisplay(currentRemaining);
+
+    if (currentRemaining <= 0) {
+      triggerLaunchReveal();
+    }
+  }
+
+  async function syncSiteStatus() {
+    if (launchTriggered) return;
     try {
-      const res = await fetch('/api/site-status');
+      const res = await fetch('/api/site-status?t=' + Date.now(), {
+        cache: 'no-store',
+        headers: { 'Pragma': 'no-cache', 'Cache-Control': 'no-cache' }
+      });
       const data = await res.json();
 
       // If site is published, smoothly trigger live reveal!
@@ -54,47 +102,73 @@
       const countdownWrap = document.getElementById('cs-countdown-wrap');
 
       if (data && data.status === 'scheduled' && data.scheduled_at) {
-        const targetDate = new Date(data.scheduled_at).getTime();
-        if (countdownWrap) countdownWrap.style.display = 'block';
-
-        function updateCountdown() {
-          const now = Date.now();
-          const diff = targetDate - now;
-
-          if (diff <= 0) {
-            triggerLaunchReveal();
-            return;
-          }
-
-          const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-          const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-          const mins = Math.floor((diff / (1000 * 60)) % 60);
-          const secs = Math.floor((diff / 1000) % 60);
-
-          const elD = document.getElementById('cd-days');
-          const elH = document.getElementById('cd-hours');
-          const elM = document.getElementById('cd-mins');
-          const elS = document.getElementById('cd-secs');
-
-          if (elD) elD.textContent = String(days).padStart(2, '0');
-          if (elH) elH.textContent = String(hours).padStart(2, '0');
-          if (elM) elM.textContent = String(mins).padStart(2, '0');
-          if (elS) elS.textContent = String(secs).padStart(2, '0');
+        if (countdownWrap && countdownWrap.style.display !== 'block') {
+          countdownWrap.style.display = 'block';
         }
 
-        updateCountdown();
-        clearInterval(countdownTimer);
-        countdownTimer = setInterval(updateCountdown, 1000);
+        const serverRemaining = typeof data.remaining_seconds === 'number'
+          ? data.remaining_seconds
+          : Math.max(0, Math.floor((new Date(data.scheduled_at).getTime() - Date.now()) / 1000));
+
+        if (serverRemaining <= 0) {
+          triggerLaunchReveal();
+          return;
+        }
+
+        // Calculate expected remaining from monotonic clock
+        const currentCalculatedRemaining = anchorRemainingSeconds !== null
+          ? anchorRemainingSeconds - ((performance.now() - anchorPerfTime) / 1000)
+          : null;
+
+        // Re-anchor if target schedule changed, first run, or drift exceeds 2 seconds
+        if (
+          targetScheduledAt !== data.scheduled_at ||
+          currentCalculatedRemaining === null ||
+          Math.abs(currentCalculatedRemaining - serverRemaining) > 2
+        ) {
+          targetScheduledAt = data.scheduled_at;
+          anchorRemainingSeconds = serverRemaining;
+          anchorPerfTime = performance.now();
+          updateDisplay(serverRemaining);
+        }
+
+        if (!countdownTimer) {
+          countdownTimer = setInterval(tickCountdown, 250);
+        }
       } else {
-        // General Coming Soon mode (no countdown)
-        if (countdownWrap) countdownWrap.style.display = 'none';
-        clearInterval(countdownTimer);
+        // Mode is pure coming_soon (no countdown or schedule disarmed)
+        if (countdownWrap && countdownWrap.style.display !== 'none') {
+          countdownWrap.style.display = 'none';
+        }
+        if (countdownTimer) {
+          clearInterval(countdownTimer);
+          countdownTimer = null;
+        }
+        anchorRemainingSeconds = null;
+        anchorPerfTime = null;
+        targetScheduledAt = null;
       }
     } catch (e) {
-      console.warn('Could not retrieve status:', e);
+      // In case of transient network glitch, existing monotonic countdown continues uninterrupted
+      console.warn('Status sync heartbeat warning:', e);
     }
   }
 
-  checkStatus();
-  setInterval(checkStatus, 15000);
+  // Initial check immediately
+  syncSiteStatus();
+
+  // Fast background heartbeat polling every 2.5 seconds for instant live sync without page refresh
+  heartbeatTimer = setInterval(syncSiteStatus, 2500);
+
+  // Tab visibility and focus listener: instantly resync when user tabs back or device wakes
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && !launchTriggered) {
+      syncSiteStatus();
+    }
+  });
+  window.addEventListener('focus', () => {
+    if (!launchTriggered) {
+      syncSiteStatus();
+    }
+  });
 })();
