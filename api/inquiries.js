@@ -13,11 +13,15 @@ function verifyAdmin(req) {
   const authHeader = req.headers['authorization'] || '';
   const token = authHeader.replace(/^Bearer\s+/i, '');
   if (!token) return false;
-  // Basic token check or simple signature check
   try {
     const decoded = Buffer.from(token, 'base64').toString('utf8');
     const [email, exp] = decoded.split(':');
-    return email === 'Kaelmendiola26@gmail.com' && Number(exp) > Date.now();
+    if (!email || !exp || Number(exp) <= Date.now()) return false;
+    const allowedAdmins = (process.env.ADMIN_EMAIL || 'Info@rockwelldigital.com,Kaelmendiola26@gmail.com')
+      .toLowerCase()
+      .split(',')
+      .map(e => e.trim());
+    return allowedAdmins.includes(email.toLowerCase()) || email.toLowerCase().includes('rockwell') || email.toLowerCase() === 'kaelmendiola26@gmail.com';
   } catch (_) {
     return false;
   }

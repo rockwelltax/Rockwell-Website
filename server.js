@@ -6,6 +6,7 @@ require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 const authHandler = require('./api/auth');
 const inquiriesHandler = require('./api/inquiries');
+const siteStatusHandler = require('./api/site-status');
 
 const PORT = process.env.PORT || 3000;
 const ROOT = __dirname;
@@ -62,29 +63,36 @@ const server = http.createServer(async (req, res) => {
     return inquiriesHandler(req, res);
   }
 
-  // ── Clean URL rewrites ──
+  // ── Route: /api/site-status ──
+  if (pathname === '/api/site-status') {
+    return siteStatusHandler(req, res);
+  }
+
+  // ── Clean URL rewrites & Aliases ──
   let filePath = pathname;
   if (pathname === '/' || pathname === '') {
     filePath = '/index.html';
-  } else if (pathname === '/services') {
+  } else if (pathname === '/services' || pathname === '/services.html' || pathname === '/services/services.html') {
     filePath = '/pages/services/services.html';
-  } else if (pathname === '/services/tax-preparation') {
+  } else if (pathname === '/services/tax-preparation' || pathname === '/tax-preparation' || pathname === '/tax-preparation.html' || pathname === '/tax-preparation/tax-preparation.html' || pathname === '/services/tax-preparation/tax-preparation.html' || pathname === '/services/tax-preparation.html') {
     filePath = '/pages/tax-preparation/tax-preparation.html';
-  } else if (pathname === '/services/bookkeeping') {
+  } else if (pathname === '/services/bookkeeping' || pathname === '/bookkeeping' || pathname === '/bookkeeping.html' || pathname === '/bookkeeping/bookkeeping.html' || pathname === '/services/bookkeeping/bookkeeping.html' || pathname === '/services/bookkeeping.html') {
     filePath = '/pages/bookkeeping/bookkeeping.html';
-  } else if (pathname === '/services/digital-services') {
+  } else if (pathname === '/services/digital-services' || pathname === '/digital-services' || pathname === '/digital-services.html' || pathname === '/digital-services/digital-services.html' || pathname === '/services/digital-services/digital-services.html' || pathname === '/services/digital-services.html') {
     filePath = '/pages/digital-services/digital-services.html';
-  } else if (pathname === '/about') {
+  } else if (pathname === '/about' || pathname === '/about.html' || pathname === '/about/about.html' || pathname.startsWith('/services/about')) {
     filePath = '/pages/about/about.html';
-  } else if (pathname === '/contact') {
+  } else if (pathname === '/contact' || pathname === '/contact.html' || pathname === '/contact/contact.html' || pathname.startsWith('/services/contact')) {
     filePath = '/pages/contact/contact.html';
-  } else if (pathname === '/start-your-tax-return') {
+  } else if (pathname === '/start-your-tax-return' || pathname === '/start-your-tax-return.html' || pathname === '/start-your-tax-return/start-your-tax-return.html' || pathname.startsWith('/services/start-your-tax-return')) {
     filePath = '/pages/start-your-tax-return/start-your-tax-return.html';
-  } else if (pathname === '/admin') {
+  } else if (pathname === '/admin' || pathname === '/admin.html' || pathname === '/admin/admin.html') {
     filePath = '/pages/admin/admin.html';
-  } else if (pathname === '/privacy-policy') {
+  } else if (pathname === '/coming-soon' || pathname === '/coming-soon.html' || pathname === '/pages/coming-soon/coming-soon.html') {
+    filePath = '/pages/coming-soon/coming-soon.html';
+  } else if (pathname === '/privacy-policy' || pathname === '/privacy-policy.html' || pathname === '/legal/privacy-policy.html') {
     filePath = '/pages/legal/privacy-policy.html';
-  } else if (pathname === '/terms-of-use') {
+  } else if (pathname === '/terms-of-use' || pathname === '/terms-of-use.html' || pathname === '/legal/terms-of-use.html') {
     filePath = '/pages/legal/terms-of-use.html';
   }
 

@@ -3,26 +3,73 @@
   "trailingSlash": false,
   "redirects": [
     { "source": "/pages/services/services(.html)?", "destination": "/services", "type": 301 },
+    { "source": "/services/services(.html)?", "destination": "/services", "type": 301 },
+    { "source": "/services.html", "destination": "/services", "type": 301 },
+
     { "source": "/pages/tax-preparation/tax-preparation(.html)?", "destination": "/services/tax-preparation", "type": 301 },
+    { "source": "/tax-preparation/tax-preparation(.html)?", "destination": "/services/tax-preparation", "type": 301 },
+    { "source": "/services/tax-preparation/tax-preparation(.html)?", "destination": "/services/tax-preparation", "type": 301 },
+    { "source": "/services/tax-preparation.html", "destination": "/services/tax-preparation", "type": 301 },
+    { "source": "/tax-preparation.html", "destination": "/services/tax-preparation", "type": 301 },
+
     { "source": "/pages/bookkeeping/bookkeeping(.html)?", "destination": "/services/bookkeeping", "type": 301 },
+    { "source": "/bookkeeping/bookkeeping(.html)?", "destination": "/services/bookkeeping", "type": 301 },
+    { "source": "/services/bookkeeping/bookkeeping(.html)?", "destination": "/services/bookkeeping", "type": 301 },
+    { "source": "/services/bookkeeping.html", "destination": "/services/bookkeeping", "type": 301 },
+    { "source": "/bookkeeping.html", "destination": "/services/bookkeeping", "type": 301 },
+
     { "source": "/pages/digital-services/digital-services(.html)?", "destination": "/services/digital-services", "type": 301 },
+    { "source": "/digital-services/digital-services(.html)?", "destination": "/services/digital-services", "type": 301 },
+    { "source": "/services/digital-services/digital-services(.html)?", "destination": "/services/digital-services", "type": 301 },
+    { "source": "/services/digital-services.html", "destination": "/services/digital-services", "type": 301 },
+    { "source": "/digital-services.html", "destination": "/services/digital-services", "type": 301 },
+
     { "source": "/pages/about/about(.html)?", "destination": "/about", "type": 301 },
+    { "source": "/about/about(.html)?", "destination": "/about", "type": 301 },
+    { "source": "/about.html", "destination": "/about", "type": 301 },
+    { "source": "/services/about/:path*", "destination": "/about", "type": 301 },
+
     { "source": "/pages/contact/contact(.html)?", "destination": "/contact", "type": 301 },
+    { "source": "/contact/contact(.html)?", "destination": "/contact", "type": 301 },
+    { "source": "/contact.html", "destination": "/contact", "type": 301 },
+    { "source": "/services/contact/:path*", "destination": "/contact", "type": 301 },
+
     { "source": "/pages/start-your-tax-return/start-your-tax-return(.html)?", "destination": "/start-your-tax-return", "type": 301 },
+    { "source": "/start-your-tax-return/start-your-tax-return(.html)?", "destination": "/start-your-tax-return", "type": 301 },
+    { "source": "/start-your-tax-return.html", "destination": "/start-your-tax-return", "type": 301 },
+    { "source": "/services/start-your-tax-return/:path*", "destination": "/start-your-tax-return", "type": 301 },
+
     { "source": "/pages/legal/privacy-policy(.html)?", "destination": "/privacy-policy", "type": 301 },
-    { "source": "/pages/legal/terms-of-use(.html)?", "destination": "/terms-of-use", "type": 301 }
+    { "source": "/legal/privacy-policy(.html)?", "destination": "/privacy-policy", "type": 301 },
+    { "source": "/privacy-policy.html", "destination": "/privacy-policy", "type": 301 },
+
+    { "source": "/pages/legal/terms-of-use(.html)?", "destination": "/terms-of-use", "type": 301 },
+    { "source": "/legal/terms-of-use(.html)?", "destination": "/terms-of-use", "type": 301 },
+    { "source": "/terms-of-use.html", "destination": "/terms-of-use", "type": 301 },
+
+    { "source": "/pages/admin/admin(.html)?", "destination": "/admin", "type": 301 },
+    { "source": "/admin/admin(.html)?", "destination": "/admin", "type": 301 },
+    { "source": "/admin.html", "destination": "/admin", "type": 301 },
+
+    { "source": "/pages/coming-soon/coming-soon(.html)?", "destination": "/coming-soon", "type": 301 },
+    { "source": "/coming-soon/coming-soon(.html)?", "destination": "/coming-soon", "type": 301 },
+    { "source": "/coming-soon.html", "destination": "/coming-soon", "type": 301 }
   ],
   "rewrites": [
-    { "source": "/services",                   "destination": "/pages/services/services.html" },
-    { "source": "/services/tax-preparation",   "destination": "/pages/tax-preparation/tax-preparation.html" },
-    { "source": "/services/bookkeeping",       "destination": "/pages/bookkeeping/bookkeeping.html" },
-    { "source": "/services/digital-services",  "destination": "/pages/digital-services/digital-services.html" },
-    { "source": "/about",                      "destination": "/pages/about/about.html" },
-    { "source": "/contact",                    "destination": "/pages/contact/contact.html" },
-    { "source": "/admin",                      "destination": "/pages/admin/admin.html" },
-    { "source": "/start-your-tax-return",      "destination": "/pages/start-your-tax-return/start-your-tax-return.html" },
-    { "source": "/privacy-policy",             "destination": "/pages/legal/privacy-policy.html" },
-    { "source": "/terms-of-use",               "destination": "/pages/legal/terms-of-use.html" }
+    { "source": "/coming-soon",               "destination": "/pages/coming-soon/coming-soon.html" },
+    { "source": "/services",                  "destination": "/pages/services/services.html" },
+    { "source": "/services/tax-preparation",  "destination": "/pages/tax-preparation/tax-preparation.html" },
+    { "source": "/tax-preparation",           "destination": "/pages/tax-preparation/tax-preparation.html" },
+    { "source": "/services/bookkeeping",      "destination": "/pages/bookkeeping/bookkeeping.html" },
+    { "source": "/bookkeeping",               "destination": "/pages/bookkeeping/bookkeeping.html" },
+    { "source": "/services/digital-services", "destination": "/pages/digital-services/digital-services.html" },
+    { "source": "/digital-services",          "destination": "/pages/digital-services/digital-services.html" },
+    { "source": "/about",                     "destination": "/pages/about/about.html" },
+    { "source": "/contact",                   "destination": "/pages/contact/contact.html" },
+    { "source": "/admin",                     "destination": "/pages/admin/admin.html" },
+    { "source": "/start-your-tax-return",     "destination": "/pages/start-your-tax-return/start-your-tax-return.html" },
+    { "source": "/privacy-policy",            "destination": "/pages/legal/privacy-policy.html" },
+    { "source": "/terms-of-use",              "destination": "/pages/legal/terms-of-use.html" }
   ],
   "headers": [
     {

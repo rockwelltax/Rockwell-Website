@@ -28,7 +28,7 @@
   <main class="admin-auth-wrapper" id="auth-view">
     <div class="admin-auth-card">
       <div class="admin-auth-header">
-        <a href="../../index.html" class="admin-brand-link">
+        <a href="/" class="admin-brand-link">
           <img src="../../assets/icons/favicon.png" alt="Rockwell Shield" class="admin-brand-logo" width="40" height="40" />
           <div>
             <span class="admin-brand-name">Rockwell</span>
@@ -47,7 +47,7 @@
         <form id="login-form" novalidate>
           <div class="form-group">
             <label for="admin-email" class="form-label">Email Address</label>
-            <input type="email" id="admin-email" class="form-control" placeholder="Kaelmendiola26@gmail.com" value="Kaelmendiola26@gmail.com" required autocomplete="email" />
+            <input type="email" id="admin-email" class="form-control" placeholder="Info@rockwelldigital.com" value="Info@rockwelldigital.com" required autocomplete="email" />
           </div>
 
           <div class="form-group">
@@ -77,7 +77,7 @@
         <div id="forgot-sub-email">
           <div class="form-group">
             <label for="forgot-email" class="form-label">Admin Email</label>
-            <input type="email" id="forgot-email" class="form-control" value="Kaelmendiola26@gmail.com" required />
+            <input type="email" id="forgot-email" class="form-control" placeholder="Info@rockwelldigital.com" value="Info@rockwelldigital.com" required />
           </div>
           <button type="button" id="btn-send-code" class="btn btn--primary btn--full">
             <span>Send 2-Min Verification Code</span>
@@ -98,30 +98,32 @@
 
           <div class="form-group">
             <label for="new-password" class="form-label">New Password</label>
-            <input type="password" id="new-password" class="form-control" placeholder="At least 6 characters" />
+            <input type="password" id="new-password" class="form-control" placeholder="••••••••" />
           </div>
 
           <div class="form-group">
             <label for="confirm-password" class="form-label">Confirm New Password</label>
-            <input type="password" id="confirm-password" class="form-control" placeholder="Re-enter new password" />
+            <input type="password" id="confirm-password" class="form-control" placeholder="••••••••" />
           </div>
 
           <button type="button" id="btn-submit-reset" class="btn btn--primary btn--full">
-            <span>Confirm &amp; Update Password</span>
+            <span>Update Password</span>
           </button>
         </div>
 
-        <button type="button" class="btn-text btn-back" id="btn-back-login">&larr; Back to Sign In</button>
+        <button type="button" class="btn-link btn--full text-center" id="btn-back-login" style="margin-top:1rem;">
+          &larr; Back to Login
+        </button>
       </div>
-
     </div>
   </main>
 
 
   <!-- ══════════════════════════════════════════════
-       2. DASHBOARD VIEW (Shown when authenticated)
+       2. AUTHENTICATED DASHBOARD VIEW
        ══════════════════════════════════════════════ -->
-  <div class="admin-app" id="dashboard-view" style="display:none;">
+  <div id="dashboard-view" style="display:none;">
+
     <!-- Topbar -->
     <header class="admin-topbar">
       <div class="admin-topbar__inner">
@@ -134,17 +136,19 @@
         </div>
 
         <div class="admin-topbar__actions">
-          <a href="../../index.html" target="_blank" class="admin-link-website" title="View live website">
+          <a href="/" target="_blank" class="admin-link-website" title="View live website">
             Live Site &nearr;
           </a>
           <button id="btn-refresh" class="admin-btn-icon" title="Refresh Inquiries">
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
           </button>
           <div class="admin-user-pill">
-            <span class="admin-user-dot"></span>
-            <span id="user-display-email">Kaelmendiola26@gmail.com</span>
+            <span id="user-display-email">Info@rockwelldigital.com</span>
           </div>
-          <button id="btn-logout" class="btn btn--outline-dark btn--sm">Log Out</button>
+          <button id="btn-logout" class="admin-btn-logout" title="Sign Out">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+            <span>Sign Out</span>
+          </button>
         </div>
       </div>
     </header>
@@ -166,6 +170,116 @@
             </button>
           </div>
         </div>
+
+        <!-- ══════════════════════════════════════════════
+             SITE PUBLICATION & VISIBILITY COMMAND CENTER
+             ══════════════════════════════════════════════ -->
+        <section class="admin-publish-card" id="publish-command-card" aria-label="Site Visibility & Launch Controls">
+          <div class="admin-publish-card__main">
+            <div class="admin-publish-meta">
+              <div class="admin-publish-title-row">
+                <span class="admin-publish-badge" id="pub-status-badge">
+                  <span class="admin-publish-badge__dot"></span>
+                  <span id="pub-status-badge-text">Checking Status...</span>
+                </span>
+                <span class="admin-publish-time" id="pub-status-detail"></span>
+              </div>
+              <h2 class="admin-publish-title">Public Website Visibility &amp; Launch Control</h2>
+              <p class="admin-publish-desc">
+                Govern whether Rockwell is accessible to the public, locked in Coming Soon mode, or scheduled for automated launch.
+              </p>
+            </div>
+
+            <!-- Segmented Control Actions -->
+            <div class="admin-publish-modes" role="group" aria-label="Publishing Mode Selection">
+              <!-- Mode 1: Coming Soon -->
+              <button type="button" class="pub-mode-btn" id="btn-mode-coming-soon" data-mode="coming_soon">
+                <div class="pub-mode-btn__icon">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                </div>
+                <div class="pub-mode-btn__text">
+                  <span class="pub-mode-btn__label">Coming Soon</span>
+                  <span class="pub-mode-btn__hint">Public visitors blocked</span>
+                </div>
+              </button>
+
+              <!-- Mode 2: Scheduled Launch -->
+              <button type="button" class="pub-mode-btn" id="btn-mode-schedule" data-mode="scheduled">
+                <div class="pub-mode-btn__icon">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                </div>
+                <div class="pub-mode-btn__text">
+                  <span class="pub-mode-btn__label">Schedule Launch</span>
+                  <span class="pub-mode-btn__hint">Automated go-live timer</span>
+                </div>
+              </button>
+
+              <!-- Mode 3: Instant Live -->
+              <button type="button" class="pub-mode-btn" id="btn-mode-publish" data-mode="published">
+                <div class="pub-mode-btn__icon">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/></svg>
+                </div>
+                <div class="pub-mode-btn__text">
+                  <span class="pub-mode-btn__label">Publish Live Now</span>
+                  <span class="pub-mode-btn__hint">Instant public access</span>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <!-- Schedule Drawer / Inline Panel -->
+          <div class="admin-publish-drawer" id="pub-schedule-drawer" style="display:none;">
+            <div class="pub-schedule-inner">
+              <div class="pub-schedule-left">
+                <div class="pub-schedule-eyebrow">Precise Scheduling Engine</div>
+                <h3 class="pub-schedule-title">Set Automated Launch Date &amp; Time</h3>
+                <p class="pub-schedule-note">
+                  Past dates and elapsed hours are strictly locked out. Once armed, the site will automatically unlock for the general public the moment this timestamp arrives.
+                </p>
+
+                <div class="pub-schedule-presets">
+                  <span class="pub-preset-label">Quick Timers:</span>
+                  <button type="button" class="pub-preset-pill" data-hours="24">+24 Hours</button>
+                  <button type="button" class="pub-preset-pill" data-hours="72">+3 Days</button>
+                  <button type="button" class="pub-preset-pill" data-hours="168">+1 Week</button>
+                  <button type="button" class="pub-preset-pill" data-hours="336">+2 Weeks</button>
+                </div>
+              </div>
+
+              <div class="pub-schedule-controls">
+                <div class="pub-schedule-input-group">
+                  <label for="pub-datetime-input" class="pub-field-label">Scheduled Go-Live Time (Local)</label>
+                  <div class="pub-input-wrapper">
+                    <input type="datetime-local" id="pub-datetime-input" class="pub-datetime-input" />
+                    <svg class="pub-input-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  </div>
+                  <div class="pub-input-hint" id="pub-datetime-hint">Select a future hour to view live countdown</div>
+                </div>
+
+                <div class="pub-schedule-actions">
+                  <button type="button" id="btn-save-schedule" class="btn btn--primary btn--sm" disabled>
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                    <span>Confirm &amp; Arm Launch Schedule</span>
+                  </button>
+                  <button type="button" id="btn-cancel-schedule" class="btn btn--outline-dark btn--sm">
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Dynamic Live Countdown Preview -->
+            <div class="pub-schedule-preview" id="pub-schedule-preview" style="display:none;">
+              <span class="pub-preview-tag">Target Launch In:</span>
+              <div class="pub-preview-chips">
+                <span class="pub-chip"><strong id="pub-preview-d">0</strong>d</span>
+                <span class="pub-chip"><strong id="pub-preview-h">00</strong>h</span>
+                <span class="pub-chip"><strong id="pub-preview-m">00</strong>m</span>
+                <span class="pub-chip"><strong id="pub-preview-s">00</strong>s</span>
+              </div>
+            </div>
+          </div>
+        </section>
 
         <!-- Metrics Strip -->
         <div class="admin-metrics-grid">
@@ -294,6 +408,39 @@
       </div>
     </div>
   </div>
+
+
+  <!-- ══════════════════════════════════════════════
+       4. PUBLICATION STATE CONFIRMATION MODAL
+       ══════════════════════════════════════════════ -->
+  <div class="modal-backdrop" id="pub-confirm-modal" style="display:none;">
+    <div class="modal-card modal-card--confirm">
+      <div class="modal-header">
+        <div>
+          <span class="modal-eyebrow" id="pub-modal-eyebrow">Publication Action</span>
+          <h2 class="modal-title" id="pub-modal-title">Confirm Site Status Change</h2>
+        </div>
+        <button class="modal-close" id="btn-close-pub-modal">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <p id="pub-modal-message" class="pub-modal-message">
+          Are you sure you want to change the publication status of the Rockwell website?
+        </p>
+        <div class="pub-modal-impact" id="pub-modal-impact">
+          <!-- Impact summary -->
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" id="btn-cancel-pub-modal" class="btn btn--outline-dark btn--sm">Cancel</button>
+        <button type="button" id="btn-execute-pub-modal" class="btn btn--primary btn--sm">Confirm &amp; Apply</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="admin-toast-container" id="admin-toast-container"></div>
 
   <script src="/pages/admin/admin.js"></script>
 </body>

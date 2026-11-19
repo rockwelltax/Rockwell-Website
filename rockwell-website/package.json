@@ -5,7 +5,8 @@
   "scripts": {
     "start": "node server.js",
     "init-db": "node scripts/init-db.js",
-    "build": "node -e \"console.log('Build verified successfully')\""
+    "obfuscate": "node scripts/obfuscate.js",
+    "build": "node scripts/obfuscate.js"
   },
   "dependencies": {
     "@neon/config": "^1.14.3",

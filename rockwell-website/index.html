@@ -17,6 +17,8 @@
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="assets/icons/white-favicon.png" />
   <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png" />
+  <!-- Site Guard -->
+  <script src="/js/site-guard.js"></script>
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -56,16 +58,16 @@
   <noscript>
     <nav class="noscript-nav" aria-label="Fallback Navigation">
       <div class="container noscript-nav__inner">
-        <a href="index.html" class="noscript-logo">Rockwell Tax &amp; Digital Strategies Inc.</a>
+        <a href="/" class="noscript-logo">Rockwell Tax &amp; Digital Strategies Inc.</a>
         <div class="noscript-links">
-          <a href="index.html">Home</a>
-          <a href="pages/services/services.html">Services</a>
-          <a href="pages/tax-preparation/tax-preparation.html">Tax Preparation</a>
-          <a href="pages/bookkeeping/bookkeeping.html">Bookkeeping</a>
-          <a href="pages/digital-services/digital-services.html">Digital Services</a>
-          <a href="pages/about/about.html">About</a>
-          <a href="pages/contact/contact.html">Contact</a>
-          <a href="pages/start-your-tax-return/start-your-tax-return.html">Start Your Tax Return</a>
+          <a href="/">Home</a>
+          <a href="/services">Services</a>
+          <a href="/services/tax-preparation">Tax Preparation</a>
+          <a href="/services/bookkeeping">Bookkeeping</a>
+          <a href="/services/digital-services">Digital Services</a>
+          <a href="/about">About</a>
+          <a href="/contact">Contact</a>
+          <a href="/start-your-tax-return">Start Your Tax Return</a>
         </div>
       </div>
     </nav>
@@ -93,8 +95,8 @@
             Start your tax preparation with confidence, or get practical tax, bookkeeping, and digital support for your business.
           </p>
           <div class="hero__ctas hero-animate-4">
-            <a href="pages/start-your-tax-return/start-your-tax-return.html" class="btn btn--primary btn--lg">Start Your Tax Return</a>
-            <a href="pages/services/services.html" class="btn btn--outline-white btn--lg">Explore Our Services</a>
+            <a href="/start-your-tax-return" class="btn btn--primary btn--lg">Start Your Tax Return</a>
+            <a href="/services" class="btn btn--outline-white btn--lg">Explore Our Services</a>
           </div>
         </div>
 
@@ -144,7 +146,7 @@
               <p class="service-card__label label">Tax Preparation</p>
               <h3 id="svc-tax" class="service-card__title">Tax Preparation</h3>
               <p class="service-card__desc">Get help with individual W-2 or self-employed returns. We also support tax and accounting firms.</p>
-              <a href="pages/tax-preparation/tax-preparation.html" class="service-card__link" aria-label="Explore Tax Services">Explore Tax Services
+              <a href="/services/tax-preparation" class="service-card__link" aria-label="Explore Tax Services">Explore Tax Services
                 <svg aria-hidden="true" class="link-arrow" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </a>
             </div>
@@ -163,7 +165,7 @@
               <p class="service-card__label label">Bookkeeping Services</p>
               <h3 id="svc-bk" class="service-card__title">Bookkeeping Services</h3>
               <p class="service-card__desc">Keep business finances organized with income and expense tracking, records, and ongoing support.</p>
-              <a href="pages/bookkeeping/bookkeeping.html" class="service-card__link" aria-label="Explore Bookkeeping">Explore Bookkeeping
+              <a href="/services/bookkeeping" class="service-card__link" aria-label="Explore Bookkeeping">Explore Bookkeeping
                 <svg aria-hidden="true" class="link-arrow" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </a>
             </div>
@@ -181,7 +183,7 @@
               <p class="service-card__label label">Digital Services</p>
               <h3 id="svc-dig" class="service-card__title">Digital Services</h3>
               <p class="service-card__desc">Get help with social media content, digital organization, and administrative tasks.</p>
-              <a href="pages/digital-services/digital-services.html" class="service-card__link" aria-label="Explore Digital Services">Explore Digital Services
+              <a href="/services/digital-services" class="service-card__link" aria-label="Explore Digital Services">Explore Digital Services
                 <svg aria-hidden="true" class="link-arrow" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </a>
             </div>
@@ -222,7 +224,7 @@
             <blockquote style="border-left: 3px solid #3892A9; padding-left: 1.25rem; margin: 1.5rem 0; font-style: italic; color: #29211D; font-size: 1.05rem; line-height: 1.6;">
               &ldquo;Trust and compliance matter to me. I believe clients deserve careful handling of their information, clear explanations, and responsible, professional support.&rdquo;
             </blockquote>
-            <a href="pages/about/about.html" class="btn btn--primary" style="margin-top: 1rem;">About Rockwell</a>
+            <a href="/about" class="btn btn--primary" style="margin-top: 1rem;">About Rockwell</a>
           </div>
 
         </div>
@@ -280,37 +282,13 @@
             <h3 style="font-family: var(--font-serif); font-size: 1.6rem; color: #FFFFFF; margin: 0 0 0.5rem 0;">Get to Know Rockwell</h3>
             <p style="color: rgba(255, 255, 255, 0.85); margin: 0; font-size: 1rem; max-width: 580px;">Learn about our founder, experience, and approach to trust and compliance.</p>
           </div>
-          <a href="pages/about/about.html" class="btn btn--primary btn--lg">About Rockwell</a>
+          <a href="/about" class="btn btn--primary btn--lg">About Rockwell</a>
         </div>
 
       </div>
     </section>
 
-    <!-- ═══════════════════════════════════════════
-         TESTIMONIALS (placeholder)
-    ════════════════════════════════════════════ -->
-    <section class="section section--dark testimonials-section" aria-labelledby="testimonials-heading">
-      <div class="container">
-        <header class="section-header--center reveal">
-          <p class="section-eyebrow" style="color: var(--color-beige);">Client Stories</p>
-          <h2 id="testimonials-heading" style="color: var(--color-white);">What Our Clients Say</h2>
-          <div class="divider divider--center" style="background-color: var(--color-beige);"></div>
-        </header>
 
-        <div class="testimonials-placeholder reveal">
-          <div class="testimonials-placeholder__inner">
-            <div class="testimonials-placeholder__icon" aria-hidden="true">
-              <svg viewBox="0 0 48 48" fill="none" width="48" height="48" xmlns="http://www.w3.org/2000/svg">
-                <path d="M8 20 C8 14, 13 10, 20 10 L20 10 C20 10, 18 16, 18 20 C18 24, 20 26, 20 26 L10 26 C8.9 26, 8 25.1, 8 24 L8 20Z" stroke="currentColor" stroke-width="2" fill="none"/>
-                <path d="M28 20 C28 14, 33 10, 40 10 L40 10 C40 10, 38 16, 38 20 C38 24, 40 26, 40 26 L30 26 C28.9 26, 28 25.1, 28 24 L28 20Z" stroke="currentColor" stroke-width="2" fill="none"/>
-              </svg>
-            </div>
-            <p class="testimonials-placeholder__text">Client testimonials will appear here once approved by Rockwell Tax &amp; Digital Strategies Inc.</p>
-            <p class="testimonials-placeholder__sub">Genuine client stories — not fabricated reviews.</p>
-          </div>
-        </div>
-      </div>
-    </section>
 
     <!-- ═══════════════════════════════════════════
          CONTACT CTA
@@ -324,8 +302,8 @@
             <p class="lead">Whether it's taxes, bookkeeping or getting your business noticed online—we're here to help. Reach out and let's talk about what you need.</p>
           </div>
           <div class="contact-cta__actions">
-            <a href="pages/contact/contact.html" class="btn btn--primary btn--lg">Get in Touch</a>
-            <a href="pages/start-your-tax-return/start-your-tax-return.html" class="btn btn--secondary btn--lg">Start a Tax Inquiry</a>
+            <a href="/contact" class="btn btn--primary btn--lg">Get in Touch</a>
+            <a href="/start-your-tax-return" class="btn btn--secondary btn--lg">Start a Tax Inquiry</a>
           </div>
         </div>
       </div>

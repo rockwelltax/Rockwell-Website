@@ -1,4 +1,4 @@
-﻿/* ============================================================
+/* ============================================================
    ROCKWELL — Global Base Styles
    ============================================================ */
 
@@ -229,6 +229,18 @@ button:focus-visible {
 
 .btn--outline-teal:hover {
   background-color: var(--color-teal);
+  color: var(--color-white);
+  transform: translateY(-1px);
+}
+
+.btn--outline-dark {
+  background-color: transparent;
+  color: var(--color-brown);
+  border: 1px solid var(--color-brown);
+}
+
+.btn--outline-dark:hover {
+  background-color: var(--color-brown);
   color: var(--color-white);
   transform: translateY(-1px);
 }

@@ -4,7 +4,9 @@
   "description": "Rockwell Tax & Digital Strategies Inc. Official Website & Admin Portal",
   "scripts": {
     "start": "node server.js",
-    "init-db": "node scripts/init-db.js"
+    "init-db": "node scripts/init-db.js",
+    "obfuscate": "node scripts/obfuscate.js",
+    "build": "node scripts/obfuscate.js"
   },
   "dependencies": {
     "@neon/config": "^1.14.3",
@@ -13,5 +15,8 @@
     "dotenv": "^16.4.7",
     "pg": "^8.13.3",
     "resend": "^4.1.2"
+  },
+  "devDependencies": {
+    "javascript-obfuscator": "^5.10.1"
   }
 }
