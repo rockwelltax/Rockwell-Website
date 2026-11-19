@@ -1,24 +1,60 @@
 (function() {
-  // 1. Fetch site status
+  // 1. Fetch site status & dynamic launch controller
   let countdownTimer = null;
+  let launchTriggered = false;
+
+  function triggerLaunchReveal() {
+    if (launchTriggered) return;
+    launchTriggered = true;
+
+    clearInterval(countdownTimer);
+
+    // Show launch celebration overlay
+    const overlay = document.getElementById('cs-launch-overlay');
+    const progressBar = document.getElementById('cs-launch-progress-bar');
+
+    if (overlay) {
+      overlay.style.display = 'flex';
+      setTimeout(() => {
+        if (progressBar) progressBar.style.width = '100%';
+      }, 60);
+
+      // Smooth elevation on Lottie player
+      const lottieWrap = document.querySelector('.cs-lottie-wrap');
+      if (lottieWrap) {
+        lottieWrap.style.transition = 'transform 2s ease, filter 2s ease';
+        lottieWrap.style.transform = 'scale(1.15) translateY(-15px)';
+        lottieWrap.style.filter = 'drop-shadow(0 20px 40px rgba(56, 146, 169, 0.4))';
+      }
+
+      // Smooth dissolve into live homepage
+      setTimeout(() => {
+        document.body.style.transition = 'opacity 0.6s ease';
+        document.body.style.opacity = '0';
+        setTimeout(() => {
+          window.location.replace('/');
+        }, 600);
+      }, 2400);
+    } else {
+      window.location.replace('/');
+    }
+  }
 
   async function checkStatus() {
     try {
       const res = await fetch('/api/site-status');
       const data = await res.json();
 
-      // If site is now published, redirect to homepage!
+      // If site is published, smoothly trigger live reveal!
       if (data && data.is_published) {
-        window.location.replace('/');
+        triggerLaunchReveal();
         return;
       }
 
-      const pillLabel = document.getElementById('cs-pill-label');
       const countdownWrap = document.getElementById('cs-countdown-wrap');
 
       if (data && data.status === 'scheduled' && data.scheduled_at) {
         const targetDate = new Date(data.scheduled_at).getTime();
-        if (pillLabel) pillLabel.textContent = 'Launch Scheduled';
         if (countdownWrap) countdownWrap.style.display = 'block';
 
         function updateCountdown() {
@@ -26,8 +62,7 @@
           const diff = targetDate - now;
 
           if (diff <= 0) {
-            clearInterval(countdownTimer);
-            window.location.replace('/');
+            triggerLaunchReveal();
             return;
           }
 
@@ -51,9 +86,9 @@
         clearInterval(countdownTimer);
         countdownTimer = setInterval(updateCountdown, 1000);
       } else {
-        // General Coming Soon mode
-        if (pillLabel) pillLabel.textContent = 'Opening Soon';
+        // General Coming Soon mode (no countdown)
         if (countdownWrap) countdownWrap.style.display = 'none';
+        clearInterval(countdownTimer);
       }
     } catch (e) {
       console.warn('Could not retrieve status:', e);
@@ -61,5 +96,5 @@
   }
 
   checkStatus();
-  setInterval(checkStatus, 30000);
+  setInterval(checkStatus, 15000);
 })();

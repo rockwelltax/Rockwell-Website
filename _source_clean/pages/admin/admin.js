@@ -766,18 +766,96 @@
 
     pubStatusBadge.className = 'admin-publish-badge';
 
+    const pubStatusBanner = document.getElementById('pub-status-banner');
+    const pubBannerDot = document.getElementById('pub-banner-dot');
+    const pubBannerTitle = document.getElementById('pub-banner-title');
+    const pubBannerSubtitle = document.getElementById('pub-banner-subtitle');
+    const pubBannerActions = document.getElementById('pub-banner-actions');
+
+    if (pubStatusBanner) pubStatusBanner.style.display = 'flex';
+
     if (status === 'published' || data.is_published) {
       pubStatusBadge.classList.add('admin-publish-badge--published');
       pubStatusBadgeText.textContent = 'Live & Published';
       pubStatusDetail.textContent = 'All public visitors have unrestricted access to the live website.';
       if (btnModePublish) btnModePublish.classList.add('active');
       if (pubScheduleDrawer) pubScheduleDrawer.style.display = 'none';
+
+      if (pubBannerDot) pubBannerDot.style.backgroundColor = '#16a34a';
+      if (pubBannerTitle) pubBannerTitle.textContent = 'Website is LIVE to the Public';
+      if (pubBannerSubtitle) pubBannerSubtitle.textContent = 'Visitors are viewing the full live site. You can unpublish anytime.';
+      if (pubBannerActions) {
+        pubBannerActions.innerHTML = `
+          <button type="button" class="btn btn--outline-danger btn--sm" id="btn-quick-unpublish">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            <span>Unpublish Website (Return to Coming Soon)</span>
+          </button>
+        `;
+        document.getElementById('btn-quick-unpublish')?.addEventListener('click', () => {
+          openPublishModal({
+            status: 'coming_soon',
+            eyebrow: 'Access Restriction',
+            title: 'Unpublish Rockwell Website?',
+            message: 'Are you sure you want to unpublish the live website?',
+            impact: 'The live website will immediately be hidden from the public. All visitors will see the Coming Soon page.'
+          });
+        });
+      }
     } else if (status === 'scheduled' && data.scheduled_at) {
       pubStatusBadge.classList.add('admin-publish-badge--scheduled');
       pubStatusBadgeText.textContent = 'Launch Scheduled';
       if (btnModeSchedule) btnModeSchedule.classList.add('active');
 
       const targetTime = new Date(data.scheduled_at).getTime();
+      const timeFormatted = new Date(data.scheduled_at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
+
+      if (pubBannerDot) pubBannerDot.style.backgroundColor = '#3892A9';
+      if (pubBannerTitle) pubBannerTitle.textContent = `Launch Armed for ${timeFormatted}`;
+
+      if (pubBannerActions) {
+        pubBannerActions.innerHTML = `
+          <button type="button" class="btn btn--outline-dark btn--sm" id="btn-quick-edit-schedule">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <span>Edit Schedule Time</span>
+          </button>
+          <button type="button" class="btn btn--outline-danger btn--sm" id="btn-quick-cancel-schedule">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            <span>Cancel Schedule</span>
+          </button>
+          <button type="button" class="btn btn--primary btn--sm" id="btn-quick-publish-now">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/></svg>
+            <span>Publish Live Now</span>
+          </button>
+        `;
+
+        document.getElementById('btn-quick-edit-schedule')?.addEventListener('click', () => {
+          pubScheduleDrawer.style.display = 'block';
+          pubDatetimeInput.min = getLocalDatetimeString(new Date());
+          pubDatetimeInput.value = getLocalDatetimeString(new Date(data.scheduled_at));
+          validateScheduleInput();
+          pubScheduleDrawer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        });
+
+        document.getElementById('btn-quick-cancel-schedule')?.addEventListener('click', () => {
+          openPublishModal({
+            status: 'coming_soon',
+            eyebrow: 'Schedule Cancellation',
+            title: 'Cancel Launch Schedule?',
+            message: 'Are you sure you want to cancel the scheduled launch?',
+            impact: 'The automated timer will be disarmed. The website will remain in Coming Soon mode until you schedule again or publish live.'
+          });
+        });
+
+        document.getElementById('btn-quick-publish-now')?.addEventListener('click', () => {
+          openPublishModal({
+            status: 'published',
+            eyebrow: 'Immediate Release',
+            title: 'Publish Rockwell Website Live Now?',
+            message: 'Override the schedule and release the live website immediately?',
+            impact: 'All public visitors will have immediate unrestricted access.'
+          });
+        });
+      }
 
       function updateStatusCountdown() {
         const diff = targetTime - Date.now();
@@ -792,8 +870,9 @@
         const m = Math.floor((diff / (1000 * 60)) % 60);
         const s = Math.floor((diff / 1000) % 60);
 
-        const timeStr = `${new Date(data.scheduled_at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}`;
-        pubStatusDetail.textContent = `Go-live in ${d}d ${h}h ${m}m ${s}s (${timeStr})`;
+        const cdStr = `${d}d ${h}h ${m}m ${s}s`;
+        pubStatusDetail.textContent = `Go-live in ${cdStr} (${timeFormatted})`;
+        if (pubBannerSubtitle) pubBannerSubtitle.textContent = `Automated go-live in ${cdStr}. Public visitors currently see the live countdown splash.`;
       }
 
       updateStatusCountdown();
@@ -802,9 +881,44 @@
       // Coming Soon
       pubStatusBadge.classList.add('admin-publish-badge--coming-soon');
       pubStatusBadgeText.textContent = 'Coming Soon Active';
-      pubStatusDetail.textContent = 'Public visitors see the Coming Soon splash page. Admins can preview.';
+      pubStatusDetail.textContent = 'Public visitors see the Coming Soon splash page.';
       if (btnModeComingSoon) btnModeComingSoon.classList.add('active');
       if (pubScheduleDrawer) pubScheduleDrawer.style.display = 'none';
+
+      if (pubBannerDot) pubBannerDot.style.backgroundColor = '#BCA18A';
+      if (pubBannerTitle) pubBannerTitle.textContent = 'Coming Soon Splash Active';
+      if (pubBannerSubtitle) pubBannerSubtitle.textContent = 'The live website is locked. Public visitors only see the Coming Soon splash.';
+      if (pubBannerActions) {
+        pubBannerActions.innerHTML = `
+          <button type="button" class="btn btn--outline-dark btn--sm" id="btn-quick-open-schedule">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <span>Schedule Launch</span>
+          </button>
+          <button type="button" class="btn btn--primary btn--sm" id="btn-quick-open-publish">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/></svg>
+            <span>Publish Live Now</span>
+          </button>
+        `;
+
+        document.getElementById('btn-quick-open-schedule')?.addEventListener('click', () => {
+          pubScheduleDrawer.style.display = 'block';
+          pubDatetimeInput.min = getLocalDatetimeString(new Date());
+          const defaultFuture = new Date(Date.now() + 24 * 3600 * 1000);
+          pubDatetimeInput.value = getLocalDatetimeString(defaultFuture);
+          validateScheduleInput();
+          pubScheduleDrawer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        });
+
+        document.getElementById('btn-quick-open-publish')?.addEventListener('click', () => {
+          openPublishModal({
+            status: 'published',
+            eyebrow: 'Go-Live Authorization',
+            title: 'Publish Rockwell Website Live Now?',
+            message: 'Are you ready to immediately release the complete website to the public?',
+            impact: 'All public visitors will have immediate unrestricted access.'
+          });
+        });
+      }
     }
   }
 

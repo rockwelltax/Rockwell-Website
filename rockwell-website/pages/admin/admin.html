@@ -98,32 +98,30 @@
 
           <div class="form-group">
             <label for="new-password" class="form-label">New Password</label>
-            <input type="password" id="new-password" class="form-control" placeholder="••••••••" />
+            <input type="password" id="new-password" class="form-control" placeholder="At least 6 characters" />
           </div>
 
           <div class="form-group">
             <label for="confirm-password" class="form-label">Confirm New Password</label>
-            <input type="password" id="confirm-password" class="form-control" placeholder="••••••••" />
+            <input type="password" id="confirm-password" class="form-control" placeholder="Re-enter new password" />
           </div>
 
           <button type="button" id="btn-submit-reset" class="btn btn--primary btn--full">
-            <span>Update Password</span>
+            <span>Confirm &amp; Update Password</span>
           </button>
         </div>
 
-        <button type="button" class="btn-link btn--full text-center" id="btn-back-login" style="margin-top:1rem;">
-          &larr; Back to Login
-        </button>
+        <button type="button" class="btn-text btn-back" id="btn-back-login">&larr; Back to Sign In</button>
       </div>
+
     </div>
   </main>
 
 
   <!-- ══════════════════════════════════════════════
-       2. AUTHENTICATED DASHBOARD VIEW
+       2. DASHBOARD VIEW (Shown when authenticated)
        ══════════════════════════════════════════════ -->
-  <div id="dashboard-view" style="display:none;">
-
+  <div class="admin-app" id="dashboard-view" style="display:none;">
     <!-- Topbar -->
     <header class="admin-topbar">
       <div class="admin-topbar__inner">
@@ -224,6 +222,20 @@
                   <span class="pub-mode-btn__hint">Instant public access</span>
                 </div>
               </button>
+            </div>
+          </div>
+
+          <!-- Active Status Quick Action Bar (Unpublish & Schedule Manager) -->
+          <div class="admin-publish-status-banner" id="pub-status-banner" style="display:none;">
+            <div class="pub-banner-left">
+              <div class="pub-banner-badge" id="pub-banner-badge">
+                <span class="pub-banner-badge__dot" id="pub-banner-dot"></span>
+                <span id="pub-banner-title">Current Status</span>
+              </div>
+              <p class="pub-banner-subtitle" id="pub-banner-subtitle">Status description</p>
+            </div>
+            <div class="pub-banner-actions" id="pub-banner-actions">
+              <!-- Dynamically injected buttons: Edit Schedule, Cancel Schedule, Unpublish, etc. -->
             </div>
           </div>
 
@@ -408,7 +420,6 @@
       </div>
     </div>
   </div>
-
 
   <!-- ══════════════════════════════════════════════
        4. PUBLICATION STATE CONFIRMATION MODAL

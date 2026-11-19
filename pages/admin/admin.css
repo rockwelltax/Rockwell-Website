@@ -1195,6 +1195,77 @@
   color: #BCA18A;
 }
 
+/* Active Status Quick Action Bar */
+.admin-publish-status-banner {
+  background: #FAF8F5;
+  border-top: 1px solid rgba(188, 161, 138, 0.35);
+  padding: 1.25rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  animation: fadeIn 0.25s ease-out;
+}
+
+.pub-banner-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.pub-banner-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #29211D;
+}
+
+.pub-banner-badge__dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background-color: #3892A9;
+  box-shadow: 0 0 10px rgba(56, 146, 169, 0.65);
+}
+
+.pub-banner-subtitle {
+  font-size: 0.82rem;
+  color: rgba(41, 33, 29, 0.7);
+  line-height: 1.4;
+}
+
+.pub-banner-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.btn--outline-danger {
+  background: transparent;
+  border: 1px solid rgba(185, 28, 28, 0.4);
+  color: #B91C1C;
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn--outline-danger:hover {
+  background: rgba(185, 28, 28, 0.08);
+  border-color: #B91C1C;
+}
+
 /* Schedule Drawer */
 .admin-publish-drawer {
   background: #FAF8F5;

@@ -71,7 +71,19 @@ const server = http.createServer(async (req, res) => {
   // ── Clean URL rewrites & Aliases ──
   let filePath = pathname;
   if (pathname === '/' || pathname === '') {
-    filePath = '/index.html';
+    try {
+      const db = require('./lib/db');
+      const row = await db.query("SELECT value FROM site_settings WHERE key = 'publishing'");
+      const val = row.rows[0]?.value;
+      const isLive = val?.status === 'published' || (val?.status === 'scheduled' && val?.scheduled_at && new Date(val.scheduled_at).getTime() <= Date.now());
+      if (!isLive && parsedUrl.query.preview !== 'admin') {
+        filePath = '/pages/coming-soon/coming-soon.html';
+      } else {
+        filePath = '/index.html';
+      }
+    } catch (_) {
+      filePath = '/pages/coming-soon/coming-soon.html';
+    }
   } else if (pathname === '/services' || pathname === '/services.html' || pathname === '/services/services.html') {
     filePath = '/pages/services/services.html';
   } else if (pathname === '/services/tax-preparation' || pathname === '/tax-preparation' || pathname === '/tax-preparation.html' || pathname === '/tax-preparation/tax-preparation.html' || pathname === '/services/tax-preparation/tax-preparation.html' || pathname === '/services/tax-preparation.html') {

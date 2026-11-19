@@ -1,11 +1,11 @@
 /**
  * Rockwell Tax & Digital Strategies Inc.
- * Site Publication Guard & Admin Preview Controller
+ * Strict Site Publication Guard & Zero-Flash Gatekeeper
  */
 (function() {
   const path = window.location.pathname.toLowerCase();
 
-  // Exempt routes that should never be intercepted
+  // Exempt routes that must always be accessible
   if (
     path.startsWith('/coming-soon') ||
     path.startsWith('/admin') ||
@@ -16,26 +16,56 @@
     return;
   }
 
-  const adminToken = localStorage.getItem('rockwell_admin_token');
+  // 1. Zero-Flash Shield: Immediately hide content before browser paints
+  let shield = document.getElementById('rockwell-guard-shield');
+  if (!shield) {
+    shield = document.createElement('style');
+    shield.id = 'rockwell-guard-shield';
+    shield.textContent = 'html { visibility: hidden !important; opacity: 0 !important; }';
+    (document.head || document.documentElement).appendChild(shield);
+  }
 
-  // Fast check: fetch site status
+  function revealPage() {
+    if (shield && shield.parentNode) {
+      shield.parentNode.removeChild(shield);
+    }
+    document.documentElement.style.visibility = '';
+    document.documentElement.style.opacity = '';
+  }
+
+  function redirectToComingSoon() {
+    window.location.replace('/coming-soon');
+  }
+
+  // 2. Check site status from server
   fetch('/api/site-status')
     .then(res => res.json())
     .then(data => {
       const isPublished = data && data.is_published;
 
       if (!isPublished) {
-        if (adminToken) {
-          // Admin is browsing the site -> show executive preview banner
+        // Site is NOT published (either Coming Soon or Scheduled)
+        // Check if explicitly requesting admin preview mode with valid token
+        const urlParams = new URLSearchParams(window.location.search);
+        const hasExplicitPreview = urlParams.get('preview') === 'admin';
+        const adminToken = localStorage.getItem('rockwell_admin_token');
+
+        if (hasExplicitPreview && adminToken) {
+          // Allow explicit preview with top indicator bar
+          revealPage();
           showAdminPreviewBanner(data.status, data.scheduled_at);
         } else {
-          // Public visitor -> redirect to Coming Soon splash
-          window.location.replace('/coming-soon');
+          // STRICT RULE: All visitors (including admins visiting normal URL) redirected to Coming Soon
+          redirectToComingSoon();
         }
+      } else {
+        // Site IS published -> reveal page immediately
+        revealPage();
       }
     })
     .catch(() => {
-      // If error occurs and no admin token, safe fallback if offline
+      // In case of error/offline fallback, safety redirect to coming-soon
+      redirectToComingSoon();
     });
 
   function showAdminPreviewBanner(status, scheduledAt) {
