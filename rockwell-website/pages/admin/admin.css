@@ -1015,51 +1015,53 @@
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  padding: 0.3rem 0.8rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
+  padding: 0;
+  background: transparent;
+  border: none;
+  font-size: 0.8rem;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   transition: all 0.2s ease;
 }
 
 .admin-publish-badge__dot {
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
+  flex-shrink: 0;
 }
 
-/* Badge States */
+/* Badge States (Pure Colored Text - No Background Pill) */
 .admin-publish-badge--coming-soon {
-  background-color: #FEF7ED;
-  border: 1px solid #F5D0A9;
-  color: #9A5B13;
+  background: transparent;
+  border: none;
+  color: #B45309;
 }
 .admin-publish-badge--coming-soon .admin-publish-badge__dot {
   background-color: #D97706;
-  box-shadow: 0 0 8px #D97706;
+  box-shadow: 0 0 8px rgba(217, 119, 6, 0.6);
 }
 
 .admin-publish-badge--scheduled {
-  background-color: #F0F9FB;
-  border: 1px solid #B8E2EB;
-  color: #1F6B7E;
+  background: transparent;
+  border: none;
+  color: #3892A9;
 }
 .admin-publish-badge--scheduled .admin-publish-badge__dot {
   background-color: #3892A9;
-  box-shadow: 0 0 8px #3892A9;
+  box-shadow: 0 0 8px rgba(56, 146, 169, 0.7);
   animation: pulseDot 2s infinite ease-in-out;
 }
 
 .admin-publish-badge--published {
-  background-color: #F0FDF4;
-  border: 1px solid #BBF7D0;
-  color: #166534;
+  background: transparent;
+  border: none;
+  color: #15803D;
 }
 .admin-publish-badge--published .admin-publish-badge__dot {
-  background-color: #22C55E;
-  box-shadow: 0 0 8px #22C55E;
+  background-color: #16A34A;
+  box-shadow: 0 0 8px rgba(22, 163, 74, 0.7);
 }
 
 .admin-publish-time {
