@@ -115,11 +115,12 @@
 }
 
 /* Notice inside sidebar */
-.tax-form-sidebar__inner .notice--warning {
+.tax-form-sidebar__inner .notice--warning,
+.tax-form-honest-notice {
   margin-top: 1.75rem !important;
-  background-color: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(188, 161, 138, 0.35);
-  color: rgba(255, 255, 255, 0.88);
+  background-color: rgba(255, 255, 255, 0.12) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  color: #ffffff !important;
   border-radius: var(--radius-md);
   padding: 0.875rem 1rem;
   font-size: var(--text-xs);
@@ -130,8 +131,15 @@
   overflow-wrap: break-word;
 }
 
-.tax-form-sidebar__inner .notice--warning strong {
-  color: var(--color-white);
+.tax-form-sidebar__inner .notice--warning strong,
+.tax-form-honest-notice strong {
+  color: #ffffff !important;
+  font-weight: 600;
+}
+
+.tax-form-sidebar__inner .notice--warning span,
+.tax-form-honest-notice span {
+  color: rgba(255, 255, 255, 0.92) !important;
 }
 
 /* ── Form Main ── */
