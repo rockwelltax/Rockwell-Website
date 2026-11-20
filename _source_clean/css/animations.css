@@ -55,8 +55,8 @@
   transform: translateX(0);
 }
 
-/* Mobile: prevent horizontal blowout from translateX */
-@media (max-width: 768px) {
+/* Mobile & Tablet: prevent horizontal blowout from translateX */
+@media (max-width: 1023px) {
   .reveal--left,
   .reveal--right {
     transform: translateY(16px);

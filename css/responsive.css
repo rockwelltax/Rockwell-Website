@@ -585,9 +585,13 @@ a:hover .link-arrow,
    FORMS RESPONSIVE
 ══════════════════════════════════════════ */
 .tax-form-page__inner {
-  grid-template-columns: 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 2rem;
   padding-block: 2rem;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .tax-form-main {
@@ -636,7 +640,8 @@ a:hover .link-arrow,
 
 @media (min-width: 1024px) {
   .tax-form-page__inner {
-    grid-template-columns: 1fr 1.6fr;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
     gap: 4rem;
     padding-block: 5rem;
   }
