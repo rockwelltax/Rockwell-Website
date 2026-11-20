@@ -90,6 +90,22 @@
   margin-bottom: var(--space-3);
 }
 
+.footer-contact__email {
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  font-size: var(--text-sm);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  transition: color var(--transition-fast), opacity var(--transition-fast);
+  word-break: break-all;
+}
+
+.footer-contact__email:hover {
+  color: var(--color-white);
+  text-decoration: underline;
+}
+
 .footer-contact__pending {
   font-size: var(--text-xs);
   color: var(--color-beige);

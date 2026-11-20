@@ -1,0 +1,194 @@
+/* ============================================================
+   ROCKWELL — Bookkeeping Page
+   ============================================================ */
+
+.page-header {
+  padding-top: calc(var(--nav-height) + var(--space-20));
+  padding-bottom: var(--space-16);
+  background: linear-gradient(135deg, var(--color-bg-warm) 0%, var(--color-white) 100%);
+  border-bottom: 1px solid var(--color-border);
+}
+.page-header h1 { margin-block: var(--space-4) var(--space-6); }
+.page-header .lead { color: var(--color-text-muted); }
+
+/* ── Options Grid ── */
+.bk-options { background: var(--color-white); }
+
+.bk-options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-8);
+  align-items: start;
+}
+
+.bk-option-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+
+.bk-option-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.bk-option-card--featured {
+  border-color: var(--color-teal);
+  box-shadow: 0 0 0 1px var(--color-teal);
+}
+
+.bk-option-card__header {
+  padding: var(--space-10);
+  background: var(--color-bg-warm);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.bk-option-card--featured .bk-option-card__header {
+  background: linear-gradient(135deg, var(--color-teal-10) 0%, var(--color-beige-10) 100%);
+}
+
+.bk-option-card__badge {
+  display: inline-block;
+  font-size: var(--text-xs);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  background: var(--color-beige-20);
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-full);
+  margin-bottom: var(--space-5);
+}
+
+.bk-option-card__badge--teal {
+  color: var(--color-teal);
+  background: var(--color-teal-10);
+}
+
+.bk-option-card__icon {
+  color: var(--color-teal);
+  margin-bottom: var(--space-4);
+}
+
+.bk-option-card__title {
+  font-size: clamp(var(--text-xl), 2.5vw, var(--text-2xl));
+  margin-bottom: var(--space-4);
+}
+
+.bk-option-card__price-block {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.unconfirmed-tag {
+  font-size: var(--text-xs);
+  font-weight: var(--fw-semibold);
+  color: var(--color-beige);
+  background: var(--color-brown);
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-full);
+  letter-spacing: var(--tracking-wide);
+}
+
+.bk-option-card__body {
+  padding: var(--space-10);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.bk-option-card__body p {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  line-height: var(--leading-relaxed);
+  max-width: 100%;
+}
+
+.bk-option-card__features {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.bk-option-card__features li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
+}
+
+.bk-option-card__features li::before {
+  content: '';
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='8' cy='8' r='7' fill='%233892A9' opacity='0.15'/%3E%3Cpolyline points='4,8 7,11 12,5' stroke='%233892A9' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: contain;
+  margin-top: 2px;
+}
+
+.bk-option-card__notice {
+  font-size: var(--text-xs);
+  line-height: var(--leading-relaxed);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.bk-option-card__cta {
+  margin: 0 var(--space-10) var(--space-10);
+  text-align: center;
+  justify-content: center;
+}
+
+/* ── Why Section ── */
+.bk-why { background: var(--color-bg-warm); }
+
+.bk-why__inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-20);
+  align-items: center;
+}
+
+.bk-why__img {
+  width: 100%;
+  aspect-ratio: 4/3;
+  border-radius: var(--radius-xl);
+  font-size: var(--text-sm);
+  color: rgba(41,33,29,0.4);
+  background: linear-gradient(135deg, var(--color-beige-30), var(--color-beige-10));
+  border: 1px solid var(--color-border);
+}
+
+/* ── Responsive ── */
+@media (max-width: 1023px) {
+  .bk-options-grid { grid-template-columns: 1fr; }
+  .bk-why__inner { grid-template-columns: 1fr; gap: var(--space-10); }
+}
+
+
+.bk-why__photo {
+  width: 100%;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-lg);
+  display: block;
+  transition: transform var(--transition-smooth);
+}
+
+.bk-why__photo:hover {
+  transform: scale(1.02);
+}

@@ -240,6 +240,15 @@
       <div class="footer-contact">
         <p class="footer-nav__heading">Contact</p>
         <address class="footer-contact-address">
+          <p class="footer-contact__item" style="margin-bottom: 0.75rem;">
+            <a href="mailto:info@rockwelltaxdigital.com" class="footer-contact__email">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="opacity: 0.85; flex-shrink: 0; vertical-align: middle;">
+                <rect width="20" height="16" x="2" y="4" rx="2"/>
+                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+              </svg>
+              <span>info@rockwelltaxdigital.com</span>
+            </a>
+          </p>
           <div class="footer-social" aria-label="Rockwell Social Media">
             <a href="https://www.facebook.com/profile.php?id=61577544215130" target="_blank" rel="noopener noreferrer" class="footer-social__link" aria-label="Rockwell on Facebook">
               <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">

@@ -16,7 +16,7 @@ function verifyAdmin(req) {
     const decoded = Buffer.from(token, 'base64').toString('utf8');
     const [email, exp] = decoded.split(':');
     if (!email || !exp || Number(exp) <= Date.now()) return false;
-    const allowedAdmins = (process.env.ADMIN_EMAIL || 'Info@rockwelldigital.com,Kaelmendiola26@gmail.com')
+    const allowedAdmins = (process.env.ADMIN_EMAIL || 'info@rockwelltaxdigital.com,Kaelmendiola26@gmail.com')
       .toLowerCase()
       .split(',')
       .map(e => e.trim());

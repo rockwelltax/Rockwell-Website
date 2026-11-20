@@ -218,7 +218,9 @@ a:hover .link-arrow,
 
 /* Hero — mobile */
 .hero__inner {
-  grid-template-columns: 1fr;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   padding-top: calc(var(--nav-height) + 2rem);
   padding-bottom: 3rem;
   gap: 2rem;
@@ -228,6 +230,7 @@ a:hover .link-arrow,
 
 .hero__content {
   align-items: center;
+  margin: 0 auto;
 }
 
 .hero__body {
@@ -338,17 +341,22 @@ a:hover .link-arrow,
 /* Desktop: 1024px */
 @media (min-width: 1024px) {
   .hero__inner {
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
     text-align: left;
     min-height: 100svh;
   }
 
   .hero__content {
     align-items: flex-start;
+    margin: 0;
+    max-width: 640px;
   }
 
   .hero__visual {
-    justify-content: flex-end;
+    display: none !important;
   }
 
   .hero__img-wrap {

@@ -6,6 +6,7 @@ const ROOT_DIR = path.resolve(__dirname, '..');
 const ROCKWELL_DIR = path.resolve(ROOT_DIR, 'rockwell-website');
 const SOURCE_BACKUP_DIR = path.resolve(ROOT_DIR, '_source_clean');
 
+// Client-facing JavaScript files to protect with bytecode encryption
 const CLIENT_JS_FILES = [
   'index.js',
   'js/animations.js',
@@ -23,6 +24,8 @@ const CLIENT_JS_FILES = [
   'pages/start-your-tax-return/start-your-tax-return.js',
   'pages/tax-preparation/tax-preparation.js'
 ];
+
+const BANNER = '/* Rockwell Tax & Digital Strategies Inc. - Protected Intellectual Property. Unauthorized copying or redistribution is strictly prohibited. */\n';
 
 const OBFUSCATOR_OPTIONS = {
   compact: true,
@@ -57,59 +60,50 @@ const OBFUSCATOR_OPTIONS = {
   sourceMap: false
 };
 
-const BANNER = '/* Rockwell Tax & Digital Strategies Inc. - Protected Intellectual Property. Unauthorized copying or redistribution is strictly prohibited. */\n';
+function deployToDestinations(relPath, content) {
+  // Dest 1: Root
+  const destRoot = path.join(ROOT_DIR, relPath);
+  fs.mkdirSync(path.dirname(destRoot), { recursive: true });
+  fs.writeFileSync(destRoot, content, 'utf8');
+
+  // Dest 2: rockwell-website
+  const destRockwell = path.join(ROCKWELL_DIR, relPath);
+  fs.mkdirSync(path.dirname(destRockwell), { recursive: true });
+  fs.writeFileSync(destRockwell, content, 'utf8');
+}
 
 async function main() {
-  console.log('🔒 Rockwell Source Code Protection & Encryption Builder');
-  console.log('══════════════════════════════════════════════════════════');
+  console.log('🔒 Rockwell JavaScript Encryption & Bytecode Protection');
+  console.log('═══════════════════════════════════════════════════════════');
 
   // Step 1: Ensure clean source backup exists
   if (!fs.existsSync(SOURCE_BACKUP_DIR)) {
     fs.mkdirSync(SOURCE_BACKUP_DIR, { recursive: true });
-    console.log(`📁 Created clean source directory: ${SOURCE_BACKUP_DIR}`);
   }
 
   for (const rel of CLIENT_JS_FILES) {
     const srcFile = path.join(ROOT_DIR, rel);
     const backupFile = path.join(SOURCE_BACKUP_DIR, rel);
 
-    // If backup does not exist, copy current clean file to backup
     if (!fs.existsSync(backupFile)) {
       if (fs.existsSync(srcFile)) {
         fs.mkdirSync(path.dirname(backupFile), { recursive: true });
         fs.copyFileSync(srcFile, backupFile);
-        console.log(`💾 Preserved clean source: ${rel}`);
       }
     }
   }
 
-  // Step 2: Obfuscate each file from _source_clean and deploy to both root and rockwell-website
-  console.log('\n🔐 Encrypting & Obfuscating Client-Facing Scripts...');
-
+  // Step 2: Encrypt each JS file from _source_clean
   let count = 0;
   for (const rel of CLIENT_JS_FILES) {
     const cleanSourcePath = path.join(SOURCE_BACKUP_DIR, rel);
-    if (!fs.existsSync(cleanSourcePath)) {
-      console.warn(`⚠️ Warning: Source not found for ${rel}`);
-      continue;
-    }
+    if (!fs.existsSync(cleanSourcePath)) continue;
 
     const cleanCode = fs.readFileSync(cleanSourcePath, 'utf8');
-
     try {
       const obfResult = JavaScriptObfuscator.obfuscate(cleanCode, OBFUSCATOR_OPTIONS);
       const encryptedCode = BANNER + obfResult.getObfuscatedCode();
-
-      // Destination 1: Root
-      const destRoot = path.join(ROOT_DIR, rel);
-      fs.mkdirSync(path.dirname(destRoot), { recursive: true });
-      fs.writeFileSync(destRoot, encryptedCode, 'utf8');
-
-      // Destination 2: rockwell-website
-      const destRockwell = path.join(ROCKWELL_DIR, rel);
-      fs.mkdirSync(path.dirname(destRockwell), { recursive: true });
-      fs.writeFileSync(destRockwell, encryptedCode, 'utf8');
-
+      deployToDestinations(rel, encryptedCode);
       console.log(`  ✅ Encrypted & deployed: ${rel}`);
       count++;
     } catch (err) {
@@ -117,8 +111,9 @@ async function main() {
     }
   }
 
-  console.log(`\n🎉 Successfully encrypted ${count} JavaScript files!`);
-  console.log('ℹ️ Inspect element remains 100% functional. Sources tab will now show encrypted hex-encoded bytecode.');
+  console.log(`\n🎉 Successfully encrypted ${count} JavaScript logic files!`);
+  console.log('ℹ️ HTML and CSS files remain clean and formatted for developer productivity.');
+  console.log('ℹ️ Business logic & API handlers in JS are fully protected.');
 }
 
 main().catch(err => {

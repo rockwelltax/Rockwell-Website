@@ -17,7 +17,7 @@ function verifyAdmin(req) {
     const decoded = Buffer.from(token, 'base64').toString('utf8');
     const [email, exp] = decoded.split(':');
     if (!email || !exp || Number(exp) <= Date.now()) return false;
-    const allowedAdmins = (process.env.ADMIN_EMAIL || 'Info@rockwelldigital.com,Kaelmendiola26@gmail.com')
+    const allowedAdmins = (process.env.ADMIN_EMAIL || 'info@rockwelltaxdigital.com,Kaelmendiola26@gmail.com')
       .toLowerCase()
       .split(',')
       .map(e => e.trim());
@@ -84,6 +84,22 @@ module.exports = async function handler(req, res) {
     const ip = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'unknown';
 
     try {
+      await db.query(`
+        CREATE TABLE IF NOT EXISTS inquiries (
+          id SERIAL PRIMARY KEY,
+          type VARCHAR(50) NOT NULL,
+          name VARCHAR(255) NOT NULL,
+          email VARCHAR(255) NOT NULL,
+          phone VARCHAR(50),
+          service_requested VARCHAR(100),
+          status VARCHAR(50) DEFAULT 'new',
+          details JSONB DEFAULT '{}'::jsonb,
+          ip_address VARCHAR(100),
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+          updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+        );
+      `);
+
       const insertQuery = `
         INSERT INTO inquiries (type, name, email, phone, service_requested, details, ip_address)
         VALUES ($1, $2, $3, $4, $5, $6, $7)

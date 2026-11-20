@@ -17,7 +17,7 @@ async function setup() {
         status: 'coming_soon',
         scheduled_at: null,
         updated_at: new Date().toISOString(),
-        updated_by: 'Info@rockwelldigital.com'
+        updated_by: 'info@rockwelltaxdigital.com'
       };
       await db.query(
         "INSERT INTO site_settings (key, value) VALUES ('publishing', $1)",

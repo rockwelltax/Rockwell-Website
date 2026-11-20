@@ -81,7 +81,21 @@
          HERO
     ════════════════════════════════════════════ -->
     <section class="hero" aria-label="Introduction">
-      <div class="hero__bg" aria-hidden="true"></div>
+      <div class="hero__bg" aria-hidden="true">
+        <picture class="hero__bg-picture">
+          <source media="(orientation: portrait)" srcset="assets/images/hero-bg-portrait.jpg" />
+          <source media="(max-aspect-ratio: 1/1)" srcset="assets/images/hero-bg-portrait.jpg" />
+          <source media="(orientation: landscape)" srcset="assets/images/hero-bg-landscape.jpg" />
+          <img
+            src="assets/images/hero-bg-landscape.jpg"
+            alt=""
+            class="hero__bg-img"
+            fetchpriority="high"
+            loading="eager"
+            decoding="async"
+          />
+        </picture>
+      </div>
       <div class="hero__overlay" aria-hidden="true"></div>
 
       <div class="container hero__inner">
@@ -113,6 +127,7 @@
             <div class="hero__accent-bar" aria-hidden="true"></div>
           </div>
         </div>
+      </div>
 
       <div class="hero__scroll-hint" aria-hidden="true">
         <span></span>
