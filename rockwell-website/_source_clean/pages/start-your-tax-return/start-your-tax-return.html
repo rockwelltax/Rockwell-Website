@@ -1,0 +1,376 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Start Your Tax Return — Rockwell Tax &amp; Digital Strategies Inc.</title>
+  <meta name="description" content="Tell us about your tax situation. No Social Security number, bank details, or document uploads required at this stage." />
+  <meta property="og:title" content="Start Your Tax Return — Rockwell" />
+  <meta property="og:description" content="Start your tax inquiry with Rockwell. Quick and secure — no sensitive information required at this stage." />
+  <meta property="og:type" content="website" />
+  <link rel="canonical" href="https://rockwelltaxdigital.com/start-your-tax-return" />
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="../../assets/icons/favicon.png" />
+  <link rel="apple-touch-icon" href="../../assets/icons/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="../../css/variables.css" />
+  <link rel="stylesheet" href="../../css/global.css" />
+  <link rel="stylesheet" href="../../css/typography.css" />
+  <link rel="stylesheet" href="../../css/navigation.css" />
+  <link rel="stylesheet" href="../../css/footer.css" />
+  <link rel="stylesheet" href="../../css/animations.css" />
+  <link rel="stylesheet" href="../../css/responsive.css" />
+  <link rel="stylesheet" href="/pages/start-your-tax-return/start-your-tax-return.css" />
+  <script src="/js/site-guard.js"></script>
+</head>
+<body class="page-offset">
+
+  <!-- Fallback navigation when JavaScript is disabled -->
+  <noscript>
+    <nav class="noscript-nav" aria-label="Fallback Navigation">
+      <div class="container noscript-nav__inner">
+        <a href="/" class="noscript-logo">Rockwell Tax &amp; Digital Strategies Inc.</a>
+        <div class="noscript-links">
+          <a href="/">Home</a>
+          <a href="/services">Services</a>
+          <a href="/services/tax-preparation">Tax Preparation</a>
+          <a href="/services/bookkeeping">Bookkeeping</a>
+          <a href="/services/digital-services">Digital Services</a>
+          <a href="/about">About</a>
+          <a href="/contact">Contact</a>
+          <a href="/start-your-tax-return">Start Your Tax Return</a>
+        </div>
+      </div>
+    </nav>
+  </noscript>
+
+  <main id="main-content">
+
+    <section class="tax-form-page" aria-labelledby="form-heading">
+      <div class="container tax-form-page__inner">
+
+        <!-- Left: Process Information Sidebar -->
+        <aside class="tax-form-sidebar" aria-label="Tax inquiry information">
+          <div class="tax-form-sidebar__inner reveal reveal--left">
+            <p class="section-eyebrow">Client Journey</p>
+            <h2>What Happens After You Submit</h2>
+            <div class="divider"></div>
+            <ol class="tax-process-list" role="list">
+              <li>
+                <span class="tax-process-list__num" aria-hidden="true">1</span>
+                <div>
+                  <strong>Rockwell reviews your inquiry</strong>
+                  <p>We review your answers to understand your filing situation and determine the appropriate scope.</p>
+                </div>
+              </li>
+              <li>
+                <span class="tax-process-list__num" aria-hidden="true">2</span>
+                <div>
+                  <strong>We confirm your fee in writing</strong>
+                  <p>Your fee is confirmed before any work begins ($100+ individual, $250+ self-employed). No surprises.</p>
+                </div>
+              </li>
+              <li>
+                <span class="tax-process-list__num" aria-hidden="true">3</span>
+                <div>
+                  <strong>Secure payment link sent</strong>
+                  <p>Once you approve the fee, you receive a secure payment link to complete upfront payment.</p>
+                </div>
+              </li>
+              <li>
+                <span class="tax-process-list__num" aria-hidden="true">4</span>
+                <div>
+                  <strong>Separate secure upload portal</strong>
+                  <p>After payment, you receive a link to a separate, approved secure portal for sharing your tax papers.</p>
+                </div>
+              </li>
+              <li>
+                <span class="tax-process-list__num" aria-hidden="true">5</span>
+                <div>
+                  <strong>Prepare, review &amp; file</strong>
+                  <p>Rockwell prepares your return and reviews it with you before filing. Nothing is submitted without your approval.</p>
+                </div>
+              </li>
+            </ol>
+
+            <div class="notice notice--warning" style="margin-top: 2rem;">
+              <strong>Honest policy:</strong> Rockwell prepares returns accurately following tax rules. We do not guarantee tax refunds or specific outcomes.
+            </div>
+          </div>
+        </aside>
+
+        <!-- Right: Inquiry Form -->
+        <div class="tax-form-main reveal reveal--right">
+          <div class="tax-form-header">
+            <p class="section-eyebrow">Tax Inquiry Questionnaire</p>
+            <h1 id="form-heading">Tell Us a Little About Your Tax Needs.</h1>
+            <p style="color: var(--color-text-muted); margin-top: 0.5rem; line-height: 1.5;">
+              Choose your filing situation below to start. We will review your details and confirm an upfront quote before payment.
+            </p>
+          </div>
+
+          <!-- Step 1: Path Selection (Individual W-2 vs Self-Employed 1099) -->
+          <div class="tax-path-selector" id="tax-path-selector" style="margin-bottom: var(--space-8);">
+            <p style="font-weight: 600; color: var(--color-dark); margin-bottom: 0.75rem;">Step 1: Select your filing type:</p>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+              <button type="button" id="btn-path-w2" class="tax-path-btn active" style="padding: 1.25rem 1rem; border: 2px solid var(--color-teal); background: #ffffff; border-radius: var(--radius-lg); text-align: left; cursor: pointer; transition: all 0.2s ease;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <strong style="color: var(--color-dark); font-size: 1.05rem;">Individual Taxes | W-2</strong>
+                  <span style="font-size: 0.75rem; background: var(--color-teal); color: #fff; padding: 2px 8px; border-radius: 999px; font-weight: 600;">Selected</span>
+                </div>
+                <div style="color: var(--color-teal); font-weight: 700; font-size: 1.25rem; margin-top: 0.35rem;">Starting at $100*</div>
+                <div style="font-size: 0.85rem; color: var(--color-text-muted); margin-top: 0.25rem;">For employees and individual filers</div>
+              </button>
+
+              <button type="button" id="btn-path-1099" class="tax-path-btn" style="padding: 1.25rem 1rem; border: 2px solid var(--color-border); background: #ffffff; border-radius: var(--radius-lg); text-align: left; cursor: pointer; transition: all 0.2s ease;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <strong style="color: var(--color-dark); font-size: 1.05rem;">Self-Employed | 1099</strong>
+                  <span style="font-size: 0.75rem; background: transparent; color: var(--color-text-muted); padding: 2px 8px; border-radius: 999px; font-weight: 600;">Click to select</span>
+                </div>
+                <div style="color: var(--color-teal); font-weight: 700; font-size: 1.25rem; margin-top: 0.35rem;">Starting at $250*</div>
+                <div style="font-size: 0.85rem; color: var(--color-text-muted); margin-top: 0.25rem;">For freelancers &amp; Schedule C filers</div>
+              </button>
+            </div>
+            <p style="font-size: 0.75rem; color: var(--color-text-muted); margin-top: 0.5rem; font-style: italic;">
+              *Starting prices are initial estimates; final fees are confirmed after reviewing client needs.
+            </p>
+          </div>
+
+          <!-- SECURITY NOTICE -->
+          <div class="notice notice--security tax-form-security-notice" role="alert" aria-label="Security warning">
+            <span class="notice__icon" aria-hidden="true">
+              <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20">
+                <rect x="4" y="9" width="12" height="9" rx="2" stroke="#29211D" stroke-width="1.6"/>
+                <path d="M7 9V6.5a3 3 0 0 1 6 0V9" stroke="#29211D" stroke-width="1.6" stroke-linecap="round"/>
+                <circle cx="10" cy="13.5" r="1.2" fill="#29211D"/>
+                <line x1="10" y1="14.7" x2="10" y2="16.5" stroke="#29211D" stroke-width="1.4" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <div>
+              <strong>Strict Privacy &amp; Security Warning:</strong><br>
+              Please do NOT enter a Social Security number, bank details or upload tax documents here. Tax documents are collected through a separate approved secure portal only after your fee is confirmed and paid.
+            </div>
+          </div>
+
+          <form
+            id="tax-inquiry-form"
+            class="tax-form"
+            novalidate
+            data-validate
+            aria-label="Tax inquiry questionnaire"
+          >
+
+            <!-- 1. Name -->
+            <div class="form-group">
+              <label class="form-label" for="full-name">1. Full Name <span class="form-required" aria-hidden="true">*</span></label>
+              <input
+                type="text"
+                id="full-name"
+                name="fullName"
+                class="form-input"
+                autocomplete="name"
+                required
+                aria-required="true"
+                placeholder="Your full legal name"
+              />
+            </div>
+
+            <!-- 2. Email -->
+            <div class="form-group">
+              <label class="form-label" for="email">2. Email Address <span class="form-required" aria-hidden="true">*</span></label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                class="form-input"
+                autocomplete="email"
+                required
+                aria-required="true"
+                placeholder="you@example.com"
+              />
+            </div>
+
+            <!-- 3. Tax Year -->
+            <div class="form-group">
+              <label class="form-label" for="tax-year">3. Tax Year <span class="form-required" aria-hidden="true">*</span></label>
+              <select id="tax-year" name="taxYear" class="form-select" required aria-required="true">
+                <option value="" disabled selected>Select a tax year</option>
+                <option value="2025">2025</option>
+                <option value="2024">2024</option>
+                <option value="2023">2023</option>
+                <option value="prior">Prior Year / Multiple Years</option>
+              </select>
+            </div>
+
+            <!-- 4. Filing Status -->
+            <fieldset class="form-fieldset">
+              <legend class="form-legend">4. How will you file your taxes? (Filing Status) <span class="form-required" aria-hidden="true">*</span></legend>
+              <div class="form-radio-group" role="radiogroup">
+                <label class="form-radio-label">
+                  <input type="radio" name="filingStatus" value="single" class="form-radio" required aria-required="true" />
+                  <span class="form-radio-custom" aria-hidden="true"></span>
+                  Single
+                </label>
+                <label class="form-radio-label">
+                  <input type="radio" name="filingStatus" value="mfj" class="form-radio" />
+                  <span class="form-radio-custom" aria-hidden="true"></span>
+                  Married Filing Jointly (MFJ)
+                </label>
+                <label class="form-radio-label">
+                  <input type="radio" name="filingStatus" value="mfs" class="form-radio" />
+                  <span class="form-radio-custom" aria-hidden="true"></span>
+                  Married Filing Separately (MFS)
+                </label>
+                <label class="form-radio-label">
+                  <input type="radio" name="filingStatus" value="not-sure" class="form-radio" />
+                  <span class="form-radio-custom" aria-hidden="true"></span>
+                  Not sure
+                </label>
+              </div>
+            </fieldset>
+
+            <!-- 5. W-2 Count -->
+            <fieldset class="form-fieldset">
+              <legend class="form-legend">5. How many W-2 forms do you have? <span class="form-required" aria-hidden="true">*</span></legend>
+              <div class="form-radio-group" role="radiogroup">
+                <label class="form-radio-label">
+                  <input type="radio" name="w2Count" value="0" class="form-radio" required aria-required="true" />
+                  <span class="form-radio-custom" aria-hidden="true"></span>
+                  0
+                </label>
+                <label class="form-radio-label">
+                  <input type="radio" name="w2Count" value="1-6" class="form-radio" />
+                  <span class="form-radio-custom" aria-hidden="true"></span>
+                  1–6 (Standard)
+                </label>
+                <label class="form-radio-label">
+                  <input type="radio" name="w2Count" value="7+" class="form-radio" />
+                  <span class="form-radio-custom" aria-hidden="true"></span>
+                  7+
+                </label>
+              </div>
+              <div id="w2-extra-note" class="form-hint" style="display: none; color: var(--color-teal); margin-top: 0.5rem;">
+                Note: Typical individual returns include up to 6 W-2s. Extra forms will be reviewed and reflected in your fee quote.
+              </div>
+            </fieldset>
+
+            <!-- 6. Self-Employment -->
+            <fieldset class="form-fieldset">
+              <legend class="form-legend">6. Did you earn money from working for yourself? <span class="form-required" aria-hidden="true">*</span></legend>
+              <p class="form-hint">Freelancing, side business, 1099 independent contractor, or sole proprietorship</p>
+              <div class="form-radio-group" role="radiogroup">
+                <label class="form-radio-label">
+                  <input type="radio" name="selfEmployed" value="yes" class="form-radio" required aria-required="true" />
+                  <span class="form-radio-custom" aria-hidden="true"></span>
+                  Yes (Schedule C income)
+                </label>
+                <label class="form-radio-label">
+                  <input type="radio" name="selfEmployed" value="no" class="form-radio" />
+                  <span class="form-radio-custom" aria-hidden="true"></span>
+                  No
+                </label>
+                <label class="form-radio-label">
+                  <input type="radio" name="selfEmployed" value="not-sure" class="form-radio" />
+                  <span class="form-radio-custom" aria-hidden="true"></span>
+                  Not sure
+                </label>
+              </div>
+              <div id="self-employed-note" class="form-hint" style="display: none; color: var(--color-teal); margin-top: 0.5rem;">
+                Self-employed / Schedule C returns start at $250+. Exact fee is confirmed in writing before payment.
+              </div>
+            </fieldset>
+
+            <!-- 7. Other Tax Forms -->
+            <fieldset class="form-fieldset">
+              <legend class="form-legend">7. Any other tax forms or income? <span class="form-required" aria-hidden="true">*</span></legend>
+              <p class="form-hint">Examples: 1099-INT/DIV, investment income, rental property, retirement distributions, HSA</p>
+              <div class="form-radio-group" role="radiogroup">
+                <label class="form-radio-label">
+                  <input type="radio" name="otherIncome" value="yes" class="form-radio" required aria-required="true" />
+                  <span class="form-radio-custom" aria-hidden="true"></span>
+                  Yes
+                </label>
+                <label class="form-radio-label">
+                  <input type="radio" name="otherIncome" value="no" class="form-radio" />
+                  <span class="form-radio-custom" aria-hidden="true"></span>
+                  No
+                </label>
+                <label class="form-radio-label">
+                  <input type="radio" name="otherIncome" value="not-sure" class="form-radio" />
+                  <span class="form-radio-custom" aria-hidden="true"></span>
+                  Not sure
+                </label>
+              </div>
+            </fieldset>
+
+            <!-- 8. State(s) -->
+            <div class="form-group">
+              <label class="form-label" for="states">8. What state(s) did you live or work in? <span class="form-required" aria-hidden="true">*</span></label>
+              <p class="form-hint">List all states that apply during the tax year (e.g. "California", "New York and New Jersey")</p>
+              <input
+                type="text"
+                id="states"
+                name="states"
+                class="form-input"
+                required
+                aria-required="true"
+                placeholder="e.g. California"
+              />
+            </div>
+
+            <!-- Anti-SSN Client Check Warning Banner -->
+            <div id="ssn-alert" class="notice notice--security" style="display: none; border-color: #c0392b; color: #c0392b; margin-top: 1rem;">
+              <strong>Warning:</strong> We noticed numbers resembling a Social Security Number. Never submit an SSN in this form. Tax documents will be collected via a separate secure portal after payment.
+            </div>
+
+            <!-- Submit Button -->
+            <div class="form-submit-group">
+              <p class="form-required-note"><span class="form-required" aria-hidden="true">*</span> Required fields</p>
+              <button type="submit" class="btn btn--primary btn--lg form-submit-btn" id="form-submit">
+                Send My Tax Inquiry
+              </button>
+            </div>
+
+          </form>
+
+          <!-- Success State -->
+          <div id="form-success" class="tax-form-success" hidden tabindex="-1" aria-live="polite">
+            <div class="tax-form-success__icon" aria-hidden="true">
+              <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" width="32" height="32">
+                <polyline points="10,25 20,35 38,14" stroke="#FFFFFF" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <h2>Inquiry Received!</h2>
+            <p style="margin-top: 1rem; line-height: 1.6;">
+              Thank you for reaching out! Rockwell has received your preliminary tax situation details.
+            </p>
+            <div class="notice notice--info" style="margin-top: 1.5rem; text-align: left;">
+              <strong>What Happens Next:</strong>
+              <ol style="margin-top: 0.5rem; padding-left: 1.25rem; font-size: 0.875rem; list-style: decimal;">
+                <li>Rockwell will review your situation and confirm your exact fee in writing.</li>
+                <li>You will receive a secure payment link.</li>
+                <li>After payment, you will receive access to our separate approved secure portal to upload your documents.</li>
+              </ol>
+            </div>
+            <p style="font-size: 0.8125rem; color: var(--color-text-muted); margin-top: 1.25rem;">
+              Your inquiry has been logged with Rockwell Tax &amp; Digital Strategies Inc. We will follow up via email shortly.
+            </p>
+            <a href="/" class="btn btn--primary" style="margin-top: var(--space-8);">Back to Home</a>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="../../js/navigation.js"></script>
+  <script src="../../js/animations.js"></script>
+  <script src="../../js/utilities.js"></script>
+  <script src="../../js/form-validation.js"></script>
+  <script src="/pages/start-your-tax-return/start-your-tax-return.js"></script>
+</body>
+</html>
