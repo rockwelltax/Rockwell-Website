@@ -29,7 +29,7 @@ function verifyAdmin(req) {
 
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
   if (req.method === 'OPTIONS') {
@@ -168,6 +168,38 @@ module.exports = async function handler(req, res) {
     } catch (err) {
       console.error('Error updating inquiry:', err);
       return res.status(500).json({ error: 'Failed to update inquiry status' });
+    }
+  }
+
+  // ── DELETE /api/inquiries (Delete Inquiry - Admin Only) ──────
+  if (req.method === 'DELETE') {
+    if (!verifyAdmin(req)) {
+      return res.status(401).json({ error: 'Unauthorized: Admin authentication required' });
+    }
+
+    const body = parseBody(req);
+    const id = req.query?.id || body?.id;
+    const purgeAll = req.query?.all === 'true' || body?.all === true;
+
+    try {
+      if (purgeAll) {
+        await db.query('TRUNCATE TABLE inquiries RESTART IDENTITY');
+        return res.status(200).json({ success: true, message: 'All inquiries have been permanently cleared' });
+      }
+
+      if (!id) {
+        return res.status(400).json({ error: 'Inquiry ID is required for deletion' });
+      }
+
+      const result = await db.query('DELETE FROM inquiries WHERE id = $1 RETURNING id;', [id]);
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: 'Inquiry not found' });
+      }
+
+      return res.status(200).json({ success: true, message: `Inquiry #${id} deleted successfully`, deletedId: id });
+    } catch (err) {
+      console.error('Error deleting inquiry:', err);
+      return res.status(500).json({ error: 'Failed to delete inquiry from database' });
     }
   }
 

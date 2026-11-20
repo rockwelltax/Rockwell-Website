@@ -63,6 +63,7 @@
   const modalStatusSelect = document.getElementById('modal-status-select');
   const modalSaveBtn = document.getElementById('modal-save-btn');
   const modalEmailBtn = document.getElementById('modal-email-btn');
+  const modalDeleteBtn = document.getElementById('modal-delete-btn');
 
   // Forgot password DOM
   const btnShowForgot = document.getElementById('btn-show-forgot');
@@ -424,6 +425,48 @@
         modalSaveBtn.textContent = 'Save Changes';
       }
     });
+
+    // Modal delete inquiry
+    if (modalDeleteBtn) {
+      modalDeleteBtn.addEventListener('click', async function () {
+        if (!activeModalInquiry) return;
+        const confirmDelete = window.confirm(`Are you sure you want to permanently delete the inquiry from "${activeModalInquiry.name}" (#${activeModalInquiry.id})? This cannot be undone.`);
+        if (!confirmDelete) return;
+
+        const originalBtnHtml = modalDeleteBtn.innerHTML;
+        modalDeleteBtn.disabled = true;
+        modalDeleteBtn.textContent = 'Deleting...';
+
+        try {
+          const res = await fetch(`${API_INQUIRIES}?id=${encodeURIComponent(activeModalInquiry.id)}`, {
+            method: 'DELETE',
+            headers: {
+              'Authorization': `Bearer ${authToken}`
+            }
+          });
+          const data = await res.json();
+
+          if (res.ok && data.success) {
+            allInquiries = allInquiries.filter(i => i.id !== activeModalInquiry.id);
+            renderInquiries();
+            updateMetrics();
+            detailModal.style.display = 'none';
+            if (typeof showToast === 'function') {
+              showToast('Inquiry permanently deleted', 'success');
+            } else {
+              alert('Inquiry deleted successfully');
+            }
+          } else {
+            alert(data.error || 'Failed to delete inquiry');
+          }
+        } catch (e) {
+          alert('Network error deleting inquiry');
+        } finally {
+          modalDeleteBtn.disabled = false;
+          modalDeleteBtn.innerHTML = originalBtnHtml;
+        }
+      });
+    }
   }
 
   /* ── 4. Fetch Inquiries from Database ── */
