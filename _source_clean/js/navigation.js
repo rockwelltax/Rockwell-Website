@@ -482,6 +482,39 @@
     });
   }
 
+  /* ── Instant Link Prefetcher (Instantaneous Page Switching) ── */
+  function initPrefetch() {
+    const prefetched = new Set();
+    function prefetchUrl(url) {
+      if (!url || prefetched.has(url)) return;
+      try {
+        const u = new URL(url, window.location.href);
+        if (u.origin !== window.location.origin) return;
+        if (u.pathname === window.location.pathname) return;
+        if (u.pathname.startsWith('/api') || u.pathname.startsWith('/admin')) return;
+        prefetched.add(url);
+        const link = document.createElement('link');
+        link.rel = 'prefetch';
+        link.href = u.href;
+        document.head.appendChild(link);
+      } catch (_) {}
+    }
+
+    document.addEventListener('mouseover', function (e) {
+      const anchor = e.target.closest('a');
+      if (anchor && anchor.href) {
+        prefetchUrl(anchor.href);
+      }
+    }, { passive: true });
+
+    document.addEventListener('touchstart', function (e) {
+      const anchor = e.target.closest('a');
+      if (anchor && anchor.href) {
+        prefetchUrl(anchor.href);
+      }
+    }, { passive: true });
+  }
+
   /* ── Init ── */
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function () {
@@ -489,11 +522,13 @@
       initHamburger();
       initScroll();
       initDropdown();
+      initPrefetch();
     });
   } else {
     inject();
     initHamburger();
     initScroll();
     initDropdown();
+    initPrefetch();
   }
 })();

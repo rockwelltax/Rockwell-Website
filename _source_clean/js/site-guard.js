@@ -16,32 +16,65 @@
     return;
   }
 
-  // 1. Zero-Flash Shield: Immediately hide content before browser paints
-  let shield = document.getElementById('rockwell-guard-shield');
-  if (!shield) {
-    shield = document.createElement('style');
-    shield.id = 'rockwell-guard-shield';
-    shield.textContent = 'html { visibility: hidden !important; opacity: 0 !important; }';
-    (document.head || document.documentElement).appendChild(shield);
+  const CACHE_KEY = 'rockwell_site_published';
+  const CACHE_TIME_KEY = 'rockwell_site_status_time';
+  const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes cache
+
+  function checkAdminPreview() {
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const hasExplicitPreview = urlParams.get('preview') === 'admin';
+      const adminToken = localStorage.getItem('rockwell_admin_token');
+      return hasExplicitPreview && !!adminToken;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  // Check if session or recent local storage already knows the site is published
+  function isKnownPublished() {
+    if (checkAdminPreview()) return true;
+    try {
+      if (sessionStorage.getItem(CACHE_KEY) === 'true') return true;
+      const localStatus = localStorage.getItem(CACHE_KEY);
+      const localTime = Number(localStorage.getItem(CACHE_TIME_KEY) || 0);
+      if (localStatus === 'true' && (Date.now() - localTime < CACHE_TTL_MS)) {
+        sessionStorage.setItem(CACHE_KEY, 'true');
+        return true;
+      }
+    } catch (_) {}
+    return false;
+  }
+
+  const alreadyPublished = isKnownPublished();
+
+  // 1. Zero-Flash Shield: ONLY if not already confirmed to be published
+  let shield = null;
+  if (!alreadyPublished) {
+    shield = document.getElementById('rockwell-guard-shield');
+    if (!shield) {
+      shield = document.createElement('style');
+      shield.id = 'rockwell-guard-shield';
+      shield.textContent = 'html { visibility: hidden !important; opacity: 0 !important; background-color: #FAF8F5 !important; }';
+      (document.head || document.documentElement).appendChild(shield);
+    }
   }
 
   function revealPage() {
     if (shield && shield.parentNode) {
       shield.parentNode.removeChild(shield);
+      shield = null;
     }
     document.documentElement.style.visibility = '';
     document.documentElement.style.opacity = '';
   }
 
   function redirectToComingSoon() {
+    try {
+      sessionStorage.removeItem(CACHE_KEY);
+      localStorage.removeItem(CACHE_KEY);
+    } catch (_) {}
     window.location.replace('/coming-soon');
-  }
-
-  function checkAdminPreview() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const hasExplicitPreview = urlParams.get('preview') === 'admin';
-    const adminToken = localStorage.getItem('rockwell_admin_token');
-    return hasExplicitPreview && !!adminToken;
   }
 
   // 2. Initial Gatekeeper Check from server
@@ -54,6 +87,11 @@
       const isPublished = data && data.is_published;
 
       if (!isPublished) {
+        try {
+          sessionStorage.removeItem(CACHE_KEY);
+          localStorage.removeItem(CACHE_KEY);
+        } catch (_) {}
+
         // Site is NOT published (either Coming Soon or Scheduled)
         if (checkAdminPreview()) {
           // Allow explicit preview with top indicator bar
@@ -64,13 +102,22 @@
           redirectToComingSoon();
         }
       } else {
-        // Site IS published -> reveal page immediately
+        // Site IS published -> cache confirmation & reveal immediately
+        try {
+          sessionStorage.setItem(CACHE_KEY, 'true');
+          localStorage.setItem(CACHE_KEY, 'true');
+          localStorage.setItem(CACHE_TIME_KEY, String(Date.now()));
+        } catch (_) {}
         revealPage();
       }
     })
     .catch(() => {
-      // In case of error/offline fallback, safety redirect to coming-soon
-      redirectToComingSoon();
+      // In case of error/offline fallback: if already verified in session, keep browsing
+      if (alreadyPublished) {
+        revealPage();
+      } else {
+        redirectToComingSoon();
+      }
     });
 
   // 3. Live Heartbeat Sync: automatically eject public visitors if site is unpublished
@@ -85,6 +132,11 @@
         const isAdminPreview = checkAdminPreview();
 
         if (!isPublished && !isAdminPreview) {
+          try {
+            sessionStorage.removeItem(CACHE_KEY);
+            localStorage.removeItem(CACHE_KEY);
+          } catch (_) {}
+
           // Site was unpublished by admin while user is browsing: smooth transition out
           if (document.body) {
             document.body.style.transition = 'opacity 0.5s ease';
@@ -100,7 +152,7 @@
       .catch(() => {});
   }
 
-  setInterval(pollLiveStatus, 3000);
+  setInterval(pollLiveStatus, 5000);
 
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
