@@ -197,7 +197,6 @@
     const startTaxHref = resolvePath('/start-your-tax-return', 'pages/start-your-tax-return/start-your-tax-return.html');
     const privacyHref = resolvePath('/privacy-policy', 'pages/legal/privacy-policy.html');
     const termsHref = resolvePath('/terms-of-use', 'pages/legal/terms-of-use.html');
-    const adminHref = resolvePath('/admin', 'pages/admin/admin.html');
     const logoSrc = isCleanUrlHost() ? '/assets/icons/favicon.png' : getRoot() + 'assets/icons/favicon.png';
 
     return `
@@ -288,8 +287,6 @@
         <a href="${privacyHref}" class="footer-legal__link">Privacy Policy</a>
         <span class="footer-legal__sep" aria-hidden="true">&bull;</span>
         <a href="${termsHref}" class="footer-legal__link">Terms of Use</a>
-        <span class="footer-legal__sep" aria-hidden="true">&bull;</span>
-        <a href="${adminHref}" class="footer-legal__link" style="opacity: 0.5;">Admin Portal</a>
       </div>
     </div>
   </div>
