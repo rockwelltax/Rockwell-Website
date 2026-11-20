@@ -48,7 +48,6 @@
   <!-- Text Hierarchy -->
   <text x="300" y="490" font-family="'Playfair Display', Georgia, serif" font-size="28" font-weight="600" fill="#FFFFFF" text-anchor="middle" letter-spacing="1">Fritzie Ann Silva</text>
   <text x="300" y="522" font-family="'Inter', -apple-system, sans-serif" font-size="13" font-weight="600" fill="#3892A9" text-anchor="middle" letter-spacing="3">FOUNDER &amp; PRINCIPAL</text>
-  <text x="300" y="554" font-family="'Inter', -apple-system, sans-serif" font-size="12" font-weight="400" fill="#BCA18A" text-anchor="middle" letter-spacing="1">B.S. COMPUTER SCIENCE • M.S. DATABASE TECHNOLOGIES</text>
 
   <!-- Status / Approval Badge -->
   <g transform="translate(140, 610)">
