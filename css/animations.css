@@ -55,6 +55,18 @@
   transform: translateX(0);
 }
 
+/* Mobile: prevent horizontal blowout from translateX */
+@media (max-width: 768px) {
+  .reveal--left,
+  .reveal--right {
+    transform: translateY(16px);
+  }
+  .reveal--left.is-visible,
+  .reveal--right.is-visible {
+    transform: translateY(0);
+  }
+}
+
 /* ── Hero Entrance ── */
 @keyframes heroFadeUp {
   from {

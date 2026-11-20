@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -115,9 +115,9 @@
           <!-- Step 1: Path Selection (Individual W-2 vs Self-Employed 1099) -->
           <div class="tax-path-selector" id="tax-path-selector" style="margin-bottom: var(--space-8);">
             <p style="font-weight: 600; color: var(--color-dark); margin-bottom: 0.75rem;">Step 1: Select your filing type:</p>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-              <button type="button" id="btn-path-w2" class="tax-path-btn active" style="padding: 1.25rem 1rem; border: 2px solid var(--color-teal); background: #ffffff; border-radius: var(--radius-lg); text-align: left; cursor: pointer; transition: all 0.2s ease;">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="tax-path-grid">
+              <button type="button" id="btn-path-w2" class="tax-path-btn active">
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
                   <strong style="color: var(--color-dark); font-size: 1.05rem;">Individual Taxes | W-2</strong>
                   <span style="font-size: 0.75rem; background: var(--color-teal); color: #fff; padding: 2px 8px; border-radius: 999px; font-weight: 600;">Selected</span>
                 </div>
@@ -125,8 +125,8 @@
                 <div style="font-size: 0.85rem; color: var(--color-text-muted); margin-top: 0.25rem;">For employees and individual filers</div>
               </button>
 
-              <button type="button" id="btn-path-1099" class="tax-path-btn" style="padding: 1.25rem 1rem; border: 2px solid var(--color-border); background: #ffffff; border-radius: var(--radius-lg); text-align: left; cursor: pointer; transition: all 0.2s ease;">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
+              <button type="button" id="btn-path-1099" class="tax-path-btn">
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
                   <strong style="color: var(--color-dark); font-size: 1.05rem;">Self-Employed | 1099</strong>
                   <span style="font-size: 0.75rem; background: transparent; color: var(--color-text-muted); padding: 2px 8px; border-radius: 999px; font-weight: 600;">Click to select</span>
                 </div>

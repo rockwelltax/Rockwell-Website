@@ -1,0 +1,443 @@
+/* ============================================================
+   ROCKWELL — Start Your Tax Return Page
+   ============================================================ */
+
+.tax-form-page {
+  background: var(--color-bg-warm);
+  min-height: 100vh;
+  padding-block: var(--space-20);
+  overflow-x: hidden;
+}
+
+.tax-form-page__inner {
+  display: grid;
+  grid-template-columns: 1fr 1.6fr;
+  gap: var(--space-16);
+  align-items: start;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* ── Sidebar ── */
+.tax-form-sidebar {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.tax-form-sidebar__inner {
+  position: sticky;
+  top: calc(var(--nav-height) + var(--space-8));
+  padding: var(--space-10);
+  background: var(--color-brown);
+  border-radius: var(--radius-xl);
+  color: var(--color-white);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.tax-form-sidebar__inner h2 {
+  color: var(--color-white);
+  font-size: clamp(var(--text-xl), 2.5vw, var(--text-2xl));
+  margin-top: var(--space-3);
+}
+
+.tax-form-sidebar__inner .divider {
+  background-color: var(--color-beige);
+  opacity: 0.5;
+  margin-block: var(--space-6);
+}
+
+/* Process list */
+.tax-process-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  margin-top: var(--space-6);
+}
+
+.tax-process-list li {
+  display: flex;
+  gap: var(--space-4);
+  align-items: flex-start;
+}
+
+.tax-process-list__num {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  border-radius: 50%;
+  background: var(--color-teal);
+  color: var(--color-white);
+  font-size: var(--text-xs);
+  font-weight: var(--fw-bold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.tax-process-list li strong {
+  font-size: var(--text-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--color-white);
+  display: block;
+  margin-bottom: var(--space-1);
+}
+
+.tax-process-list li p {
+  font-size: var(--text-xs);
+  color: rgba(255,255,255,0.65);
+  line-height: var(--leading-relaxed);
+  max-width: 100%;
+}
+
+/* ── Form Main ── */
+.tax-form-main {
+  background: var(--color-white);
+  border-radius: var(--radius-xl);
+  padding: var(--space-12);
+  border: 1px solid var(--color-border);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* ── Path Selection Grid ── */
+.tax-path-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  width: 100%;
+}
+
+.tax-path-btn {
+  padding: 1.25rem 1rem;
+  border: 2px solid var(--color-border);
+  background: #ffffff;
+  border-radius: var(--radius-lg);
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.tax-path-btn:hover {
+  border-color: rgba(56, 146, 169, 0.5);
+}
+
+.tax-path-btn.active {
+  border-color: var(--color-teal);
+}
+
+.tax-form-header {
+  margin-bottom: var(--space-8);
+}
+
+.tax-form-header h1 {
+  font-size: clamp(var(--text-2xl), 3.5vw, var(--text-3xl));
+  margin-top: var(--space-3);
+}
+
+/* ── Notice inline icon ── */
+.tax-form-security-notice {
+  margin-bottom: var(--space-6);
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+}
+
+.tax-form-prototype-notice {
+  margin-bottom: var(--space-4);
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+}
+
+/* ── Form Elements ── */
+.tax-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.form-label {
+  font-size: var(--text-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--color-brown);
+}
+
+.form-required {
+  color: var(--color-teal);
+  font-weight: var(--fw-bold);
+}
+
+.form-required-note {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  max-width: 100%;
+}
+
+.form-hint {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  margin-top: var(--space-1);
+  max-width: 100%;
+}
+
+.form-input,
+.form-select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  color: var(--color-brown);
+  background: var(--color-white);
+  border: 1.5px solid var(--color-border-dark);
+  border-radius: var(--radius-md);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.form-input::placeholder {
+  color: rgba(41,33,29,0.35);
+}
+
+.form-input:focus,
+.form-select:focus {
+  outline: none;
+  border-color: var(--color-teal);
+  box-shadow: 0 0 0 3px var(--color-teal-15);
+}
+
+.form-input.is-invalid,
+.form-select.is-invalid {
+  border-color: #c0392b;
+  box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.12);
+}
+
+.form-input.is-valid,
+.form-select.is-valid {
+  border-color: var(--color-teal);
+}
+
+.form-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2329211D' stroke-width='2' stroke-linecap='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  padding-right: 2.5rem;
+  cursor: pointer;
+}
+
+/* ── Fieldsets & Radios ── */
+.form-fieldset {
+  border: none;
+  padding: 0;
+}
+
+.form-legend {
+  font-size: var(--text-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--color-brown);
+  margin-bottom: var(--space-3);
+  display: block;
+  width: 100%;
+}
+
+.form-radio-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  position: relative;
+}
+
+.form-radio-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-brown);
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  border: 1.5px solid var(--color-border-dark);
+  border-radius: var(--radius-full);
+  transition: border-color var(--transition-fast), background-color var(--transition-fast);
+  user-select: none;
+}
+
+.form-radio-label:hover {
+  border-color: var(--color-teal);
+  background-color: var(--color-teal-10);
+}
+
+.form-radio {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.form-radio-custom {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--color-border-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: border-color var(--transition-fast);
+}
+
+.form-radio:checked + .form-radio-custom {
+  border-color: var(--color-teal);
+  background-color: var(--color-teal);
+  box-shadow: inset 0 0 0 3px var(--color-white);
+}
+
+.form-radio-label:has(.form-radio:checked) {
+  border-color: var(--color-teal);
+  background-color: var(--color-teal-10);
+  font-weight: var(--fw-semibold);
+}
+
+.form-radio:focus-visible + .form-radio-custom {
+  outline: 2px solid var(--color-teal);
+  outline-offset: 2px;
+}
+
+/* ── Error / Valid messages ── */
+.field-error {
+  display: block;
+  font-size: var(--text-xs);
+  color: #c0392b;
+  margin-top: var(--space-1);
+  font-weight: var(--fw-medium);
+}
+
+/* ── Submit ── */
+.form-submit-group {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--color-border);
+  flex-wrap: wrap;
+}
+
+.form-submit-btn {
+  flex-shrink: 0;
+}
+
+.form-submit-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ── Success State ── */
+.tax-form-success {
+  text-align: center;
+  padding: var(--space-16) var(--space-8);
+}
+
+.tax-form-success__icon {
+  width: 72px;
+  height: 72px;
+  background: var(--color-teal);
+  color: var(--color-white);
+  border-radius: 50%;
+  font-size: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto var(--space-8);
+}
+
+.tax-form-success h2 { margin-bottom: var(--space-4); }
+
+.tax-form-success p {
+  color: var(--color-text-muted);
+  max-width: 50ch;
+  margin-inline: auto;
+}
+
+/* ── Responsive ── */
+@media (max-width: 1023px) {
+  .tax-form-page {
+    padding-block: var(--space-10) var(--space-16);
+  }
+
+  .tax-form-page__inner {
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+  }
+
+  .tax-form-sidebar {
+    width: 100%;
+    max-width: 100%;
+    margin-inline: auto;
+  }
+
+  .tax-form-sidebar__inner {
+    position: static;
+    padding: var(--space-8) var(--space-6);
+    width: 100%;
+    max-width: 100%;
+    margin-inline: auto;
+  }
+}
+
+@media (max-width: 767px) {
+  .tax-path-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+}
+
+@media (max-width: 599px) {
+  .tax-form-page {
+    padding-block: var(--space-6) var(--space-12);
+  }
+
+  .tax-form-sidebar__inner {
+    padding: 1.5rem 1.25rem;
+    border-radius: var(--radius-lg);
+  }
+
+  .tax-form-main {
+    padding: 1.5rem 1.25rem;
+    border-radius: var(--radius-lg);
+  }
+
+  .tax-process-list li {
+    gap: var(--space-3);
+  }
+
+  .form-submit-group {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .form-submit-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

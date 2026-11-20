@@ -6,6 +6,7 @@
   background: var(--color-bg-warm);
   min-height: 100vh;
   padding-block: var(--space-20);
+  overflow-x: hidden;
 }
 
 .tax-form-page__inner {
@@ -13,9 +14,18 @@
   grid-template-columns: 1fr 1.6fr;
   gap: var(--space-16);
   align-items: start;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 /* ── Sidebar ── */
+.tax-form-sidebar {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
 .tax-form-sidebar__inner {
   position: sticky;
   top: calc(var(--nav-height) + var(--space-8));
@@ -23,6 +33,9 @@
   background: var(--color-brown);
   border-radius: var(--radius-xl);
   color: var(--color-white);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .tax-form-sidebar__inner h2 {
@@ -88,6 +101,38 @@
   border-radius: var(--radius-xl);
   padding: var(--space-12);
   border: 1px solid var(--color-border);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* ── Path Selection Grid ── */
+.tax-path-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  width: 100%;
+}
+
+.tax-path-btn {
+  padding: 1.25rem 1rem;
+  border: 2px solid var(--color-border);
+  background: #ffffff;
+  border-radius: var(--radius-lg);
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.tax-path-btn:hover {
+  border-color: rgba(56, 146, 169, 0.5);
+}
+
+.tax-path-btn.active {
+  border-color: var(--color-teal);
 }
 
 .tax-form-header {
@@ -336,18 +381,54 @@
 
 /* ── Responsive ── */
 @media (max-width: 1023px) {
+  .tax-form-page {
+    padding-block: var(--space-10) var(--space-16);
+  }
+
   .tax-form-page__inner {
     grid-template-columns: 1fr;
+    gap: var(--space-8);
+  }
+
+  .tax-form-sidebar {
+    width: 100%;
+    max-width: 100%;
+    margin-inline: auto;
   }
 
   .tax-form-sidebar__inner {
     position: static;
+    padding: var(--space-8) var(--space-6);
+    width: 100%;
+    max-width: 100%;
+    margin-inline: auto;
+  }
+}
+
+@media (max-width: 767px) {
+  .tax-path-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
   }
 }
 
 @media (max-width: 599px) {
+  .tax-form-page {
+    padding-block: var(--space-6) var(--space-12);
+  }
+
+  .tax-form-sidebar__inner {
+    padding: 1.5rem 1.25rem;
+    border-radius: var(--radius-lg);
+  }
+
   .tax-form-main {
-    padding: var(--space-8) var(--space-6);
+    padding: 1.5rem 1.25rem;
+    border-radius: var(--radius-lg);
+  }
+
+  .tax-process-list li {
+    gap: var(--space-3);
   }
 
   .form-submit-group {
