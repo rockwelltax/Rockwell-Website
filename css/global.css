@@ -237,7 +237,7 @@ button:focus-visible {
 .btn--outline-dark {
   background-color: transparent;
   color: var(--color-brown);
-  border: 1px solid var(--color-brown);
+  border: 2px solid var(--color-brown);
 }
 
 .btn--outline-dark:hover {
@@ -256,12 +256,22 @@ button:focus-visible {
   font-size: var(--text-xs);
 }
 
+.btn--full {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  box-sizing: border-box;
+}
+
 /* ── Notice / Alert ── */
 .notice {
   padding: var(--space-4) var(--space-6);
   border-radius: var(--radius-md);
   font-size: var(--text-sm);
   line-height: var(--leading-relaxed);
+  box-sizing: border-box;
 }
 
 .notice--warning {
@@ -404,7 +414,8 @@ button:hover .link-arrow {
 }
 
 /* ── Notice icon inline alignment ── */
-.notice {
+.notice:has(.notice-icon-wrap),
+.notice:has(.notice__icon) {
   display: flex;
   align-items: flex-start;
   gap: 0.625rem;

@@ -1,0 +1,148 @@
+/* ============================================================
+   ROCKWELL — Animations & Transitions
+   ============================================================ */
+
+/* ── Reveal on Scroll ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.65s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    transform 0.65s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Stagger delays */
+.reveal--d1 { transition-delay: 0.08s; }
+.reveal--d2 { transition-delay: 0.16s; }
+.reveal--d3 { transition-delay: 0.24s; }
+.reveal--d4 { transition-delay: 0.32s; }
+.reveal--d5 { transition-delay: 0.40s; }
+
+/* Fade only (no vertical movement) */
+.reveal--fade {
+  opacity: 0;
+  transform: none;
+  transition: opacity 0.65s ease;
+}
+.reveal--fade.is-visible {
+  opacity: 1;
+}
+
+/* Slide from left */
+.reveal--left {
+  opacity: 0;
+  transform: translateX(-32px);
+  transition: opacity 0.65s ease, transform 0.65s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.reveal--left.is-visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Slide from right */
+.reveal--right {
+  opacity: 0;
+  transform: translateX(32px);
+  transition: opacity 0.65s ease, transform 0.65s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.reveal--right.is-visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Mobile & Tablet: prevent horizontal blowout from translateX */
+@media (max-width: 1023px) {
+  .reveal--left,
+  .reveal--right {
+    transform: translateY(16px);
+  }
+  .reveal--left.is-visible,
+  .reveal--right.is-visible {
+    transform: translateY(0);
+  }
+}
+
+/* ── Hero Entrance ── */
+@keyframes heroFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes heroFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.hero-animate-1 {
+  animation: heroFadeUp 0.75s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.15s both;
+}
+.hero-animate-2 {
+  animation: heroFadeUp 0.75s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.30s both;
+}
+.hero-animate-3 {
+  animation: heroFadeUp 0.75s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.45s both;
+}
+.hero-animate-4 {
+  animation: heroFadeUp 0.75s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.60s both;
+}
+.hero-image-animate {
+  animation: heroFadeIn 1s ease 0.2s both;
+}
+
+/* ── Line Draw ── */
+@keyframes lineGrow {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+.line-draw {
+  transform-origin: left center;
+  animation: lineGrow 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.5s both;
+}
+
+/* ── Hover: Card lift ── */
+.card-hover {
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+.card-hover:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* ── Reduced Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .reveal--fade,
+  .reveal--left,
+  .reveal--right {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .hero-animate-1,
+  .hero-animate-2,
+  .hero-animate-3,
+  .hero-animate-4,
+  .hero-image-animate {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .line-draw {
+    animation: none;
+    transform: scaleX(1);
+  }
+}

@@ -416,7 +416,10 @@
 /* ── Success State ── */
 .tax-form-success {
   text-align: center;
-  padding: var(--space-12) var(--space-6);
+  padding: var(--space-6) var(--space-2);
+  width: 100%;
+  box-sizing: border-box;
+  scroll-margin-top: calc(var(--nav-height) + 1.5rem);
 }
 
 .tax-form-success__icon {
@@ -440,10 +443,58 @@
   margin-inline: auto;
 }
 
+.tax-form-success .notice--info {
+  display: block;
+  background-color: var(--color-teal-10);
+  border: 1px solid var(--color-teal);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.125rem;
+  margin-top: 1.5rem;
+  text-align: left;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.tax-form-success .notice--info strong {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--color-brown);
+}
+
+.tax-form-success .notice--info ol {
+  margin: 0.5rem 0 0 0;
+  padding-left: 1.25rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--color-brown);
+}
+
+.tax-form-success .notice--info ol li + li {
+  margin-top: 0.35rem;
+}
+
+.tax-form-success .btn {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  text-align: center;
+  box-sizing: border-box;
+  margin-top: var(--space-6);
+}
+
 /* ══════════════════════════════════════════
    TABLET & DESKTOP ENHANCEMENTS
 ══════════════════════════════════════════ */
 @media (min-width: 640px) {
+  .tax-form-success {
+    padding: var(--space-12) var(--space-6);
+  }
+
+  .tax-form-success .btn {
+    display: inline-flex;
+    width: auto;
+  }
+
   .tax-path-grid {
     grid-template-columns: 1fr 1fr;
     gap: 1rem;

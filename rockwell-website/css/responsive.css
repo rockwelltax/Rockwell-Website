@@ -77,7 +77,8 @@ p {
 }
 
 /* Notice icon alignment */
-.notice {
+.notice:has(.notice-icon-wrap),
+.notice:has(.notice__icon) {
   display: flex;
   align-items: flex-start;
   gap: 0.625rem;

@@ -6,6 +6,14 @@
 (function () {
   'use strict';
 
+  function resolveTaxReturnUrl(query) {
+    const isCleanHost = window.location.hostname.includes('vercel.app') ||
+                        window.location.hostname.includes('rockwell') ||
+                        (window.location.protocol.startsWith('http') && !window.location.pathname.includes('/rockwell-website/'));
+    const base = isCleanHost ? '/start-your-tax-return' : '../start-your-tax-return/start-your-tax-return.html';
+    return query ? `${base}?${query}` : base;
+  }
+
   function initEstimator() {
     const filingSelect = document.getElementById('calc-filing-type');
     const w2Select = document.getElementById('calc-w2-count');
@@ -43,7 +51,7 @@
 
       priceDisplay.textContent = '$' + basePrice + '+';
       noteDisplay.textContent = note;
-      proceedBtn.href = '../start-your-tax-return/start-your-tax-return.html?' + urlParams.toString();
+      proceedBtn.href = resolveTaxReturnUrl(urlParams.toString());
     }
 
     filingSelect.addEventListener('change', recalculate);

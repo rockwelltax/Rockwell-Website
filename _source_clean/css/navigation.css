@@ -24,6 +24,11 @@
 }
 
 /* ── Nav Inner layout ── */
+/* The header's .container must fill the header height so the nav row is vertically centered */
+.site-header > .container {
+  height: 100%;
+}
+
 .nav-inner {
   height: 100%;
   display: flex;
@@ -332,11 +337,17 @@
 }
 
 .nav-mobile__inner {
-  padding: 2rem var(--container-pad) 3rem;
+  padding: 1.5rem var(--container-pad, 1.25rem) 2.5rem;
   display: flex;
   flex-direction: column;
-  gap: 0;
   min-height: 100%;
+  box-sizing: border-box;
+}
+
+.nav-mobile__links {
+  display: flex;
+  flex-direction: column;
+  flex: 1 0 auto;
 }
 
 .nav-mobile__link {
@@ -347,7 +358,7 @@
   font-weight: 500;
   color: #29211D;
   text-decoration: none;
-  padding: 1rem 0;
+  padding: 0.95rem 0;
   border-bottom: 1px solid rgba(188, 161, 138, 0.3);
   transition: color 0.15s ease, padding-left 0.20s ease;
 }
@@ -362,16 +373,42 @@
   font-weight: 600;
 }
 
-.nav-mobile__cta {
+.nav-mobile__footer {
   margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(188, 161, 138, 0.35);
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  padding-bottom: env(safe-area-inset-bottom, 1rem);
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.nav-mobile__cta .btn {
+.nav-mobile__footer .btn {
+  width: 100%;
+  box-sizing: border-box;
   justify-content: center;
   text-align: center;
+  padding: 0.875rem 1.25rem;
+  font-size: 0.9375rem;
+}
+
+.nav-mobile__note {
+  font-size: 0.8125rem;
+  color: #6B625B;
+  text-align: center;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.btn--full {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  box-sizing: border-box;
 }
 
 /* ══════════════════════════════════════════
@@ -417,44 +454,64 @@
 }
 
 /* ── Logo: white on dark ── */
-.hero-page .site-header:not(.scrolled) .nav-logo__primary {
+.hero-page .site-header:not(.scrolled):not(.menu-open) .nav-logo__primary {
   color: #FFFFFF;
 }
-.hero-page .site-header:not(.scrolled) .nav-logo__sub {
+.hero-page .site-header:not(.scrolled):not(.menu-open) .nav-logo__sub {
   color: #BCA18A;
 }
-.hero-page .site-header:not(.scrolled) .nav-logo:hover .nav-logo__primary {
+.hero-page .site-header:not(.scrolled):not(.menu-open) .nav-logo:hover .nav-logo__primary {
   color: #BCA18A;
 }
 
 /* ── Nav links: white on dark ── */
-.hero-page .site-header:not(.scrolled) .nav-links__link {
+.hero-page .site-header:not(.scrolled):not(.menu-open) .nav-links__link {
   color: rgba(255, 255, 255, 0.82);
 }
-.hero-page .site-header:not(.scrolled) .nav-links__link:hover {
+.hero-page .site-header:not(.scrolled):not(.menu-open) .nav-links__link:hover {
   color: #FFFFFF;
   background-color: rgba(255, 255, 255, 0.09);
 }
-.hero-page .site-header:not(.scrolled) .nav-links__link.active {
+.hero-page .site-header:not(.scrolled):not(.menu-open) .nav-links__link.active {
   color: #BCA18A;
 }
-.hero-page .site-header:not(.scrolled) .nav-links__link::after {
+.hero-page .site-header:not(.scrolled):not(.menu-open) .nav-links__link::after {
   background-color: #BCA18A;
 }
 
 /* ── Hamburger: white bars on dark ── */
-.hero-page .site-header:not(.scrolled) .nav-hamburger__bar {
+.hero-page .site-header:not(.scrolled):not(.menu-open) .nav-hamburger__bar {
   background-color: #FFFFFF;
 }
-.hero-page .site-header:not(.scrolled) .nav-hamburger:hover {
+.hero-page .site-header:not(.scrolled):not(.menu-open) .nav-hamburger:hover {
   background-color: rgba(255, 255, 255, 0.10);
 }
 
 /* ── CTA button stays teal on dark ── */
-.hero-page .site-header:not(.scrolled) .nav-cta .btn--primary {
+.hero-page .site-header:not(.scrolled):not(.menu-open) .nav-cta .btn--primary {
   background-color: #3892A9;
   border-color: #3892A9;
   color: #FFFFFF;
+}
+.hero-page .site-header:not(.scrolled):not(.menu-open) .nav-cta .btn--primary:hover {
+  background-color: #2e7a8e;
+  border-color: #2e7a8e;
+  color: #FFFFFF;
+}
+
+/* ── When mobile drawer is open: solid white header ── */
+.hero-page .site-header.menu-open {
+  background-color: #FFFFFF;
+  border-bottom: 1px solid rgba(41, 33, 29, 0.10);
+}
+.hero-page .site-header.menu-open .nav-logo__primary {
+  color: #29211D;
+}
+.hero-page .site-header.menu-open .nav-logo__sub {
+  color: #3892A9;
+}
+.hero-page .site-header.menu-open .nav-hamburger__bar {
+  background-color: #29211D;
 }
 
 /* ── Once scrolled: solid white nav ── */

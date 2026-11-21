@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Portal &mdash; Rockwell Tax &amp; Digital Strategies Inc.</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="../../assets/icons/favicon.png" />
+  <link rel="apple-touch-icon" href="../../assets/icons/apple-touch-icon.png" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="../../css/variables.css" />
+  <link rel="stylesheet" href="../../css/global.css" />
+  <link rel="stylesheet" href="../../css/typography.css" />
+  <link rel="stylesheet" href="/pages/admin/admin.css" />
+</head>
+<body class="admin-body">
+
+  <!-- ══════════════════════════════════════════════
+       1. LOGIN VIEW
+       ══════════════════════════════════════════════ -->
+  <main class="admin-auth-wrapper" id="auth-view">
+    <div class="admin-auth-card">
+      <div class="admin-auth-header">
+        <a href="/" class="admin-brand-link">
+          <img src="../../assets/icons/favicon.png" alt="Rockwell Shield" class="admin-brand-logo" width="40" height="40" />
+          <div>
+            <span class="admin-brand-name">Rockwell</span>
+            <span class="admin-brand-sub">Tax &amp; Digital Strategies Inc.</span>
+          </div>
+        </a>
+        <div class="admin-badge">Admin Portal</div>
+      </div>
+
+      <div class="admin-auth-body" id="login-step">
+        <h1 class="admin-auth-title">Welcome Back</h1>
+        <p class="admin-auth-desc">Sign in to manage client inquiries, tax filings, and consult requests.</p>
+
+        <div id="login-alert" class="admin-alert admin-alert--error" style="display:none;" role="alert"></div>
+
+        <form id="login-form" novalidate>
+          <div class="form-group">
+            <label for="admin-email" class="form-label">Email Address</label>
+            <input type="email" id="admin-email" class="form-control" placeholder="info@rockwelltaxdigital.com" value="info@rockwelltaxdigital.com" required autocomplete="email" />
+          </div>
+
+          <div class="form-group">
+            <div class="form-label-row">
+              <label for="admin-password" class="form-label">Password</label>
+              <button type="button" class="btn-text" id="btn-show-forgot">Forgot Password?</button>
+            </div>
+            <input type="password" id="admin-password" class="form-control" placeholder="••••••••" required autocomplete="current-password" />
+          </div>
+
+          <button type="submit" id="btn-login" class="btn btn--primary btn--full">
+            <span>Sign In to Dashboard</span>
+          </button>
+        </form>
+
+        <p class="admin-auth-footer-note">Authorized Rockwell administrative personnel only.</p>
+      </div>
+
+      <!-- Forgot Password View -->
+      <div class="admin-auth-body" id="forgot-step" style="display:none;">
+        <h2 class="admin-auth-title">Reset Password</h2>
+        <p class="admin-auth-desc">We will send a 6-digit verification code to your verified admin email address. The code expires in <strong>2 minutes</strong>.</p>
+
+        <div id="forgot-alert" class="admin-alert" style="display:none;" role="alert"></div>
+
+        <!-- Step A: Enter Email -->
+        <div id="forgot-sub-email">
+          <div class="form-group">
+            <label for="forgot-email" class="form-label">Admin Email</label>
+            <input type="email" id="forgot-email" class="form-control" placeholder="info@rockwelltaxdigital.com" value="info@rockwelltaxdigital.com" required />
+          </div>
+          <button type="button" id="btn-send-code" class="btn btn--primary btn--full">
+            <span>Send 2-Min Verification Code</span>
+          </button>
+        </div>
+
+        <!-- Step B: Enter Code & New Password -->
+        <div id="forgot-sub-verify" style="display:none;">
+          <div class="timer-box" id="timer-box">
+            <span class="timer-icon">⏱️</span>
+            <span>Code expires in: <strong id="timer-countdown">02:00</strong></span>
+          </div>
+
+          <div class="form-group">
+            <label for="reset-code" class="form-label">6-Digit Code</label>
+            <input type="text" id="reset-code" class="form-control text-center code-input" placeholder="000000" maxlength="6" />
+          </div>
+
+          <div class="form-group">
+            <label for="new-password" class="form-label">New Password</label>
+            <input type="password" id="new-password" class="form-control" placeholder="At least 6 characters" />
+          </div>
+
+          <div class="form-group">
+            <label for="confirm-password" class="form-label">Confirm New Password</label>
+            <input type="password" id="confirm-password" class="form-control" placeholder="Re-enter new password" />
+          </div>
+
+          <button type="button" id="btn-submit-reset" class="btn btn--primary btn--full">
+            <span>Confirm &amp; Update Password</span>
+          </button>
+        </div>
+
+        <button type="button" class="btn-text btn-back" id="btn-back-login">&larr; Back to Sign In</button>
+      </div>
+
+    </div>
+  </main>
+
+
+  <!-- ══════════════════════════════════════════════
+       2. DASHBOARD VIEW (Shown when authenticated)
+       ══════════════════════════════════════════════ -->
+  <div class="admin-app" id="dashboard-view" style="display:none;">
+    <!-- Topbar -->
+    <header class="admin-topbar">
+      <div class="admin-topbar__inner">
+        <div class="admin-topbar__brand">
+          <img src="../../assets/icons/favicon.png" alt="Rockwell Shield" width="32" height="32" />
+          <div>
+            <span class="admin-brand-name">Rockwell</span>
+            <span class="admin-brand-sub">Client Management</span>
+          </div>
+        </div>
+
+        <div class="admin-topbar__actions">
+          <a href="/" target="_blank" class="admin-link-website" title="View live website">
+            Live Site &nearr;
+          </a>
+          <button id="btn-refresh" class="admin-btn-icon" title="Refresh Inquiries">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          </button>
+          <div class="admin-user-pill">
+            <span id="user-display-email">info@rockwelltaxdigital.com</span>
+          </div>
+          <button id="btn-logout" class="admin-btn-logout" title="Sign Out">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+            <span>Sign Out</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <div class="admin-container">
+
+        <!-- Title & Sub -->
+        <div class="admin-header-row">
+          <div>
+            <h1 class="admin-page-title">Client Inquiries &amp; Leads</h1>
+            <p class="admin-page-sub">Review incoming client requests, update status, and manage client communications.</p>
+          </div>
+          <div class="admin-header-buttons">
+            <button id="btn-export-csv" class="btn btn--outline-dark btn--sm">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+              Export CSV
+            </button>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════════
+             SITE PUBLICATION & VISIBILITY COMMAND CENTER
+             ══════════════════════════════════════════════ -->
+        <section class="admin-publish-card" id="publish-command-card" aria-label="Site Visibility & Launch Controls">
+          <div class="admin-publish-card__main">
+            <div class="admin-publish-meta">
+              <div class="admin-publish-title-row">
+                <span class="admin-publish-badge" id="pub-status-badge">
+                  <span class="admin-publish-badge__dot"></span>
+                  <span id="pub-status-badge-text">Checking Status...</span>
+                </span>
+                <span class="admin-publish-time" id="pub-status-detail"></span>
+              </div>
+              <h2 class="admin-publish-title">Public Website Visibility &amp; Launch Control</h2>
+              <p class="admin-publish-desc">
+                Govern whether Rockwell is accessible to the public, locked in Coming Soon mode, or scheduled for automated launch.
+              </p>
+            </div>
+
+            <!-- Segmented Control Actions -->
+            <div class="admin-publish-modes" role="group" aria-label="Publishing Mode Selection">
+              <!-- Mode 1: Coming Soon -->
+              <button type="button" class="pub-mode-btn" id="btn-mode-coming-soon" data-mode="coming_soon">
+                <div class="pub-mode-btn__icon">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                </div>
+                <div class="pub-mode-btn__text">
+                  <span class="pub-mode-btn__label">Coming Soon</span>
+                  <span class="pub-mode-btn__hint">Public visitors blocked</span>
+                </div>
+              </button>
+
+              <!-- Mode 2: Scheduled Launch -->
+              <button type="button" class="pub-mode-btn" id="btn-mode-schedule" data-mode="scheduled">
+                <div class="pub-mode-btn__icon">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                </div>
+                <div class="pub-mode-btn__text">
+                  <span class="pub-mode-btn__label">Schedule Launch</span>
+                  <span class="pub-mode-btn__hint">Automated go-live timer</span>
+                </div>
+              </button>
+
+              <!-- Mode 3: Instant Live -->
+              <button type="button" class="pub-mode-btn" id="btn-mode-publish" data-mode="published">
+                <div class="pub-mode-btn__icon">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/></svg>
+                </div>
+                <div class="pub-mode-btn__text">
+                  <span class="pub-mode-btn__label">Publish Live Now</span>
+                  <span class="pub-mode-btn__hint">Instant public access</span>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <!-- Active Status Quick Action Bar (Unpublish & Schedule Manager) -->
+          <div class="admin-publish-status-banner" id="pub-status-banner" style="display:none;">
+            <div class="pub-banner-left">
+              <div class="pub-banner-badge" id="pub-banner-badge">
+                <span class="pub-banner-badge__dot" id="pub-banner-dot"></span>
+                <span id="pub-banner-title">Current Status</span>
+              </div>
+              <p class="pub-banner-subtitle" id="pub-banner-subtitle">Status description</p>
+            </div>
+            <div class="pub-banner-actions" id="pub-banner-actions">
+              <!-- Dynamically injected buttons: Edit Schedule, Cancel Schedule, Unpublish, etc. -->
+            </div>
+          </div>
+
+          <!-- Schedule Drawer / Inline Panel -->
+          <div class="admin-publish-drawer" id="pub-schedule-drawer" style="display:none;">
+            <div class="pub-schedule-inner">
+              <div class="pub-schedule-left">
+                <div class="pub-schedule-eyebrow">Precise Scheduling Engine</div>
+                <h3 class="pub-schedule-title">Set Automated Launch Date &amp; Time</h3>
+                <p class="pub-schedule-note">
+                  Past dates and elapsed hours are strictly locked out. Once armed, the site will automatically unlock for the general public the moment this timestamp arrives.
+                </p>
+
+                <div class="pub-schedule-presets">
+                  <span class="pub-preset-label">Quick Timers:</span>
+                  <button type="button" class="pub-preset-pill" data-hours="24">+24 Hours</button>
+                  <button type="button" class="pub-preset-pill" data-hours="72">+3 Days</button>
+                  <button type="button" class="pub-preset-pill" data-hours="168">+1 Week</button>
+                  <button type="button" class="pub-preset-pill" data-hours="336">+2 Weeks</button>
+                </div>
+              </div>
+
+              <div class="pub-schedule-controls">
+                <div class="pub-schedule-input-group">
+                  <label for="pub-datetime-input" class="pub-field-label">Scheduled Go-Live Time (Local)</label>
+                  <div class="pub-input-wrapper">
+                    <input type="datetime-local" id="pub-datetime-input" class="pub-datetime-input" />
+                    <svg class="pub-input-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  </div>
+                  <div class="pub-input-hint" id="pub-datetime-hint">Select a future hour to view live countdown</div>
+                </div>
+
+                <div class="pub-schedule-actions">
+                  <button type="button" id="btn-save-schedule" class="btn btn--primary btn--sm" disabled>
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                    <span>Confirm &amp; Arm Launch Schedule</span>
+                  </button>
+                  <button type="button" id="btn-cancel-schedule" class="btn btn--outline-dark btn--sm">
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Dynamic Live Countdown Preview -->
+            <div class="pub-schedule-preview" id="pub-schedule-preview" style="display:none;">
+              <span class="pub-preview-tag">Target Launch In:</span>
+              <div class="pub-preview-chips">
+                <span class="pub-chip"><strong id="pub-preview-d">0</strong>d</span>
+                <span class="pub-chip"><strong id="pub-preview-h">00</strong>h</span>
+                <span class="pub-chip"><strong id="pub-preview-m">00</strong>m</span>
+                <span class="pub-chip"><strong id="pub-preview-s">00</strong>s</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Metrics Strip -->
+        <div class="admin-metrics-grid">
+          <div class="metric-card">
+            <span class="metric-label">Total Inquiries</span>
+            <span class="metric-val" id="metric-total">0</span>
+            <span class="metric-sub">All logged inquiries</span>
+          </div>
+          <div class="metric-card metric-card--new">
+            <span class="metric-label">New / Pending</span>
+            <span class="metric-val" id="metric-new">0</span>
+            <span class="metric-sub">Requires initial review</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Tax Filings</span>
+            <span class="metric-val" id="metric-tax">0</span>
+            <span class="metric-sub">W-2 &amp; 1099 requests</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Firm &amp; Business Support</span>
+            <span class="metric-val" id="metric-business">0</span>
+            <span class="metric-sub">Bookkeeping &amp; digital services</span>
+          </div>
+        </div>
+
+        <!-- Filter & Search Controls -->
+        <div class="admin-controls-card">
+          <div class="admin-filters-row">
+            <div class="admin-type-tabs" role="tablist">
+              <button class="type-tab active" data-type="all">All Inquiries</button>
+              <button class="type-tab" data-type="w2_tax">W-2 Individual</button>
+              <button class="type-tab" data-type="1099_tax">1099 Self-Employed</button>
+              <button class="type-tab" data-type="firm_support">Tax Firm Support</button>
+              <button class="type-tab" data-type="bookkeeping">Bookkeeping</button>
+              <button class="type-tab" data-type="digital_services">Digital Services</button>
+              <button class="type-tab" data-type="general_contact">General Contact</button>
+            </div>
+
+            <select id="type-filter-select" class="form-control admin-type-select" aria-label="Filter inquiries by type">
+              <option value="all">All Inquiries</option>
+              <option value="w2_tax">W-2 Individual</option>
+              <option value="1099_tax">1099 Self-Employed</option>
+              <option value="firm_support">Tax Firm Support</option>
+              <option value="bookkeeping">Bookkeeping</option>
+              <option value="digital_services">Digital Services</option>
+              <option value="general_contact">General Contact</option>
+            </select>
+
+            <div class="admin-search-wrap">
+              <input type="text" id="search-input" class="search-field" placeholder="Search by name, email, phone..." />
+            </div>
+          </div>
+        </div>
+
+        <!-- Inquiries Table / Content -->
+        <div class="admin-table-card">
+          <div id="table-loading" class="admin-table-status admin-loading-state">
+            <div class="admin-spinner" aria-hidden="true"></div>
+            <div class="admin-loading-text">Loading inquiries from database...</div>
+            <div class="admin-skeleton-rows" aria-hidden="true">
+              <div class="admin-skeleton-row"></div>
+              <div class="admin-skeleton-row"></div>
+              <div class="admin-skeleton-row"></div>
+            </div>
+          </div>
+          <div id="table-empty" class="admin-table-status" style="display:none;">No inquiries found matching your filters.</div>
+
+          <div class="table-responsive" id="table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Date &amp; Time</th>
+                  <th>Client Name</th>
+                  <th>Contact Info</th>
+                  <th>Inquiry Type</th>
+                  <th>Status</th>
+                  <th class="text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="inquiries-tbody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════
+       3. INQUIRY DETAILS MODAL
+       ══════════════════════════════════════════════ -->
+  <div class="modal-backdrop" id="detail-modal" style="display:none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <span class="modal-eyebrow" id="modal-type-badge">Individual Tax Return</span>
+          <h2 class="modal-title" id="modal-client-name">Client Name</h2>
+        </div>
+        <button class="modal-close" id="btn-close-modal">&times;</button>
+      </div>
+
+      <div class="modal-body" id="modal-content">
+        <!-- Dynamically rendered -->
+      </div>
+
+      <div class="modal-footer">
+        <div class="modal-status-select-wrap">
+          <label for="modal-status-select">Update Status:</label>
+          <select id="modal-status-select" class="form-control form-control--sm">
+            <option value="new">New</option>
+            <option value="reviewed">Reviewed</option>
+            <option value="contacted">Contacted</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+        <div class="modal-actions">
+          <button type="button" id="modal-delete-btn" class="btn btn--outline-dark btn--sm" style="color:#b91c1c;border-color:#fca5a5;background:#fef2f2;margin-right:auto;" title="Permanently delete this inquiry">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+            Delete Inquiry
+          </button>
+          <a id="modal-email-btn" href="#" class="btn btn--outline-dark btn--sm">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2zM22 6l-10 7L2 6"/></svg>
+            Email Client
+          </a>
+          <button id="modal-save-btn" class="btn btn--primary btn--sm">Save Changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       4. PUBLICATION STATE CONFIRMATION MODAL
+       ══════════════════════════════════════════════ -->
+  <div class="modal-backdrop" id="pub-confirm-modal" style="display:none;">
+    <div class="modal-card modal-card--confirm">
+      <div class="modal-header">
+        <div>
+          <span class="modal-eyebrow" id="pub-modal-eyebrow">Publication Action</span>
+          <h2 class="modal-title" id="pub-modal-title">Confirm Site Status Change</h2>
+        </div>
+        <button class="modal-close" id="btn-close-pub-modal">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <p id="pub-modal-message" class="pub-modal-message">
+          Are you sure you want to change the publication status of the Rockwell website?
+        </p>
+        <div class="pub-modal-impact" id="pub-modal-impact">
+          <!-- Impact summary -->
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" id="btn-cancel-pub-modal" class="btn btn--outline-dark btn--sm">Cancel</button>
+        <button type="button" id="btn-execute-pub-modal" class="btn btn--primary btn--sm">Confirm &amp; Apply</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="admin-toast-container" id="admin-toast-container"></div>
+
+  <script src="/pages/admin/admin.js"></script>
+</body>
+</html>

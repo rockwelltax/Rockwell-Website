@@ -6,6 +6,14 @@
 (function () {
   'use strict';
 
+  function resolveContactUrl(params) {
+    const isCleanHost = window.location.hostname.includes('vercel.app') ||
+                        window.location.hostname.includes('rockwell') ||
+                        (window.location.protocol.startsWith('http') && !window.location.pathname.includes('/rockwell-website/'));
+    const base = isCleanHost ? '/contact' : '../contact/contact.html';
+    return params ? `${base}?${params}` : base;
+  }
+
   function initServiceSelector() {
     const items = document.querySelectorAll('.ds-service-item');
     const selectionText = document.getElementById('ds-selection-text');
@@ -20,15 +28,17 @@
       if (selectedServices.size === 0) {
         selectionText.textContent = 'Select one or more services above to tailor your consultation inquiry.';
         selectionCta.textContent = 'Inquire About Digital Services →';
-        selectionCta.href = '../contact/contact.html?service=digital-services';
-        if (heroCta) heroCta.href = '../contact/contact.html?service=digital-services';
+        const targetUrl = resolveContactUrl('service=digital-services');
+        selectionCta.href = targetUrl;
+        if (heroCta) heroCta.href = targetUrl;
       } else {
         const list = Array.from(selectedServices).join(', ');
         selectionText.innerHTML = `<strong>Selected focus:</strong> ${list}`;
         const encoded = encodeURIComponent(list);
         selectionCta.textContent = `Inquire About ${selectedServices.size} Selected Service${selectedServices.size > 1 ? 's' : ''} →`;
-        selectionCta.href = `../contact/contact.html?service=digital-services&focus=${encoded}`;
-        if (heroCta) heroCta.href = `../contact/contact.html?service=digital-services&focus=${encoded}`;
+        const targetUrl = resolveContactUrl(`service=digital-services&focus=${encoded}`);
+        selectionCta.href = targetUrl;
+        if (heroCta) heroCta.href = targetUrl;
       }
     }
 

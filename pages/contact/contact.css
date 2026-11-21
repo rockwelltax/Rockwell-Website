@@ -216,6 +216,7 @@
 .contact-form-success {
   text-align: center;
   padding: var(--space-16) var(--space-8);
+  scroll-margin-top: calc(var(--nav-height) + 1.5rem);
 }
 
 .contact-form-success__icon {
@@ -241,6 +242,7 @@
 
 @media (max-width: 599px) {
   .contact-form-wrap { padding: var(--space-8) var(--space-6); }
+  .contact-form-success { padding: var(--space-6) var(--space-2); }
   .form-submit-group {
     flex-direction: column;
     align-items: flex-start;

@@ -150,17 +150,6 @@
   <!-- Mobile Drawer -->
   <div class="nav-mobile" id="nav-mobile" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Site Menu">
     <div class="nav-mobile__inner">
-      <div class="nav-mobile__header">
-        <a href="${homeHref}" class="nav-logo" aria-label="Rockwell Tax &amp; Digital Strategies — Home">
-          <img src="${logoSrc}" alt="" class="nav-logo__icon" width="28" height="28" aria-hidden="true" />
-          <div class="nav-logo__text">
-            <span class="nav-logo__primary">Rockwell</span>
-            <span class="nav-logo__sub">Tax &amp; Digital Strategies Inc.</span>
-          </div>
-        </a>
-        <button class="nav-mobile__close" id="nav-mobile-close" aria-label="Close menu">&times;</button>
-      </div>
-
       <nav class="nav-mobile__links" aria-label="Mobile navigation">
         <a href="${homeHref}" class="nav-mobile__link${isHomeActive}">Home</a>
 
@@ -396,6 +385,7 @@
   function initHamburger() {
     const hamburger = document.getElementById('nav-hamburger');
     const mobileNav = document.getElementById('nav-mobile');
+    const header = document.getElementById('site-header');
     if (!hamburger || !mobileNav) return;
 
     function toggleMenu(open) {
@@ -403,6 +393,9 @@
       hamburger.setAttribute('aria-expanded', String(shouldOpen));
       mobileNav.setAttribute('aria-hidden', String(!shouldOpen));
       mobileNav.classList.toggle('is-open', shouldOpen);
+      if (header) {
+        header.classList.toggle('menu-open', shouldOpen);
+      }
       document.body.style.overflow = shouldOpen ? 'hidden' : '';
 
       if (shouldOpen) {
@@ -426,6 +419,13 @@
 
     mobileNav.addEventListener('click', function (e) {
       if (e.target === mobileNav) toggleMenu(false);
+    });
+
+    // Close on clicking any link inside mobile drawer
+    mobileNav.querySelectorAll('a').forEach(function (link) {
+      link.addEventListener('click', function () {
+        toggleMenu(false);
+      });
     });
 
     document.addEventListener('keydown', function (e) {

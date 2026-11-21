@@ -192,14 +192,10 @@
         details: data
       };
 
-      const isStaticLocal =
-        window.location.protocol === 'file:' ||
-        ((window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') &&
-          window.location.port !== '3000');
-
-      const endpoints = isStaticLocal
+      const isFileProtocol = window.location.protocol === 'file:';
+      const endpoints = isFileProtocol
         ? ['http://localhost:3000/api/inquiries', 'https://rockwellwebsite.vercel.app/api/inquiries']
-        : ['/api/inquiries'];
+        : ['/api/inquiries', 'http://localhost:3000/api/inquiries', 'https://rockwellwebsite.vercel.app/api/inquiries'];
 
       let res = null;
       let lastErr = null;
@@ -229,9 +225,24 @@
       }
 
       form.style.display = 'none';
+
+      // Hide surrounding pre-form intro elements so confirmation screen is clean on mobile
+      const preElements = [
+        document.querySelector('.tax-form-header'),
+        document.querySelector('.tax-path-selector'),
+        document.querySelector('.tax-form-security-notice'),
+        document.querySelector('.contact-topics')
+      ];
+      preElements.forEach(function (el) {
+        if (el) el.style.display = 'none';
+      });
+
       if (successEl) {
         successEl.hidden = false;
-        successEl.focus();
+        successEl.style.display = 'block';
+        successEl.setAttribute('tabindex', '-1');
+        successEl.focus({ preventScroll: true });
+        successEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     } catch (err) {
       showSubmitError(

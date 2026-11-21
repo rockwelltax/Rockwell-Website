@@ -1,0 +1,131 @@
+/* ============================================================
+   ROCKWELL TAX & DIGITAL STRATEGIES INC.
+   CSS Custom Properties — Design Tokens
+   ============================================================ */
+
+:root {
+  /* ── Brand Colors ── */
+  --color-beige:        #BCA18A;
+  --color-teal:         #3892A9;
+  --color-brown:        #29211D;
+  --color-white:        #FFFFFF;
+
+  /* ── Opacity Variants ── */
+  --color-beige-10:     rgba(188, 161, 138, 0.10);
+  --color-beige-20:     rgba(188, 161, 138, 0.20);
+  --color-beige-30:     rgba(188, 161, 138, 0.30);
+  --color-beige-50:     rgba(188, 161, 138, 0.50);
+  --color-teal-10:      rgba(56, 146, 169, 0.10);
+  --color-teal-15:      rgba(56, 146, 169, 0.15);
+  --color-teal-20:      rgba(56, 146, 169, 0.20);
+  --color-teal-80:      rgba(56, 146, 169, 0.80);
+  --color-brown-80:     rgba(41, 33, 29, 0.80);
+  --color-brown-90:     rgba(41, 33, 29, 0.90);
+  --color-brown-05:     rgba(41, 33, 29, 0.05);
+  --color-brown-10:     rgba(41, 33, 29, 0.10);
+
+  /* ── Semantic Colors ── */
+  --color-bg-primary:   var(--color-white);
+  --color-bg-warm:      #F5EDE4;
+  --color-bg-beige:     var(--color-beige);
+  --color-bg-dark:      var(--color-brown);
+  --color-text-primary: var(--color-brown);
+  --color-text-light:   var(--color-white);
+  --color-text-muted:   rgba(41, 33, 29, 0.60);
+  --color-accent:       var(--color-teal);
+  --color-border:       rgba(188, 161, 138, 0.35);
+  --color-border-dark:  rgba(41, 33, 29, 0.12);
+
+  /* ── Typography ── */
+  --font-serif:         'Playfair Display', Georgia, serif;
+  --font-sans:          'Inter', system-ui, -apple-system, sans-serif;
+
+  --text-xs:    0.75rem;    /* 12px */
+  --text-sm:    0.875rem;   /* 14px */
+  --text-base:  1rem;       /* 16px */
+  --text-md:    1.125rem;   /* 18px */
+  --text-lg:    1.25rem;    /* 20px */
+  --text-xl:    1.5rem;     /* 24px */
+  --text-2xl:   1.875rem;   /* 30px */
+  --text-3xl:   2.25rem;    /* 36px */
+  --text-4xl:   2.75rem;    /* 44px */
+  --text-5xl:   3.5rem;     /* 56px */
+  --text-6xl:   4.5rem;     /* 72px */
+
+  --leading-tight:  1.2;
+  --leading-snug:   1.4;
+  --leading-normal: 1.6;
+  --leading-relaxed:1.75;
+
+  --tracking-wide:  0.05em;
+  --tracking-wider: 0.08em;
+  --tracking-widest:0.15em;
+
+  --fw-regular: 400;
+  --fw-medium:  500;
+  --fw-semibold:600;
+  --fw-bold:    700;
+
+  /* ── Spacing Scale ── */
+  --space-1:  0.25rem;   /* 4px  */
+  --space-2:  0.5rem;    /* 8px  */
+  --space-3:  0.75rem;   /* 12px */
+  --space-4:  1rem;      /* 16px */
+  --space-5:  1.25rem;   /* 20px */
+  --space-6:  1.5rem;    /* 24px */
+  --space-8:  2rem;      /* 32px */
+  --space-10: 2.5rem;    /* 40px */
+  --space-12: 3rem;      /* 48px */
+  --space-16: 4rem;      /* 64px */
+  --space-20: 5rem;      /* 80px */
+  --space-24: 6rem;      /* 96px */
+  --space-32: 8rem;      /* 128px */
+
+  /* ── Section Padding ── */
+  --section-py:     5rem;
+  --section-py-sm:  3rem;
+
+  /* ── Layout ── */
+  --container-max:  1240px;
+  --container-pad:  clamp(1.25rem, 5vw, 2.5rem);
+
+  /* ── Border Radius ── */
+  --radius-sm:  4px;
+  --radius-md:  8px;
+  --radius-lg:  12px;
+  --radius-xl:  20px;
+  --radius-full:9999px;
+
+  /* ── Shadows ── */
+  --shadow-sm:  0 1px 3px rgba(41, 33, 29, 0.08), 0 1px 2px rgba(41, 33, 29, 0.05);
+  --shadow-md:  0 4px 16px rgba(41, 33, 29, 0.10), 0 2px 6px rgba(41, 33, 29, 0.06);
+  --shadow-lg:  0 8px 32px rgba(41, 33, 29, 0.12), 0 4px 12px rgba(41, 33, 29, 0.08);
+  --shadow-teal:0 4px 20px rgba(56, 146, 169, 0.25);
+
+  /* ── Transitions ── */
+  --transition-fast:   150ms ease;
+  --transition-base:   250ms ease;
+  --transition-slow:   400ms ease;
+  --transition-smooth: 600ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+  /* ── Z-index ── */
+  --z-base:    1;
+  --z-dropdown:10;
+  --z-sticky:  100;
+  --z-overlay: 200;
+  --z-modal:   300;
+  --z-top:     400;
+
+  /* ── Nav Height ── */
+  --nav-height: 76px;
+}
+
+/* Reduced motion override */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --transition-fast:   0ms;
+    --transition-base:   0ms;
+    --transition-slow:   0ms;
+    --transition-smooth: 0ms;
+  }
+}
