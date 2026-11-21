@@ -104,9 +104,6 @@
           </a>
           <ul class="nav-dropdown__menu" role="menu" aria-label="Services Submenu">
             <li role="none">
-              <a href="${servicesHref}" class="nav-dropdown__link" role="menuitem">All Services Overview</a>
-            </li>
-            <li role="none">
               <a href="${taxHref}" class="nav-dropdown__link" role="menuitem">Tax Preparation</a>
             </li>
             <li role="none">
@@ -156,9 +153,8 @@
 
       <div class="nav-mobile__group">
         <div class="nav-mobile__group-title">Services</div>
-        <a href="${servicesHref}" class="nav-mobile__sublink">Services Overview</a>
         <a href="${taxHref}" class="nav-mobile__sublink">Tax Preparation</a>
-        <a href="${bkHref}" class="nav-mobile__sublink">Bookkeeping</a>
+        <a href="${bkHref}" class="nav-mobile__sublink">Bookkeeping Services</a>
         <a href="${dsHref}" class="nav-mobile__sublink">Digital Services</a>
       </div>
 

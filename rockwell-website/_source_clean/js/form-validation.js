@@ -173,6 +173,7 @@
       formData.forEach((val, key) => { data[key] = val; });
 
       const isTax = form.id === 'tax-inquiry-form';
+      const isFirm = form.id === 'firm-support-form';
       const taxType = data.selfEmployed === 'yes' ? '1099_tax' : 'w2_tax';
       const subjectMap = {
         'tax-inquiry': 'w2_tax',
@@ -181,14 +182,19 @@
         'general': 'general_contact'
       };
       const contactType = subjectMap[data.subject] || data.service || 'general_contact';
+      const inquiryType = isFirm ? 'firm_support' : (isTax ? taxType : contactType);
+      const serviceRequested = isFirm
+        ? `Firm Support (${data.practiceName || data.firmType || 'Accounting Practice'})`
+        : (isTax
+          ? (taxType === '1099_tax' ? 'Self-Employed / 1099 Tax Return' : 'Individual Tax Return (W-2)')
+          : (data.subject || data.service || 'General Inquiry'));
+
       const payload = {
-        name: data.fullName || data.name || 'Anonymous Client',
+        name: data.fullName || data.contactName || data.name || (data.practiceName ? `${data.practiceName} (Contact)` : 'Anonymous Client'),
         email: data.email || '',
         phone: data.phone || '',
-        type: isTax ? taxType : contactType,
-        service_requested: isTax
-          ? (taxType === '1099_tax' ? 'Self-Employed / 1099 Tax Return' : 'Individual Tax Return (W-2)')
-          : (data.subject || data.service || 'General Inquiry'),
+        type: inquiryType,
+        service_requested: serviceRequested,
         details: data
       };
 
@@ -231,7 +237,8 @@
         document.querySelector('.tax-form-header'),
         document.querySelector('.tax-path-selector'),
         document.querySelector('.tax-form-security-notice'),
-        document.querySelector('.contact-topics')
+        document.querySelector('.contact-topics'),
+        document.querySelector('.firm-intro')
       ];
       preElements.forEach(function (el) {
         if (el) el.style.display = 'none';

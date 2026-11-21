@@ -105,10 +105,12 @@ async function main() {
       fs.mkdirSync(path.dirname(destRoot), { recursive: true });
       fs.writeFileSync(destRoot, encryptedCode, 'utf8');
 
-      // Destination 2: rockwell-website
-      const destRockwell = path.join(ROCKWELL_DIR, rel);
-      fs.mkdirSync(path.dirname(destRockwell), { recursive: true });
-      fs.writeFileSync(destRockwell, encryptedCode, 'utf8');
+      // Destination 2: rockwell-website (only if separate subfolder exists)
+      if (ROCKWELL_DIR !== ROOT_DIR && fs.existsSync(ROCKWELL_DIR)) {
+        const destRockwell = path.join(ROCKWELL_DIR, rel);
+        fs.mkdirSync(path.dirname(destRockwell), { recursive: true });
+        fs.writeFileSync(destRockwell, encryptedCode, 'utf8');
+      }
 
       console.log(`  ✅ Encrypted & deployed: ${rel}`);
       count++;
