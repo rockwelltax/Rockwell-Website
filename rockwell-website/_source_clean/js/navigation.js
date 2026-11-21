@@ -146,32 +146,32 @@
       </button>
     </nav>
   </div>
+</header>
 
-  <!-- Mobile Drawer -->
-  <div class="nav-mobile" id="nav-mobile" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Site Menu">
-    <div class="nav-mobile__inner">
-      <nav class="nav-mobile__links" aria-label="Mobile navigation">
-        <a href="${homeHref}" class="nav-mobile__link${isHomeActive}">Home</a>
+<!-- Mobile Drawer -->
+<div class="nav-mobile" id="nav-mobile" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Site Menu">
+  <div class="nav-mobile__inner">
+    <nav class="nav-mobile__links" aria-label="Mobile navigation">
+      <a href="${homeHref}" class="nav-mobile__link${isHomeActive}">Home</a>
 
-        <div class="nav-mobile__group">
-          <div class="nav-mobile__group-title">Services</div>
-          <a href="${servicesHref}" class="nav-mobile__sublink">Services Overview</a>
-          <a href="${taxHref}" class="nav-mobile__sublink">Tax Preparation</a>
-          <a href="${bkHref}" class="nav-mobile__sublink">Bookkeeping</a>
-          <a href="${dsHref}" class="nav-mobile__sublink">Digital Services</a>
-        </div>
-
-        <a href="${aboutHref}" class="nav-mobile__link${isAboutActive}">About Rockwell</a>
-        <a href="${contactHref}" class="nav-mobile__link${isContactActive}">Contact</a>
-      </nav>
-
-      <div class="nav-mobile__footer">
-        <a href="${startTaxHref}" class="btn btn--primary btn--full">Start Your Tax Return</a>
-        <p class="nav-mobile__note">Clear answers. Honest pricing. Your privacy protected.</p>
+      <div class="nav-mobile__group">
+        <div class="nav-mobile__group-title">Services</div>
+        <a href="${servicesHref}" class="nav-mobile__sublink">Services Overview</a>
+        <a href="${taxHref}" class="nav-mobile__sublink">Tax Preparation</a>
+        <a href="${bkHref}" class="nav-mobile__sublink">Bookkeeping</a>
+        <a href="${dsHref}" class="nav-mobile__sublink">Digital Services</a>
       </div>
+
+      <a href="${aboutHref}" class="nav-mobile__link${isAboutActive}">About Rockwell</a>
+      <a href="${contactHref}" class="nav-mobile__link${isContactActive}">Contact</a>
+    </nav>
+
+    <div class="nav-mobile__footer">
+      <a href="${startTaxHref}" class="btn btn--primary btn--full">Start Your Tax Return</a>
+      <p class="nav-mobile__note">Clear answers. Honest pricing. Your privacy protected.</p>
     </div>
   </div>
-</header>`;
+</div>`;
   }
 
   /* ── Build Footer HTML ── */
