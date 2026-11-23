@@ -12,6 +12,10 @@
     { "source": "/services/tax-preparation.html", "destination": "/services/tax-preparation", "type": 301 },
     { "source": "/tax-preparation.html", "destination": "/services/tax-preparation", "type": 301 },
 
+    { "source": "/pages/tax-preparation/firm-support(.html)?", "destination": "/firm-support", "type": 301 },
+    { "source": "/services/tax-preparation/firm-support(.html)?", "destination": "/firm-support", "type": 301 },
+    { "source": "/firm-support.html", "destination": "/firm-support", "type": 301 },
+
     { "source": "/pages/bookkeeping/bookkeeping(.html)?", "destination": "/services/bookkeeping", "type": 301 },
     { "source": "/bookkeeping/bookkeeping(.html)?", "destination": "/services/bookkeeping", "type": 301 },
     { "source": "/services/bookkeeping/bookkeeping(.html)?", "destination": "/services/bookkeeping", "type": 301 },
@@ -60,6 +64,8 @@
     { "source": "/services",                  "destination": "/pages/services/services.html" },
     { "source": "/services/tax-preparation",  "destination": "/pages/tax-preparation/tax-preparation.html" },
     { "source": "/tax-preparation",           "destination": "/pages/tax-preparation/tax-preparation.html" },
+    { "source": "/firm-support",              "destination": "/pages/tax-preparation/firm-support.html" },
+    { "source": "/services/tax-preparation/firm-support", "destination": "/pages/tax-preparation/firm-support.html" },
     { "source": "/services/bookkeeping",      "destination": "/pages/bookkeeping/bookkeeping.html" },
     { "source": "/bookkeeping",               "destination": "/pages/bookkeeping/bookkeeping.html" },
     { "source": "/services/digital-services", "destination": "/pages/digital-services/digital-services.html" },

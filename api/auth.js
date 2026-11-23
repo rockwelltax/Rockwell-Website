@@ -36,6 +36,9 @@ module.exports = async function handler(req, res) {
       return res.status(400).json({ error: 'Email and password are required' });
     }
 
+    const cleanEmail = String(email).trim();
+    const cleanPassword = String(password).trim();
+
     // Check Rate Limiting (Max 5 attempts in 5 minutes)
     try {
       const rateCheck = await db.query(
@@ -53,18 +56,24 @@ module.exports = async function handler(req, res) {
         }
       }
 
-      // Check User
-      const userRes = await db.query(`SELECT * FROM admin_users WHERE email ILIKE $1`, [email]);
+      // Check User (case-insensitive and whitespace-safe)
+      const userRes = await db.query(
+        `SELECT * FROM admin_users WHERE email ILIKE $1 OR email ILIKE $2`,
+        [email, cleanEmail]
+      );
       if (userRes.rows.length === 0) {
-        await recordFailedAttempt(ip, email);
+        await recordFailedAttempt(ip, cleanEmail);
         return res.status(401).json({ error: 'Invalid email address or password' });
       }
 
       const adminUser = userRes.rows[0];
-      const passwordMatch = await bcrypt.compare(password, adminUser.password_hash);
+      let passwordMatch = await bcrypt.compare(password, adminUser.password_hash);
+      if (!passwordMatch && password !== cleanPassword) {
+        passwordMatch = await bcrypt.compare(cleanPassword, adminUser.password_hash);
+      }
 
       if (!passwordMatch) {
-        await recordFailedAttempt(ip, email);
+        await recordFailedAttempt(ip, cleanEmail);
         return res.status(401).json({ error: 'Invalid email address or password' });
       }
 
@@ -87,13 +96,14 @@ module.exports = async function handler(req, res) {
   // ── 2. FORGOT PASSWORD (POST ?action=forgot-password) ──────
   if (req.method === 'POST' && action === 'forgot-password') {
     const { email } = parseBody(req);
+    const cleanEmail = String(email || '').trim();
 
-    if (!email) {
+    if (!cleanEmail) {
       return res.status(400).json({ error: 'Email is required' });
     }
 
     try {
-      const userRes = await db.query(`SELECT * FROM admin_users WHERE email ILIKE $1`, [email]);
+      const userRes = await db.query(`SELECT * FROM admin_users WHERE email ILIKE $1`, [cleanEmail]);
       if (userRes.rows.length === 0) {
         // Return generic message for security
         return res.status(200).json({
@@ -108,16 +118,16 @@ module.exports = async function handler(req, res) {
       const expiresAt = new Date(Date.now() + 2 * 60 * 1000);
 
       // Invalidate previous unused codes for this email
-      await db.query(`UPDATE password_resets SET used = true WHERE email ILIKE $1`, [email]);
+      await db.query(`UPDATE password_resets SET used = true WHERE email ILIKE $1`, [cleanEmail]);
 
       // Insert new code
       await db.query(
         `INSERT INTO password_resets (email, code, expires_at) VALUES ($1, $2, $3)`,
-        [email, code, expiresAt]
+        [cleanEmail, code, expiresAt]
       );
 
       // Send email via Resend
-      await sendPasswordResetCode({ to: email, code });
+      await sendPasswordResetCode({ to: cleanEmail, code });
 
       return res.status(200).json({
         success: true,
@@ -132,8 +142,10 @@ module.exports = async function handler(req, res) {
   // ── 3. VERIFY CODE (POST ?action=verify-code) ─────────────
   if (req.method === 'POST' && action === 'verify-code') {
     const { email, code } = parseBody(req);
+    const cleanEmail = String(email || '').trim();
+    const cleanCode = String(code || '').trim();
 
-    if (!email || !code) {
+    if (!cleanEmail || !cleanCode) {
       return res.status(400).json({ error: 'Email and verification code are required' });
     }
 
@@ -142,7 +154,7 @@ module.exports = async function handler(req, res) {
         `SELECT * FROM password_resets
          WHERE email ILIKE $1 AND code = $2 AND used = false
          ORDER BY created_at DESC LIMIT 1`,
-        [email, String(code).trim()]
+        [cleanEmail, cleanCode]
       );
 
       if (resetRes.rows.length === 0) {
@@ -167,12 +179,15 @@ module.exports = async function handler(req, res) {
   // ── 4. RESET PASSWORD (POST ?action=reset-password) ────────
   if (req.method === 'POST' && action === 'reset-password') {
     const { email, code, newPassword } = parseBody(req);
+    const cleanEmail = String(email || '').trim();
+    const cleanCode = String(code || '').trim();
+    const cleanNewPassword = String(newPassword || '').trim();
 
-    if (!email || !code || !newPassword) {
+    if (!cleanEmail || !cleanCode || !cleanNewPassword) {
       return res.status(400).json({ error: 'Email, verification code, and new password are required' });
     }
 
-    if (newPassword.length < 6) {
+    if (cleanNewPassword.length < 6) {
       return res.status(400).json({ error: 'Password must be at least 6 characters long' });
     }
 
@@ -181,7 +196,7 @@ module.exports = async function handler(req, res) {
         `SELECT * FROM password_resets
          WHERE email ILIKE $1 AND code = $2 AND used = false
          ORDER BY created_at DESC LIMIT 1`,
-        [email, String(code).trim()]
+        [cleanEmail, cleanCode]
       );
 
       if (resetRes.rows.length === 0) {
@@ -195,12 +210,12 @@ module.exports = async function handler(req, res) {
 
       // Hash new password
       const salt = await bcrypt.genSalt(10);
-      const hash = await bcrypt.hash(newPassword, salt);
+      const hash = await bcrypt.hash(cleanNewPassword, salt);
 
       // Update admin user password
       await db.query(
         `UPDATE admin_users SET password_hash = $1, updated_at = NOW() WHERE email ILIKE $2`,
-        [hash, email]
+        [hash, cleanEmail]
       );
 
       // Mark code as used

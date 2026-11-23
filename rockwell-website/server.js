@@ -88,6 +88,8 @@ const server = http.createServer(async (req, res) => {
     filePath = '/pages/services/services.html';
   } else if (pathname === '/services/tax-preparation' || pathname === '/tax-preparation' || pathname === '/tax-preparation.html' || pathname === '/tax-preparation/tax-preparation.html' || pathname === '/services/tax-preparation/tax-preparation.html' || pathname === '/services/tax-preparation.html') {
     filePath = '/pages/tax-preparation/tax-preparation.html';
+  } else if (pathname === '/firm-support' || pathname === '/firm-support.html' || pathname === '/services/tax-preparation/firm-support' || pathname === '/services/tax-preparation/firm-support.html' || pathname === '/pages/tax-preparation/firm-support.html') {
+    filePath = '/pages/tax-preparation/firm-support.html';
   } else if (pathname === '/services/bookkeeping' || pathname === '/bookkeeping' || pathname === '/bookkeeping.html' || pathname === '/bookkeeping/bookkeeping.html' || pathname === '/services/bookkeeping/bookkeeping.html' || pathname === '/services/bookkeeping.html') {
     filePath = '/pages/bookkeeping/bookkeeping.html';
   } else if (pathname === '/services/digital-services' || pathname === '/digital-services' || pathname === '/digital-services.html' || pathname === '/digital-services/digital-services.html' || pathname === '/services/digital-services/digital-services.html' || pathname === '/services/digital-services.html') {

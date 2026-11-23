@@ -430,6 +430,27 @@
   }
 }
 
+/* Extra-small screens (iPhone SE, narrow viewports <= 380px) */
+@media (max-width: 380px) {
+  .nav-inner {
+    gap: 0.5rem;
+  }
+  .nav-logo {
+    gap: 0.45rem;
+  }
+  .nav-logo__icon {
+    width: 28px;
+    height: 28px;
+  }
+  .nav-logo__primary {
+    font-size: 1.05rem;
+  }
+  .nav-logo__sub {
+    font-size: 0.52rem;
+    letter-spacing: 0.08em;
+  }
+}
+
 /* Hide some nav items on mid-range screens to prevent overflow */
 @media (max-width: 1200px) and (min-width: 1024px) {
   .nav-links__link {
