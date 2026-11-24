@@ -16,6 +16,15 @@ function generateToken(email) {
   return Buffer.from(`${email}:${expires}`).toString('base64');
 }
 
+function getClientIp(req) {
+  const forwarded = req.headers['x-forwarded-for'];
+  if (typeof forwarded === 'string' && forwarded.trim()) {
+    const first = forwarded.split(',')[0].trim();
+    if (first) return first;
+  }
+  return req.headers['x-real-ip'] || req.socket?.remoteAddress || 'unknown';
+}
+
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -26,7 +35,7 @@ module.exports = async function handler(req, res) {
   }
 
   const action = (req.query?.action || '').toLowerCase();
-  const ip = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'unknown';
+  const ip = getClientIp(req);
 
   // ── 1. LOGIN (POST ?action=login) ──────────────────────────
   if (req.method === 'POST' && action === 'login') {
@@ -39,21 +48,20 @@ module.exports = async function handler(req, res) {
     const cleanEmail = String(email).trim();
     const cleanPassword = String(password).trim();
 
-    // Check Rate Limiting (Max 5 attempts in 5 minutes)
+    // Check Rate Limiting (Scoped to IP + Email so colleagues on the same Wi-Fi aren't locked out)
     try {
       const rateCheck = await db.query(
-        `SELECT * FROM login_rate_limits WHERE ip_address = $1 AND (locked_until IS NULL OR locked_until > NOW())`,
-        [String(ip)]
+        `SELECT * FROM login_rate_limits 
+         WHERE ip_address = $1 AND email ILIKE $2 AND locked_until IS NOT NULL AND locked_until > NOW()`,
+        [String(ip), cleanEmail]
       );
 
       if (rateCheck.rows.length > 0) {
         const row = rateCheck.rows[0];
-        if (row.locked_until && new Date(row.locked_until) > new Date()) {
-          const remainingSecs = Math.ceil((new Date(row.locked_until) - new Date()) / 1000);
-          return res.status(429).json({
-            error: `Too many failed attempts. Account temporarily locked. Please try again in ${remainingSecs} seconds.`
-          });
-        }
+        const remainingSecs = Math.max(1, Math.ceil((new Date(row.locked_until).getTime() - Date.now()) / 1000));
+        return res.status(429).json({
+          error: `Too many failed attempts. Account temporarily locked for security. Please try again in ${remainingSecs} seconds.`
+        });
       }
 
       // Check User (case-insensitive and whitespace-safe)
@@ -77,8 +85,11 @@ module.exports = async function handler(req, res) {
         return res.status(401).json({ error: 'Invalid email address or password' });
       }
 
-      // Successful login -> Clear rate limits
-      await db.query(`DELETE FROM login_rate_limits WHERE ip_address = $1`, [String(ip)]);
+      // Successful login -> Clear rate limits for this IP and email
+      await db.query(
+        `DELETE FROM login_rate_limits WHERE ip_address = $1 AND email ILIKE $2`,
+        [String(ip), cleanEmail]
+      );
 
       const token = generateToken(adminUser.email);
       return res.status(200).json({
@@ -221,6 +232,12 @@ module.exports = async function handler(req, res) {
       // Mark code as used
       await db.query(`UPDATE password_resets SET used = true WHERE id = $1`, [resetRecord.id]);
 
+      // Clear any rate limits so user can log in immediately
+      await db.query(
+        `DELETE FROM login_rate_limits WHERE email ILIKE $1`,
+        [cleanEmail]
+      );
+
       return res.status(200).json({
         success: true,
         message: 'Your password has been successfully updated! You can now log in.'
@@ -236,20 +253,56 @@ module.exports = async function handler(req, res) {
 
 async function recordFailedAttempt(ip, email) {
   try {
-    const existing = await db.query(`SELECT * FROM login_rate_limits WHERE ip_address = $1`, [String(ip)]);
+    const cleanIp = String(ip || 'unknown').trim();
+    const cleanEmail = String(email || '').trim().toLowerCase();
+    const now = Date.now();
+    const WINDOW_MS = 15 * 60 * 1000; // 15-minute sliding window
+    const LOCKOUT_MS = 5 * 60 * 1000; // 5-minute lockout
+
+    const existing = await db.query(
+      `SELECT * FROM login_rate_limits WHERE ip_address = $1 AND email ILIKE $2`,
+      [cleanIp, cleanEmail]
+    );
+
     if (existing.rows.length === 0) {
-      await db.query(`INSERT INTO login_rate_limits (ip_address, email, attempts) VALUES ($1, $2, 1)`, [String(ip), email]);
+      await db.query(
+        `INSERT INTO login_rate_limits (ip_address, email, attempts, last_attempt) VALUES ($1, $2, 1, NOW())`,
+        [cleanIp, cleanEmail]
+      );
     } else {
-      const attempts = existing.rows[0].attempts + 1;
+      const row = existing.rows[0];
+      const lastAttemptTime = row.last_attempt ? new Date(row.last_attempt).getTime() : 0;
+      const lockedUntilTime = row.locked_until ? new Date(row.locked_until).getTime() : 0;
+
+      let attempts = 1;
+      // If previous lockout already expired, or if outside sliding window, reset attempts to 1
+      if (lockedUntilTime > 0 && lockedUntilTime <= now) {
+        attempts = 1;
+      } else if (now - lastAttemptTime < WINDOW_MS) {
+        attempts = (row.attempts || 0) + 1;
+      } else {
+        attempts = 1;
+      }
+
       let lockedUntil = null;
       if (attempts >= 5) {
-        lockedUntil = new Date(Date.now() + 5 * 60 * 1000); // Lock for 5 minutes
+        lockedUntil = new Date(now + LOCKOUT_MS);
       }
+
       await db.query(
-        `UPDATE login_rate_limits SET attempts = $1, locked_until = $2, last_attempt = NOW() WHERE ip_address = $3`,
-        [attempts, lockedUntil, String(ip)]
+        `UPDATE login_rate_limits 
+         SET attempts = $1, locked_until = $2, last_attempt = NOW() 
+         WHERE id = $3`,
+        [attempts, lockedUntil, row.id]
       );
     }
+
+    // Auto-clean expired records older than 1 day to keep database fast
+    await db.query(
+      `DELETE FROM login_rate_limits 
+       WHERE (locked_until IS NULL AND last_attempt < NOW() - INTERVAL '1 day')
+          OR (locked_until IS NOT NULL AND locked_until < NOW() - INTERVAL '1 day')`
+    );
   } catch (e) {
     console.error('Rate limit error:', e);
   }

@@ -8,14 +8,14 @@ This document provides a comprehensive operational overview of the website admin
 
 - **Admin Portal URL**: `https://rockwelltaxdigital.com/admin` (or `http://localhost:3000/admin` locally)
 - **Primary Administrative Accounts**:
-  - `info@rockwelltaxdigital.com` (Default Initial Password: `admin123`)
-  - `Kaelmendiola26@gmail.com` (Default Initial Password: `admin123`)
-  - `Info@rockwelldigital.com`
-  - `info@rockwelltax.com`
+  - `info@rockwelltaxdigital.com` (Password: `@rockwellADMIN2026`)
+  - `Kaelmendiola26@gmail.com` (Password: `@rockwellADMIN2026`)
+  - `Info@rockwelldigital.com` (Password: `@rockwellADMIN2026`)
+  - `info@rockwelltax.com` (Password: `@rockwellADMIN2026`)
 
 ### Access Control & Security Policies:
 1. **Password Encryption**: All passwords are encrypted with `bcrypt` (10 salt rounds). Plaintext passwords are never stored or logged.
-2. **Rate Limiting**: To prevent brute-force attacks, the `/api/auth` endpoint restricts repeated login failures. Exceeding 5 failed attempts within 5 minutes results in a temporary lock tracked in the `login_rate_limits` table.
+2. **Smart Rate Limiting**: To prevent brute-force attacks while avoiding false lockouts on shared office Wi-Fi, the `/api/auth` endpoint restricts repeated login failures per `(IP, Email)` pair. Exceeding 5 failed attempts in 15 minutes temporarily pauses that specific account login from that IP for 5 minutes. Successful login or password reset instantly clears the lock.
 3. **Password Reset Security**:
    - Resets generate a secure random 6-digit verification code sent via Resend to the admin's email.
    - Codes strictly expire after **2 minutes**.
