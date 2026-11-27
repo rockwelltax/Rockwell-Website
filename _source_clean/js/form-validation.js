@@ -28,9 +28,64 @@
     return /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/.test(val.trim());
   }
 
+  // Phone: digits plus standard separators only ( + ( ) - . space )
+  const PHONE_ALLOWED_CHARS = /[^0-9+()\-.\s]/g;
+  // Person name: letters (incl. accents), spaces, period, apostrophe, hyphen, comma
+  const NAME_ALLOWED_CHARS = /[^A-Za-zÀ-ÖØ-öø-ÿĀ-ž\s.'\-,]/g;
+
   function isValidPhone(val) {
-    const digits = val.replace(/\D/g, '');
+    const s = String(val || '').trim();
+    if (!/^\+?[0-9()\-.\s]+$/.test(s)) return false;
+    if ((s.match(/\+/g) || []).length > 1) return false;
+    const digits = s.replace(/\D/g, '');
     return digits.length >= 7 && digits.length <= 15;
+  }
+
+  function isValidPersonName(val) {
+    const s = String(val || '').trim();
+    if (s.length < 2 || s.length > 100) return false;
+    if (!/[A-Za-zÀ-ÖØ-öø-ÿĀ-ž]/.test(s)) return false;
+    return !/[^A-Za-zÀ-ÖØ-öø-ÿĀ-ž\s.'\-,]/.test(s);
+  }
+
+  // Live input masks: block invalid characters as the user types or pastes
+  function attachInputMask(field, disallowedRegex, maxLen) {
+    if (field.dataset.rwMasked === 'true') return;
+    field.dataset.rwMasked = 'true';
+    if (maxLen) field.setAttribute('maxlength', String(maxLen));
+    field.addEventListener('input', function () {
+      const cleaned = field.value.replace(disallowedRegex, '');
+      if (cleaned !== field.value) {
+        const pos = field.selectionStart;
+        const diff = field.value.length - cleaned.length;
+        field.value = cleaned;
+        try { field.setSelectionRange(Math.max(0, pos - diff), Math.max(0, pos - diff)); } catch (_) {}
+      }
+    });
+  }
+
+  function applyFieldMasks(form) {
+    form.querySelectorAll('input[type="tel"], input[name="phone"]').forEach(function (f) {
+      f.setAttribute('inputmode', 'tel');
+      attachInputMask(f, PHONE_ALLOWED_CHARS, 20);
+    });
+    form.querySelectorAll('input[name="fullName"]').forEach(function (f) {
+      attachInputMask(f, NAME_ALLOWED_CHARS, 100);
+    });
+    form.querySelectorAll('input[name="practiceName"]').forEach(function (f) {
+      f.setAttribute('maxlength', '120');
+    });
+    form.querySelectorAll('input[type="email"]').forEach(function (f) {
+      f.setAttribute('maxlength', '254');
+      f.setAttribute('inputmode', 'email');
+      f.addEventListener('input', function () {
+        const cleaned = f.value.replace(/\s/g, '');
+        if (cleaned !== f.value) f.value = cleaned;
+      });
+    });
+    form.querySelectorAll('input[name="manualCity"], input[name="additionalStates"], input[name="volume"]').forEach(function (f) {
+      f.setAttribute('maxlength', '150');
+    });
   }
 
   function showError(field, msg) {
@@ -104,13 +159,18 @@
     }
 
     if (isPhone && val && !isValidPhone(val)) {
-      showError(field, 'Please enter a valid phone number (7–15 digits).');
+      showError(field, 'Please enter a valid phone number using numbers only (7–15 digits).');
       return false;
     }
 
-    if ((field.name === 'fullName' || field.name === 'practiceName') && val) {
+    if (field.name === 'fullName' && val && !isValidPersonName(val)) {
+      showError(field, 'Please enter a valid name (letters only, at least 2 characters).');
+      return false;
+    }
+
+    if (field.name === 'practiceName' && val) {
       if (val.length < 2 || !/[a-zA-Z]/.test(val)) {
-        showError(field, 'Please enter a valid name.');
+        showError(field, 'Please enter a valid firm or practice name.');
         return false;
       }
     }
@@ -800,6 +860,9 @@
 
     // Upgrade all <select class="form-select"> into searchable combo boxes
     form.querySelectorAll('select.form-select').forEach(enhanceSelectWithSearch);
+
+    // Strict live input masks (phone = numbers only, name = letters only, etc.)
+    applyFieldMasks(form);
 
     const textFields = form.querySelectorAll(
       'input[type="text"]:not([name="_hp"]):not([name="website_url"]):not([data-captcha-input]):not([data-cb-search]), input[type="email"], input[type="tel"], textarea, select'

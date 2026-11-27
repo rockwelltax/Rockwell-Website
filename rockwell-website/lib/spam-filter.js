@@ -184,6 +184,9 @@ function evaluateInquirySubmission(body, context = {}) {
 
   if (phone) {
     const digits = phone.replace(/\D/g, '');
+    if (!/^\+?[0-9()\-.\s]+$/.test(phone) || phone.length > 25) {
+      return { valid: false, reason: 'invalid_phone_chars', error: 'Please enter a valid phone number using numbers only.' };
+    }
     if (digits.length < 7 || digits.length > 15) {
       return { valid: false, reason: 'invalid_phone', error: 'Please enter a valid phone number (7–15 digits).' };
     }
