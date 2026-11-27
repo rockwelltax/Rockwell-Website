@@ -10,9 +10,11 @@
   const RAW_9DIGIT_SSN_REGEX = /\b(?!000|666|9\d{2})\d{3}(?!00)\d{2}(?!0000)\d{4}\b/;
 
   let serverFormToken = null;
+  let activeSecurityMode = 'captcha';
   let activeTurnstileSiteKey = null;
   let followUpEmailAddress = 'info@rockwelltaxdigital.com';
   const turnstileWidgets = new Map();
+  const captchaWidgets = new Map();
 
   function isSsnLike(val, isPhoneField) {
     const s = String(val || '');
@@ -126,53 +128,228 @@
     return true;
   }
 
-  /* ── Initialize Signed Form Config, HttpOnly Device Cookie & Turnstile ── */
-  async function initSecurityConfig() {
-    try {
-      const res = await fetch('/api/inquiries?action=config', {
-        method: 'GET',
-        credentials: 'same-origin',
-        cache: 'no-store'
+  /* ── Built-in Cryptographic SVG CAPTCHA Widget Renderer ── */
+  function renderBuiltinCaptchaWidget(container, formAction, initialCaptcha) {
+    const form = container.closest('form');
+    container.innerHTML = '';
+
+    const card = document.createElement('div');
+    card.className = 'rw-captcha-card';
+    card.style.cssText =
+      'background: #FFFFFF; border: 1px solid #D2E1E6; border-radius: 10px; padding: 0.85rem 1rem; box-shadow: 0 2px 8px rgba(30, 107, 123, 0.06); max-width: 440px;';
+
+    const header = document.createElement('div');
+    header.style.cssText =
+      'display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.65rem; gap: 0.5rem;';
+
+    const titleWrap = document.createElement('div');
+    titleWrap.style.cssText =
+      'display: inline-flex; align-items: center; gap: 0.45rem; font-size: 0.84rem; font-weight: 600; color: #29211D;';
+    titleWrap.innerHTML =
+      '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2L4 5.5V11.5C4 16.8 7.4 21.6 12 23C16.6 21.6 20 16.8 20 11.5V5.5L12 2Z" fill="#E8F4F6" stroke="#1E6B7B" stroke-width="1.8"/><path d="M8.5 12.2L10.9 14.6L15.8 9.7" stroke="#1E6B7B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+      '<span>Security Verification <span style="color:#C53B27;" aria-hidden="true">*</span></span>';
+
+    const refreshBtn = document.createElement('button');
+    refreshBtn.type = 'button';
+    refreshBtn.setAttribute('aria-label', 'Generate a new security verification code');
+    refreshBtn.style.cssText =
+      'background: #F2F8FA; border: 1px solid #C8DCE2; color: #1E6B7B; border-radius: 6px; padding: 0.25rem 0.6rem; font-size: 0.76rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 0.3rem; transition: background 0.15s ease;';
+    refreshBtn.textContent = '↻ New Code';
+
+    header.appendChild(titleWrap);
+    header.appendChild(refreshBtn);
+
+    const bodyRow = document.createElement('div');
+    bodyRow.style.cssText =
+      'display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center;';
+
+    const imgEl = document.createElement('img');
+    imgEl.alt = 'Security verification characters';
+    imgEl.title = 'Click to load a new code';
+    imgEl.style.cssText =
+      'width: 186px; height: 52px; border-radius: 6px; border: 1px solid #C8DCE2; background: #EFF6F8; cursor: pointer; flex-shrink: 0; display: block; user-select: none;';
+    if (initialCaptcha && initialCaptcha.svgDataUri) {
+      imgEl.src = initialCaptcha.svgDataUri;
+    }
+
+    const inputWrap = document.createElement('div');
+    inputWrap.style.cssText = 'flex: 1 1 165px; position: relative;';
+
+    const inputEl = document.createElement('input');
+    inputEl.type = 'text';
+    inputEl.setAttribute('data-captcha-input', 'true');
+    inputEl.maxLength = 5;
+    inputEl.autocomplete = 'off';
+    inputEl.autocapitalize = 'characters';
+    inputEl.spellcheck = false;
+    inputEl.placeholder = 'Enter 5 characters';
+    inputEl.setAttribute('aria-label', 'Enter the 5 characters shown in the security image');
+    inputEl.style.cssText =
+      'width: 100%; height: 52px; padding: 0 2.2rem 0 0.85rem; border: 1.5px solid #CBD5E1; border-radius: 6px; font-size: 1rem; font-weight: 700; letter-spacing: 0.18em; color: #29211D; background: #FAFAFA; box-sizing: border-box; text-transform: uppercase; outline: none; transition: border-color 0.15s ease, background 0.15s ease;';
+
+    const statusBadge = document.createElement('span');
+    statusBadge.setAttribute('aria-hidden', 'true');
+    statusBadge.style.cssText =
+      'position: absolute; right: 0.7rem; top: 50%; transform: translateY(-50%); font-size: 0.95rem; color: #1E6B7B; font-weight: 700; display: none; pointer-events: none;';
+    statusBadge.textContent = '✓';
+
+    inputWrap.appendChild(inputEl);
+    inputWrap.appendChild(statusBadge);
+
+    bodyRow.appendChild(imgEl);
+    bodyRow.appendChild(inputWrap);
+
+    const footer = document.createElement('div');
+    footer.style.cssText =
+      'display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem; font-size: 0.73rem; color: #64748B; gap: 0.5rem;';
+    footer.innerHTML =
+      '<span>Type the 5 characters above (not case-sensitive)</span>' +
+      '<span style="color:#1E6B7B; font-weight:500;">Rockwell Anti-Spam</span>';
+
+    card.appendChild(header);
+    card.appendChild(bodyRow);
+    card.appendChild(footer);
+    container.appendChild(card);
+
+    const state = {
+      container: container,
+      formAction: formAction,
+      token: (initialCaptcha && initialCaptcha.challengeToken) || '',
+      imgEl: imgEl,
+      inputEl: inputEl,
+      refresh: async function () {
+        refreshBtn.disabled = true;
+        refreshBtn.textContent = 'Loading…';
+        try {
+          const r = await fetch(
+            '/api/inquiries?action=captcha&formAction=' + encodeURIComponent(formAction),
+            { method: 'GET', credentials: 'same-origin', cache: 'no-store' }
+          );
+          if (r && r.ok) {
+            const d = await r.json();
+            if (d && d.captcha) {
+              state.token = d.captcha.challengeToken || '';
+              if (d.captcha.svgDataUri) {
+                imgEl.src = d.captcha.svgDataUri;
+              }
+              inputEl.value = '';
+              inputEl.style.borderColor = '#CBD5E1';
+              inputEl.style.background = '#FAFAFA';
+              statusBadge.style.display = 'none';
+            }
+          }
+        } catch (_) {
+        } finally {
+          refreshBtn.disabled = false;
+          refreshBtn.textContent = '↻ New Code';
+        }
+      }
+    };
+
+    inputEl.addEventListener('input', function () {
+      const cleaned = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 5);
+      if (this.value !== cleaned) {
+        this.value = cleaned;
+      }
+      if (cleaned.length === 5) {
+        this.style.borderColor = '#1E6B7B';
+        this.style.background = '#FFFFFF';
+        statusBadge.style.display = 'inline';
+        clearSubmitError(form);
+      } else {
+        this.style.borderColor = '#CBD5E1';
+        this.style.background = '#FAFAFA';
+        statusBadge.style.display = 'none';
+      }
+    });
+
+    refreshBtn.addEventListener('click', function () {
+      state.refresh().then(function () {
+        inputEl.focus();
       });
+    });
+
+    imgEl.addEventListener('click', function () {
+      state.refresh().then(function () {
+        inputEl.focus();
+      });
+    });
+
+    if (form) {
+      captchaWidgets.set(form, state);
+    }
+
+    if (!state.token) {
+      state.refresh();
+    }
+  }
+
+  /* ── Initialize Signed Form Config, HttpOnly Device Cookie & Security Challenge ── */
+  async function initSecurityConfig() {
+    const containers = document.querySelectorAll('[data-turnstile-container]');
+    const primaryAction = containers[0]
+      ? containers[0].getAttribute('data-turnstile-action') || 'contact_inquiry'
+      : 'contact_inquiry';
+
+    let initialCaptcha = null;
+    try {
+      const res = await fetch(
+        '/api/inquiries?action=config&formAction=' + encodeURIComponent(primaryAction),
+        {
+          method: 'GET',
+          credentials: 'same-origin',
+          cache: 'no-store'
+        }
+      );
       if (res && res.ok) {
         const cfg = await res.json();
         if (cfg.formToken) serverFormToken = cfg.formToken;
+        if (cfg.securityMode) activeSecurityMode = cfg.securityMode;
         if (cfg.turnstileSiteKey) activeTurnstileSiteKey = cfg.turnstileSiteKey;
+        if (cfg.captcha) initialCaptcha = cfg.captcha;
         if (cfg.followUpEmail) followUpEmailAddress = cfg.followUpEmail;
       }
     } catch (_) {}
 
-    const containers = document.querySelectorAll('[data-turnstile-container]');
-    if (!containers.length || !activeTurnstileSiteKey) return;
+    if (!containers.length) return;
 
-    try {
-      if (!window.turnstile) {
-        await new Promise((resolve, reject) => {
-          const script = document.createElement('script');
-          script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
-          script.async = true;
-          script.defer = true;
-          script.onload = resolve;
-          script.onerror = reject;
-          document.head.appendChild(script);
-        });
-      }
-
-      if (window.turnstile && typeof window.turnstile.render === 'function') {
-        containers.forEach(function (container) {
-          const form = container.closest('form');
-          const action = container.getAttribute('data-turnstile-action') || 'contact_inquiry';
-          const widgetId = window.turnstile.render(container, {
-            sitekey: activeTurnstileSiteKey,
-            action: action,
-            theme: 'light'
+    if (activeSecurityMode === 'turnstile' && activeTurnstileSiteKey) {
+      try {
+        if (!window.turnstile) {
+          await new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+            script.async = true;
+            script.defer = true;
+            script.onload = resolve;
+            script.onerror = reject;
+            document.head.appendChild(script);
           });
-          if (form && widgetId !== undefined) {
-            turnstileWidgets.set(form, widgetId);
-          }
-        });
-      }
-    } catch (_) {}
+        }
+
+        if (window.turnstile && typeof window.turnstile.render === 'function') {
+          containers.forEach(function (container) {
+            const form = container.closest('form');
+            const action = container.getAttribute('data-turnstile-action') || 'contact_inquiry';
+            const widgetId = window.turnstile.render(container, {
+              sitekey: activeTurnstileSiteKey,
+              action: action,
+              theme: 'light'
+            });
+            if (form && widgetId !== undefined) {
+              turnstileWidgets.set(form, widgetId);
+            }
+          });
+          return;
+        }
+      } catch (_) {}
+    }
+
+    // Default / Production Built-in Cryptographic SVG CAPTCHA
+    containers.forEach(function (container, idx) {
+      const action = container.getAttribute('data-turnstile-action') || 'contact_inquiry';
+      renderBuiltinCaptchaWidget(container, action, idx === 0 ? initialCaptcha : null);
+    });
   }
 
   /* ── Init a form ── */
@@ -181,7 +358,7 @@
     form.dataset.rwInitialized = 'true';
 
     const textFields = form.querySelectorAll(
-      'input[type="text"]:not([name="_hp"]):not([name="website_url"]), input[type="email"], input[type="tel"], textarea, select'
+      'input[type="text"]:not([name="_hp"]):not([name="website_url"]):not([data-captcha-input]), input[type="email"], input[type="tel"], textarea, select'
     );
 
     const ssnAlert =
@@ -322,7 +499,7 @@
     const data = {};
     formData.forEach((val, key) => { data[key] = val; });
 
-    // Require Cloudflare Turnstile token if widget is rendered
+    // 1) Require Cloudflare Turnstile token if live Turnstile widget is rendered
     let turnstileToken = data['cf-turnstile-response'] || '';
     if (!turnstileToken && window.turnstile && turnstileWidgets.has(form)) {
       try {
@@ -330,9 +507,37 @@
       } catch (_) {}
     }
 
-    if (activeTurnstileSiteKey && turnstileWidgets.has(form) && !turnstileToken) {
+    if (activeSecurityMode === 'turnstile' && activeTurnstileSiteKey && turnstileWidgets.has(form) && !turnstileToken) {
       showSubmitError(form, 'Please complete the security verification check before submitting.');
       return;
+    }
+
+    // 2) Require Built-in Cryptographic SVG CAPTCHA if rendered
+    let captchaToken = '';
+    let captchaAnswer = '';
+    if (captchaWidgets.has(form)) {
+      const capState = captchaWidgets.get(form);
+      captchaToken = capState.token || '';
+      captchaAnswer = (capState.inputEl ? capState.inputEl.value : '')
+        .trim()
+        .toUpperCase()
+        .replace(/[^A-Z0-9]/g, '');
+
+      if (!captchaToken) {
+        await capState.refresh();
+        showSubmitError(form, 'A fresh security verification code was loaded. Please enter the 5 characters shown.');
+        if (capState.inputEl) capState.inputEl.focus();
+        return;
+      }
+
+      if (captchaAnswer.length !== 5) {
+        if (capState.inputEl) {
+          capState.inputEl.style.borderColor = '#C53B27';
+          capState.inputEl.focus();
+        }
+        showSubmitError(form, 'Please enter the 5-character security code shown in the verification box.');
+        return;
+      }
     }
 
     if (btn) {
@@ -394,7 +599,9 @@
         _hp: data._hp || '',
         website_url: data.website_url || '',
         _ft: serverFormToken || '',
-        turnstileToken: turnstileToken
+        turnstileToken: turnstileToken,
+        captchaToken: captchaToken,
+        captchaAnswer: captchaAnswer
       };
 
       const isFileProtocol = window.location.protocol === 'file:';
@@ -427,6 +634,9 @@
       if (!res.ok || !resData.success) {
         if (window.turnstile && turnstileWidgets.has(form)) {
           try { window.turnstile.reset(turnstileWidgets.get(form)); } catch (_) {}
+        }
+        if (captchaWidgets.has(form)) {
+          try { await captchaWidgets.get(form).refresh(); } catch (_) {}
         }
 
         if (res.status === 429 && resData.code === 'RATE_LIMIT_24H') {

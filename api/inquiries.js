@@ -10,7 +10,8 @@ const {
   deriveAdvisoryLockPair,
   sortAdvisoryLockPairs
 } = require('../lib/auth-token');
-const { getTurnstileSiteKey, verifyTurnstileToken } = require('../lib/turnstile');
+const { hasLiveTurnstileConfig, getTurnstileSiteKey, verifyTurnstileToken } = require('../lib/turnstile');
+const { createCaptchaChallenge, verifyCaptchaChallenge } = require('../lib/captcha');
 const {
   detectSensitiveSsnData,
   evaluateInquirySubmission,
@@ -61,16 +62,45 @@ module.exports = async function handler(req, res) {
     try {
       getOrIssueDeviceCookie(req, res);
       const formToken = createSignedFormToken();
-      const siteKey = getTurnstileSiteKey();
+      const liveTurnstile = hasLiveTurnstileConfig();
+      const siteKey = liveTurnstile ? getTurnstileSiteKey() : null;
+      const formAction = String(req.query?.formAction || 'general').trim();
+      const captchaPayload = liveTurnstile
+        ? null
+        : createCaptchaChallenge({ action: formAction });
+      if (captchaPayload) {
+        delete captchaPayload._testAnswer;
+      }
+
       return res.status(200).json({
         success: true,
-        turnstileSiteKey: siteKey || null,
+        securityMode: liveTurnstile ? 'turnstile' : 'captcha',
+        turnstileSiteKey: siteKey,
+        captcha: captchaPayload,
         formToken,
         followUpEmail: INQUIRY_NOTIFICATION_EMAIL
       });
     } catch (err) {
       console.error('Form config init error:', err.message);
       return res.status(500).json({ error: 'Unable to initialize form security configuration.' });
+    }
+  }
+
+  // ── 0b. REFRESH BUILT-IN CAPTCHA CHALLENGE (GET ?action=captcha) ──
+  if (req.method === 'GET' && action === 'captcha') {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+    try {
+      getOrIssueDeviceCookie(req, res);
+      const formAction = String(req.query?.formAction || 'general').trim();
+      const captchaPayload = createCaptchaChallenge({ action: formAction });
+      delete captchaPayload._testAnswer;
+      return res.status(200).json({
+        success: true,
+        captcha: captchaPayload
+      });
+    } catch (err) {
+      console.error('CAPTCHA refresh error:', err.message);
+      return res.status(500).json({ error: 'Unable to generate a new security code.' });
     }
   }
 
@@ -216,27 +246,77 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    // Step E: Cloudflare Turnstile Verification (Fail-closed in production + hostname & action check)
+    // Step E: Human Security Challenge Verification
+    // - Uses live Cloudflare Turnstile when production site+secret keys are configured
+    // - Uses Rockwell's built-in cryptographic SVG CAPTCHA in production / browser forms otherwise
     const expectedAction = getExpectedTurnstileAction(body);
-    const turnstileRes = await verifyTurnstileToken({
-      token: body.turnstileToken,
-      remoteIp: ip,
-      expectedAction
-    });
+    const liveTurnstile = hasLiveTurnstileConfig();
 
-    if (!turnstileRes.ok) {
-      await logSecurityEvent({
-        eventType: 'turnstile_failed',
-        severity: turnstileRes.statusCode >= 500 ? 'error' : 'warn',
-        ipAddress: ip,
-        deviceHash: deviceInfo.deviceHash,
-        metadata: {
-          reason: turnstileRes.reason,
-          expectedAction,
-          errorCodes: turnstileRes.errorCodes || []
-        }
+    if (liveTurnstile) {
+      const turnstileRes = await verifyTurnstileToken({
+        token: body.turnstileToken,
+        remoteIp: ip,
+        expectedAction
       });
-      return res.status(turnstileRes.statusCode).json({ error: turnstileRes.error });
+
+      if (!turnstileRes.ok) {
+        await logSecurityEvent({
+          eventType: 'turnstile_failed',
+          severity: turnstileRes.statusCode >= 500 ? 'error' : 'warn',
+          ipAddress: ip,
+          deviceHash: deviceInfo.deviceHash,
+          metadata: {
+            reason: turnstileRes.reason,
+            expectedAction,
+            errorCodes: turnstileRes.errorCodes || []
+          }
+        });
+        return res.status(turnstileRes.statusCode).json({ error: turnstileRes.error });
+      }
+    } else if (body.captchaToken || process.env.NODE_ENV === 'production') {
+      const captchaRes = await verifyCaptchaChallenge({
+        captchaToken: body.captchaToken,
+        captchaAnswer: body.captchaAnswer,
+        expectedAction,
+        remoteIp: ip,
+        deviceHash: deviceInfo.deviceHash
+      });
+
+      if (!captchaRes.ok) {
+        await logSecurityEvent({
+          eventType: 'turnstile_failed',
+          severity: captchaRes.statusCode >= 500 ? 'error' : 'warn',
+          ipAddress: ip,
+          deviceHash: deviceInfo.deviceHash,
+          metadata: {
+            provider: 'rockwell_captcha',
+            reason: captchaRes.reason,
+            expectedAction
+          }
+        });
+        return res.status(captchaRes.statusCode).json({ error: captchaRes.error });
+      }
+    } else {
+      const turnstileRes = await verifyTurnstileToken({
+        token: body.turnstileToken,
+        remoteIp: ip,
+        expectedAction
+      });
+
+      if (!turnstileRes.ok) {
+        await logSecurityEvent({
+          eventType: 'turnstile_failed',
+          severity: turnstileRes.statusCode >= 500 ? 'error' : 'warn',
+          ipAddress: ip,
+          deviceHash: deviceInfo.deviceHash,
+          metadata: {
+            reason: turnstileRes.reason,
+            expectedAction,
+            errorCodes: turnstileRes.errorCodes || []
+          }
+        });
+        return res.status(turnstileRes.statusCode).json({ error: turnstileRes.error });
+      }
     }
 
     // Step F: Gather Supplementary Risk Context & Evaluate Schema + Composite Risk Score

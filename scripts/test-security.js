@@ -26,6 +26,7 @@ const server = require('../server');
 const db = require('../lib/db');
 const emailModule = require('../lib/email');
 const { verifyTurnstileToken } = require('../lib/turnstile');
+const { createCaptchaChallenge, verifyCaptchaChallenge } = require('../lib/captcha');
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -583,7 +584,74 @@ async function runTests() {
       assert.strictEqual(postLogoutGet.status, 401, 'Revoked session cookie must be rejected with 401 after logout');
     });
 
-    console.log(`\n🎉 ALL ${passed}/12 SECURITY & CONCURRENCY VERIFICATION SUITES PASSED!`);
+    // 13. Built-in Cryptographic SVG CAPTCHA Verification & Replay Protection
+    await step('13. Built-in SVG CAPTCHA rejects wrong/tampered/fast/replayed codes & accepts valid code once', async () => {
+      // Verify /api/inquiries?action=config returns captcha mode + SVG image when live Turnstile keys are unset
+      const cfgRes = await fetch(`${baseUrl}/api/inquiries?action=config&formAction=contact_inquiry`);
+      const cfgJson = await cfgRes.json();
+      assert.strictEqual(cfgJson.securityMode, 'captcha');
+      assert(cfgJson.captcha && cfgJson.captcha.svgDataUri.startsWith('data:image/svg+xml;base64,'));
+      assert(!cfgJson.captcha._testAnswer, 'Raw CAPTCHA answer must never be exposed over HTTP');
+
+      // Generate internal test challenge to test verification & replay protection
+      process.env.NODE_ENV = 'test_captcha_internal';
+      const challenge = createCaptchaChallenge({ action: 'contact_inquiry' });
+      process.env.NODE_ENV = 'development';
+      assert(challenge._testAnswer && challenge._testAnswer.length === 5);
+
+      // Instant solve (<1.2s) must be rejected
+      const tooFastRes = await verifyCaptchaChallenge({
+        captchaToken: challenge.challengeToken,
+        captchaAnswer: challenge._testAnswer,
+        expectedAction: 'contact_inquiry',
+        remoteIp: '203.0.113.55'
+      });
+      assert.strictEqual(tooFastRes.ok, false);
+      assert.strictEqual(tooFastRes.reason, 'captcha_solved_too_fast');
+
+      await sleep(1300);
+
+      // Wrong answer must be rejected without consuming the challenge
+      const wrongAnsRes = await verifyCaptchaChallenge({
+        captchaToken: challenge.challengeToken,
+        captchaAnswer: 'ZZZZZ',
+        expectedAction: 'contact_inquiry',
+        remoteIp: '203.0.113.55'
+      });
+      assert.strictEqual(wrongAnsRes.ok, false);
+      assert.strictEqual(wrongAnsRes.reason, 'captcha_wrong_answer');
+
+      // Tampered token signature must be rejected
+      const tamperedRes = await verifyCaptchaChallenge({
+        captchaToken: challenge.challengeToken.slice(0, -4) + 'ffff',
+        captchaAnswer: challenge._testAnswer,
+        expectedAction: 'contact_inquiry',
+        remoteIp: '203.0.113.55'
+      });
+      assert.strictEqual(tamperedRes.ok, false);
+      assert.strictEqual(tamperedRes.reason, 'captcha_signature_mismatch');
+
+      // Correct answer (case-insensitive) succeeds once
+      const validRes = await verifyCaptchaChallenge({
+        captchaToken: challenge.challengeToken,
+        captchaAnswer: challenge._testAnswer.toLowerCase(),
+        expectedAction: 'contact_inquiry',
+        remoteIp: '203.0.113.55'
+      });
+      assert.strictEqual(validRes.ok, true);
+
+      // Second replay of the exact same solved challenge must be rejected
+      const replayRes = await verifyCaptchaChallenge({
+        captchaToken: challenge.challengeToken,
+        captchaAnswer: challenge._testAnswer,
+        expectedAction: 'contact_inquiry',
+        remoteIp: '203.0.113.55'
+      });
+      assert.strictEqual(replayRes.ok, false);
+      assert.strictEqual(replayRes.reason, 'captcha_replayed');
+    });
+
+    console.log(`\n🎉 ALL ${passed}/13 SECURITY & CONCURRENCY VERIFICATION SUITES PASSED!`);
   } finally {
     await ownerClient.query('TRUNCATE TABLE inquiry_rate_limits, admin_sessions, password_resets, login_rate_limits RESTART IDENTITY CASCADE').catch(() => {});
     await ownerClient.query(`DELETE FROM inquiries WHERE email LIKE '%@example-test.com' OR email = 'm.a.r.i.a.santos@gmail.com' OR email = 'rchen@silvacpa-test.com'`).catch(() => {});

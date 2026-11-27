@@ -5,15 +5,25 @@ require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 const TEST_SITE_KEY = '1x00000000000000000000AA';
 const TEST_SECRET_KEY = '1x0000000000000000000000000000000AA';
 
+function isDummyTurnstileKey(key) {
+  const k = String(key || '').trim();
+  return !k || /^(1x0000|2x0000|3x0000)/.test(k);
+}
+
+/**
+ * Returns true ONLY when real (non-test) Cloudflare Turnstile site + secret keys are configured.
+ */
+function hasLiveTurnstileConfig() {
+  const siteKey = (process.env.TURNSTILE_SITE_KEY || '').trim();
+  const secretKey = (process.env.TURNSTILE_SECRET_KEY || '').trim();
+  return !isDummyTurnstileKey(siteKey) && !isDummyTurnstileKey(secretKey);
+}
+
 function getTurnstileSiteKey() {
-  const customSiteKey = (process.env.TURNSTILE_SITE_KEY || '').trim();
-  if (customSiteKey) {
-    return customSiteKey;
+  if (hasLiveTurnstileConfig()) {
+    return (process.env.TURNSTILE_SITE_KEY || '').trim();
   }
-  return (
-    process.env.DEV_TURNSTILE_SITE_KEY ||
-    TEST_SITE_KEY
-  ).trim();
+  return '';
 }
 
 function getAllowedHostnames(isProd) {
@@ -152,6 +162,7 @@ async function verifyTurnstileToken({ token, remoteIp, expectedAction }) {
 }
 
 module.exports = {
+  hasLiveTurnstileConfig,
   getTurnstileSiteKey,
   verifyTurnstileToken,
   TEST_SITE_KEY,
