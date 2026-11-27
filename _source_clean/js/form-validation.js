@@ -62,6 +62,10 @@
 
   function validateField(field) {
     if (field.name === '_hp' || field.name === 'website_url') return true;
+    if (field.disabled) {
+      clearError(field);
+      return true;
+    }
 
     const val = field.value.trim();
     const type = field.type;
@@ -378,6 +382,11 @@
       field.addEventListener('blur', function () {
         validateField(field);
       });
+      if (field.tagName === 'SELECT') {
+        field.addEventListener('change', function () {
+          validateField(field);
+        });
+      }
       field.addEventListener('input', function () {
         const isPhone = field.type === 'tel' || field.name === 'phone';
         if (isSsnLike(field.value, isPhone)) {

@@ -17,6 +17,7 @@
     "@neon/config": "^1.14.3",
     "@neon/env": "^2.1.6",
     "bcryptjs": "^3.0.2",
+    "country-state-city": "^3.2.1",
     "dotenv": "^16.4.7",
     "pg": "^8.13.3",
     "resend": "^4.1.2"

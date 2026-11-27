@@ -6,6 +6,7 @@ require('dotenv').config({ path: path.join(__dirname, '.env') });
 const authHandler = require('./api/auth');
 const inquiriesHandler = require('./api/inquiries');
 const siteStatusHandler = require('./api/site-status');
+const locationsHandler = require('./api/locations');
 const { verifyAdminSession } = require('./lib/auth-token');
 
 const PORT = process.env.PORT || 3000;
@@ -95,6 +96,9 @@ const server = http.createServer(async (req, res) => {
   }
   if (pathname === '/api/site-status') {
     return siteStatusHandler(req, res);
+  }
+  if (pathname === '/api/locations') {
+    return locationsHandler(req, res);
   }
 
   // Block direct access to sensitive dotfiles, server modules, backups, or clean source

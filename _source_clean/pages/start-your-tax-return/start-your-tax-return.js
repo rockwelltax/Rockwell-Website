@@ -141,10 +141,237 @@
     });
   }
 
+  // Cascading Worldwide Country -> State/Province -> City Selector
+  function initLocationCascader() {
+    const countrySelect = document.getElementById('loc-country');
+    const stateSelect = document.getElementById('loc-state');
+    const stateWrap = document.getElementById('loc-state-wrap');
+    const citySelect = document.getElementById('loc-city');
+    const cityWrap = document.getElementById('loc-city-wrap');
+    const manualCityWrap = document.getElementById('loc-manual-city-wrap');
+    const manualCityInput = document.getElementById('loc-manual-city');
+    const additionalInput = document.getElementById('additional-states');
+    const countryNameHidden = document.getElementById('loc-country-name');
+    const stateNameHidden = document.getElementById('loc-state-name');
+    const statesHidden = document.getElementById('states');
+
+    if (!countrySelect || !stateSelect || !citySelect || !statesHidden) return;
+
+    function getSelectedText(selectEl) {
+      if (!selectEl || !selectEl.value) return '';
+      const opt = selectEl.options[selectEl.selectedIndex];
+      return opt ? opt.textContent.trim() : '';
+    }
+
+    function syncComposedLocation() {
+      const cName = getSelectedText(countrySelect);
+      const sName = !stateSelect.disabled && stateSelect.value ? getSelectedText(stateSelect) : '';
+      let cityVal = '';
+      if (!manualCityInput.disabled && manualCityInput.value.trim()) {
+        cityVal = manualCityInput.value.trim();
+      } else if (!citySelect.disabled && citySelect.value && citySelect.value !== '__OTHER__') {
+        cityVal = citySelect.value;
+      }
+
+      if (countryNameHidden) countryNameHidden.value = cName;
+      if (stateNameHidden) stateNameHidden.value = sName;
+
+      const parts = [cityVal, sName, cName].filter(Boolean);
+      let summary = parts.join(', ');
+      const extra = additionalInput && additionalInput.value ? additionalInput.value.trim() : '';
+      if (extra) {
+        summary = summary ? `${summary} (Also: ${extra})` : extra;
+      }
+      statesHidden.value = summary;
+    }
+
+    function toggleManualCity(show) {
+      if (!manualCityWrap || !manualCityInput) return;
+      if (show) {
+        manualCityWrap.style.display = 'block';
+        manualCityInput.disabled = false;
+        manualCityInput.required = true;
+      } else {
+        manualCityWrap.style.display = 'none';
+        manualCityInput.disabled = true;
+        manualCityInput.required = false;
+        manualCityInput.value = '';
+      }
+      syncComposedLocation();
+    }
+
+    async function loadCities(countryCode, stateCode) {
+      citySelect.innerHTML = '<option value="">Loading cities…</option>';
+      citySelect.disabled = true;
+      toggleManualCity(false);
+
+      try {
+        const res = await fetch(
+          `/api/locations?type=cities&country=${encodeURIComponent(countryCode)}&state=${encodeURIComponent(stateCode || 'NONE')}`
+        );
+        const data = res.ok ? await res.json() : { cities: [] };
+        const cities = Array.isArray(data.cities) ? data.cities : [];
+
+        if (cities.length === 0) {
+          if (cityWrap) cityWrap.style.display = 'none';
+          citySelect.disabled = true;
+          citySelect.required = false;
+          citySelect.innerHTML = '<option value="__OTHER__" selected>Other</option>';
+          toggleManualCity(true);
+          return;
+        }
+
+        if (cityWrap) cityWrap.style.display = '';
+        citySelect.innerHTML = '<option value="">Select city / municipality…</option>';
+        const frag = document.createDocumentFragment();
+        cities.forEach(function (name) {
+          const opt = document.createElement('option');
+          opt.value = name;
+          opt.textContent = name;
+          frag.appendChild(opt);
+        });
+        const otherOpt = document.createElement('option');
+        otherOpt.value = '__OTHER__';
+        otherOpt.textContent = 'Other (Type manually)';
+        frag.appendChild(otherOpt);
+
+        citySelect.appendChild(frag);
+        citySelect.disabled = false;
+        citySelect.required = true;
+      } catch (_) {
+        if (cityWrap) cityWrap.style.display = 'none';
+        citySelect.disabled = true;
+        citySelect.required = false;
+        toggleManualCity(true);
+      }
+      syncComposedLocation();
+    }
+
+    async function loadStates(countryCode) {
+      stateSelect.innerHTML = '<option value="">Loading states/provinces…</option>';
+      stateSelect.disabled = true;
+      citySelect.innerHTML = '<option value="">Select state/province first…</option>';
+      citySelect.disabled = true;
+      if (cityWrap) cityWrap.style.display = '';
+      toggleManualCity(false);
+
+      if (!countryCode) {
+        stateSelect.innerHTML = '<option value="">Select country first…</option>';
+        syncComposedLocation();
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/locations?type=states&country=${encodeURIComponent(countryCode)}`);
+        const data = res.ok ? await res.json() : { states: [] };
+        const states = Array.isArray(data.states) ? data.states : [];
+
+        if (states.length === 0) {
+          if (stateWrap) stateWrap.style.display = 'none';
+          stateSelect.disabled = true;
+          stateSelect.required = false;
+          stateSelect.innerHTML = '<option value="">N/A</option>';
+          await loadCities(countryCode, 'NONE');
+          return;
+        }
+
+        if (stateWrap) stateWrap.style.display = '';
+        stateSelect.innerHTML = '<option value="">Select state / province…</option>';
+        const frag = document.createDocumentFragment();
+        states.forEach(function (st) {
+          const opt = document.createElement('option');
+          opt.value = st.code;
+          opt.textContent = st.name;
+          frag.appendChild(opt);
+        });
+        stateSelect.appendChild(frag);
+        stateSelect.disabled = false;
+        stateSelect.required = true;
+      } catch (_) {
+        stateSelect.innerHTML = '<option value="">Unable to load states</option>';
+      }
+      syncComposedLocation();
+    }
+
+    async function loadCountries() {
+      countrySelect.innerHTML = '<option value="">Loading countries…</option>';
+      try {
+        const res = await fetch('/api/locations?type=countries');
+        const data = res.ok ? await res.json() : { priority: [], all: [] };
+
+        countrySelect.innerHTML = '<option value="">Select country…</option>';
+
+        if (Array.isArray(data.priority) && data.priority.length > 0) {
+          const priGroup = document.createElement('optgroup');
+          priGroup.label = 'Popular Locations';
+          data.priority.forEach(function (c) {
+            const opt = document.createElement('option');
+            opt.value = c.code;
+            opt.textContent = c.name;
+            priGroup.appendChild(opt);
+          });
+          countrySelect.appendChild(priGroup);
+        }
+
+        if (Array.isArray(data.all) && data.all.length > 0) {
+          const allGroup = document.createElement('optgroup');
+          allGroup.label = 'All Countries (A–Z)';
+          const priSet = new Set((data.priority || []).map((p) => p.code));
+          data.all.forEach(function (c) {
+            if (priSet.has(c.code)) return;
+            const opt = document.createElement('option');
+            opt.value = c.code;
+            opt.textContent = c.name;
+            allGroup.appendChild(opt);
+          });
+          countrySelect.appendChild(allGroup);
+        }
+      } catch (_) {
+        countrySelect.innerHTML =
+          '<option value="">Select country…</option><option value="US">United States</option><option value="PH">Philippines</option>';
+      }
+    }
+
+    countrySelect.addEventListener('change', function () {
+      loadStates(this.value);
+    });
+
+    stateSelect.addEventListener('change', function () {
+      if (this.value) {
+        loadCities(countrySelect.value, this.value);
+      } else {
+        citySelect.innerHTML = '<option value="">Select state/province first…</option>';
+        citySelect.disabled = true;
+        toggleManualCity(false);
+      }
+      syncComposedLocation();
+    });
+
+    citySelect.addEventListener('change', function () {
+      if (this.value === '__OTHER__') {
+        toggleManualCity(true);
+        if (manualCityInput) manualCityInput.focus();
+      } else {
+        toggleManualCity(false);
+      }
+      syncComposedLocation();
+    });
+
+    if (manualCityInput) {
+      manualCityInput.addEventListener('input', syncComposedLocation);
+    }
+    if (additionalInput) {
+      additionalInput.addEventListener('input', syncComposedLocation);
+    }
+
+    loadCountries();
+  }
+
   function init() {
     initPathSelector();
     initPreFill();
     initDynamicGuidance();
+    initLocationCascader();
     initSsnDetection();
   }
 

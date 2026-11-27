@@ -3,6 +3,12 @@
  * Server-Side Input Validation, SSN Hard-Rejection & Composite Spam Risk Model
  */
 
+const { Country } = require('country-state-city');
+
+const ALL_ISO_COUNTRIES = Country.getAllCountries();
+const VALID_COUNTRY_CODES = new Set(ALL_ISO_COUNTRIES.map((c) => c.isoCode.toUpperCase()));
+const VALID_COUNTRY_NAMES = ALL_ISO_COUNTRIES.map((c) => c.name.toLowerCase());
+
 const ALLOWED_TYPES = new Set([
   'w2_tax',
   '1099_tax',
@@ -87,19 +93,32 @@ function detectSensitiveSsnData(body) {
   return { detected: false };
 }
 
-function isValidUsStateInput(val) {
+function isValidUsStateInput(val, details = {}) {
+  const countryCode = String(details?.countryCode || '').trim().toUpperCase();
   const clean = String(val || '').trim();
-  if (clean.length < 2 || clean.length > 200) return false;
+
+  if (countryCode && VALID_COUNTRY_CODES.has(countryCode)) {
+    if (clean.length >= 2 && clean.length <= 250 && !containsHtmlOrSpamLinks(clean)) {
+      return true;
+    }
+  }
+
+  if (clean.length < 2 || clean.length > 250) return false;
+  if (containsHtmlOrSpamLinks(clean)) return false;
   const lower = clean.toLowerCase();
 
   for (const stateName of US_STATE_NAMES) {
     if (lower.includes(stateName)) return true;
   }
 
-  // Check uppercase 2-letter tokens (e.g. "NY", "CA, TX", "NY / NJ")
+  for (const countryName of VALID_COUNTRY_NAMES) {
+    if (countryName.length >= 4 && lower.includes(countryName)) return true;
+  }
+
   const tokens = clean.split(/[\s,;/+&|-]+/).filter(Boolean);
   for (const tok of tokens) {
-    if (US_STATE_CODES.has(tok.toUpperCase()) && tok.length === 2) {
+    const up = tok.toUpperCase();
+    if (tok.length === 2 && (US_STATE_CODES.has(up) || VALID_COUNTRY_CODES.has(up))) {
       return true;
     }
   }
@@ -186,11 +205,11 @@ function evaluateInquirySubmission(body, context = {}) {
     if (details.selfEmployed && !ALLOWED_YES_NO.has(String(details.selfEmployed))) {
       return { valid: false, reason: 'invalid_self_employed', error: 'Invalid self-employment selection.' };
     }
-    if (!isValidUsStateInput(details.states)) {
+    if (!isValidUsStateInput(details.states, details)) {
       return {
         valid: false,
         reason: 'invalid_us_state',
-        error: 'Please enter valid US state(s) where you lived or worked (e.g., California, NY).'
+        error: 'Please select your country, state/province, and city.'
       };
     }
   } else if (type === 'firm_support') {
