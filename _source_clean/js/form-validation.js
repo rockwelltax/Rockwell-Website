@@ -217,10 +217,9 @@
 
     const footer = document.createElement('div');
     footer.style.cssText =
-      'display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem; font-size: 0.73rem; color: #64748B; gap: 0.5rem;';
+      'display: flex; justify-content: flex-start; align-items: center; margin-top: 0.5rem; font-size: 0.73rem; color: #64748B;';
     footer.innerHTML =
-      '<span>Type the 5 characters above (not case-sensitive)</span>' +
-      '<span style="color:#1E6B7B; font-weight:500;">Rockwell Anti-Spam</span>';
+      '<span>Type the 5 characters above (not case-sensitive)</span>';
 
     card.appendChild(header);
     card.appendChild(bodyRow);
