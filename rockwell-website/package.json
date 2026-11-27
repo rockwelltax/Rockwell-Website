@@ -1,6 +1,6 @@
 {
   "name": "rockwell-website",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Rockwell Tax & Digital Strategies Inc. Official Website & Admin Portal",
   "scripts": {
     "start": "node server.js",
