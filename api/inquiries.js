@@ -385,26 +385,21 @@ module.exports = async function handler(req, res) {
         await client.query('SELECT pg_advisory_xact_lock($1, $2)', [classId, objId]);
       }
 
-      // 1. Smart Per-Device 24-Hour & Anti-Burst Protection
-      //    - Blocks simultaneous millisecond bot/double-click races (<3s on same cookie)
-      //    - Allows up to 5 inquiries / 24h per device so clients asking about multiple services
-      //      or spouses/colleagues sharing 1 computer are never unfairly blocked
-      const MAX_DEVICE_INQUIRIES_24H = 5;
-      const MAX_EMAIL_INQUIRIES_24H = 4;
-      const MAX_SAME_CATEGORY_PER_EMAIL_24H = 2;
-
+      // 1. Strict 3-Hour Cooldown per Device (device_hash)
+      //    Any device that has submitted an inquiry within the last 3 hours is blocked.
       const deviceStatsRes = await client.query(
         `SELECT
-           COUNT(*)::int AS total_24h,
-           COUNT(*) FILTER (WHERE created_at > NOW() - INTERVAL '3 seconds')::int AS burst_3s
+           COUNT(*)::int AS count_3h,
+           COALESCE(EXTRACT(EPOCH FROM (NOW() - MAX(created_at)))::int, 0) AS elapsed_seconds
          FROM inquiry_rate_limits
-         WHERE device_hash = $1 AND created_at > NOW() - INTERVAL '24 hours'`,
+         WHERE device_hash = $1 AND created_at > NOW() - INTERVAL '3 hours'`,
         [deviceInfo.deviceHash]
       );
 
-      const { total_24h: deviceTotal24h = 0, burst_3s: deviceBurst3s = 0 } = deviceStatsRes.rows[0] || {};
+      const { count_3h: deviceCount3h = 0, elapsed_seconds: deviceElapsedSec = 0 } = deviceStatsRes.rows[0] || {};
 
-      if (deviceBurst3s > 0 || deviceTotal24h >= MAX_DEVICE_INQUIRIES_24H) {
+      if (deviceCount3h > 0) {
+        const remainingMinutes = Math.max(1, Math.ceil((10800 - deviceElapsedSec) / 60));
         await logSecurityEvent({
           eventType: 'inquiry_rate_limited',
           severity: 'info',
@@ -412,48 +407,34 @@ module.exports = async function handler(req, res) {
           ipAddress: ip,
           deviceHash: deviceInfo.deviceHash,
           metadata: {
-            scope: deviceBurst3s > 0 ? 'device_burst_3s' : 'device_24h_cap',
-            deviceTotal24h
+            scope: 'device_3h_cooldown',
+            remainingMinutes
           },
           client
         });
         await client.query('COMMIT');
         return res.status(429).json({
-          error: deviceBurst3s > 0
-            ? 'Your inquiry was just received moments ago. Please wait a few seconds before submitting an additional inquiry.'
-            : `To prevent automated spam, up to ${MAX_DEVICE_INQUIRIES_24H} inquiries can be submitted from the same device within 24 hours.`,
-          code: 'RATE_LIMIT_24H',
+          error: `An inquiry was recently submitted from this device. To prevent spam, submissions are limited to once every 3 hours (please wait approximately ${remainingMinutes} minute${remainingMinutes === 1 ? '' : 's'} before submitting another inquiry).`,
+          code: 'RATE_LIMIT_3H',
           followUpEmail: INQUIRY_NOTIFICATION_EMAIL
         });
       }
 
-      // 2. Smart Per-Email & Per-Service-Category 24-Hour Policy
-      //    - Clients can immediately inquire about MULTIPLE different services (e.g. Tax Return + Bookkeeping + Digital Services)
-      //    - Clients can also submit a follow-up in the SAME category (up to 2 per category / 24h, after a 60s duplicate-click guard)
-      //    - Capped at 4 total inquiries per email per 24h
+      // 2. Strict 3-Hour Cooldown per Email Address (email_normalized)
+      //    Any email that has submitted an inquiry within the last 3 hours is blocked.
       const emailStatsRes = await client.query(
         `SELECT
-           COUNT(*)::int AS email_total_24h,
-           COUNT(*) FILTER (WHERE inquiry_type = $2)::int AS same_type_24h,
-           COUNT(*) FILTER (WHERE inquiry_type = $2 AND created_at > NOW() - INTERVAL '60 seconds')::int AS same_type_60s
+           COUNT(*)::int AS count_3h,
+           COALESCE(EXTRACT(EPOCH FROM (NOW() - MAX(created_at)))::int, 0) AS elapsed_seconds
          FROM inquiry_rate_limits
-         WHERE email_normalized = $1 AND created_at > NOW() - INTERVAL '24 hours'`,
-        [clean.emailNormalized, clean.type]
+         WHERE email_normalized = $1 AND created_at > NOW() - INTERVAL '3 hours'`,
+        [clean.emailNormalized]
       );
 
-      const {
-        email_total_24h: emailTotal24h = 0,
-        same_type_24h: sameType24h = 0,
-        same_type_60s: sameType60s = 0
-      } = emailStatsRes.rows[0] || {};
+      const { count_3h: emailCount3h = 0, elapsed_seconds: emailElapsedSec = 0 } = emailStatsRes.rows[0] || {};
 
-      if (sameType60s > 0 || sameType24h >= MAX_SAME_CATEGORY_PER_EMAIL_24H || emailTotal24h >= MAX_EMAIL_INQUIRIES_24H) {
-        const limitReason = sameType60s > 0
-          ? 'email_same_category_60s_cooldown'
-          : sameType24h >= MAX_SAME_CATEGORY_PER_EMAIL_24H
-            ? 'email_same_category_24h_cap'
-            : 'email_total_24h_cap';
-
+      if (emailCount3h > 0) {
+        const remainingMinutes = Math.max(1, Math.ceil((10800 - emailElapsedSec) / 60));
         await logSecurityEvent({
           eventType: 'inquiry_rate_limited',
           severity: 'info',
@@ -461,23 +442,48 @@ module.exports = async function handler(req, res) {
           ipAddress: ip,
           deviceHash: deviceInfo.deviceHash,
           metadata: {
-            scope: limitReason,
-            inquiryType: clean.type,
-            emailTotal24h,
-            sameType24h
+            scope: 'email_3h_cooldown',
+            remainingMinutes
           },
           client
         });
         await client.query('COMMIT');
         return res.status(429).json({
-          error: sameType60s > 0
-            ? 'We just received your inquiry for this service. Please wait 1 minute if you wish to send an additional note, or inquire about a different service right away.'
-            : sameType24h >= MAX_SAME_CATEGORY_PER_EMAIL_24H
-              ? 'We already have your recent inquiries for this service category on file today. You may still submit an inquiry for another service, or email us directly below.'
-              : `We have received ${MAX_EMAIL_INQUIRIES_24H} inquiries from this email address within the last 24 hours.`,
-          code: 'RATE_LIMIT_24H',
+          error: `An inquiry from ${clean.emailNormalized} was recently received. To prevent spam and duplicate submissions, new inquiries are limited to once every 3 hours. If you have additional notes, please email us directly below.`,
+          code: 'RATE_LIMIT_3H',
           followUpEmail: INQUIRY_NOTIFICATION_EMAIL
         });
+      }
+
+      // 3. Strict 3-Hour Cooldown per Phone Number (if phone provided)
+      if (clean.phone) {
+        const digitsOnly = clean.phone.replace(/\D/g, '');
+        if (digitsOnly.length >= 7) {
+          const phoneStatsRes = await client.query(
+            `SELECT COUNT(*)::int AS count_3h
+             FROM inquiries
+             WHERE regexp_replace(phone, '\\D', '', 'g') = $1
+               AND created_at > NOW() - INTERVAL '3 hours'`,
+            [digitsOnly]
+          );
+          if (phoneStatsRes.rows[0]?.count_3h > 0) {
+            await logSecurityEvent({
+              eventType: 'inquiry_rate_limited',
+              severity: 'info',
+              actorEmail: clean.emailNormalized,
+              ipAddress: ip,
+              deviceHash: deviceInfo.deviceHash,
+              metadata: { scope: 'phone_3h_cooldown' },
+              client
+            });
+            await client.query('COMMIT');
+            return res.status(429).json({
+              error: 'An inquiry with this phone number was recently received. To prevent spam, submissions are limited to once every 3 hours. If you have additional details, please email us directly below.',
+              code: 'RATE_LIMIT_3H',
+              followUpEmail: INQUIRY_NOTIFICATION_EMAIL
+            });
+          }
+        }
       }
 
       // 3. Adaptive Shared-IP Rate Limit (protects corporate & household Wi-Fi while stopping IP floods)

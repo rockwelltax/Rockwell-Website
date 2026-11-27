@@ -929,7 +929,7 @@
     });
   }
 
-  /* ── Error & 24-Hour Legitimate Follow-Up Card ── */
+  /* ── Error & 3-Hour Legitimate Follow-Up Card ── */
   function getOrCreateErrorBox(form) {
     let errBox = form.querySelector('.form-submit-error');
     if (!errBox) {
@@ -957,7 +957,7 @@
     errBox.scrollIntoView && errBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
-  function show24HourFollowUpCard(form, message, payload) {
+  function showRateLimitFollowUpCard(form, message, payload) {
     const errBox = getOrCreateErrorBox(form);
     errBox.style.background = '#F3F9FB';
     errBox.style.color = '#29211D';
@@ -968,20 +968,20 @@
     title.style.display = 'block';
     title.style.marginBottom = '0.35rem';
     title.style.color = '#29211D';
-    title.textContent = 'Recent Inquiries Already Logged — Send Direct Follow-Up';
+    title.textContent = 'Recent Inquiry Already Logged — Send Direct Follow-Up';
 
     const desc = document.createElement('p');
     desc.style.margin = '0 0 0.75rem 0';
     desc.textContent =
       message +
-      ' To send additional notes right away without losing what you typed, click below to email our team directly with your details pre-filled:';
+      ' If you have additional notes or an urgent question, you can email our team directly with your inquiry details pre-filled:';
 
-    const subj = encodeURIComponent(`Additional Service Inquiry: ${payload.service_requested || payload.type} — ${payload.name}`);
+    const subj = encodeURIComponent(`Inquiry Follow-Up: ${payload.service_requested || payload.type} — ${payload.name}`);
     const bodyLines = [
       `Name: ${payload.name}`,
       `Email: ${payload.email}`,
       payload.phone ? `Phone: ${payload.phone}` : '',
-      `Service Requested: ${payload.service_requested || payload.type}`,
+      `Service: ${payload.service_requested || payload.type}`,
       payload.details?.message ? `\nDetails:\n${payload.details.message}` : ''
     ].filter(Boolean).join('\n');
 
@@ -989,7 +989,7 @@
     mailLink.href = `mailto:${followUpEmailAddress}?subject=${subj}&body=${encodeURIComponent(bodyLines)}`;
     mailLink.className = 'btn btn--primary btn--sm';
     mailLink.style.display = 'inline-flex';
-    mailLink.textContent = `Send Direct Follow-Up to ${followUpEmailAddress} →`;
+    mailLink.textContent = `Send Direct Email to ${followUpEmailAddress} →`;
 
     errBox.appendChild(title);
     errBox.appendChild(desc);
@@ -1156,11 +1156,11 @@
           try { await captchaWidgets.get(form).refresh(); } catch (_) {}
         }
 
-        if (res.status === 429 && resData.code === 'RATE_LIMIT_24H') {
+        if (res.status === 429) {
           if (resData.followUpEmail) followUpEmailAddress = resData.followUpEmail;
-          show24HourFollowUpCard(
+          showRateLimitFollowUpCard(
             form,
-            resData.error || 'One inquiry submission is permitted every 24 hours.',
+            resData.error || 'Only one inquiry submission is permitted every 3 hours.',
             payload
           );
           return;

@@ -352,13 +352,10 @@ async function runTests() {
       }
     });
 
-    // 7. Test Smart 24-Hour Policy: Allows Legitimate Additional Inquiries, Blocks Rapid Duplicates & Daily Floods
-    await step('7. Smart 24h rate limit allows legitimate multi-service inquiries while blocking duplicate floods (429)', async () => {
-      // Wait >3s anti-burst window so legitimate client Maria can submit an additional inquiry for Digital Services
-      await sleep(3200);
-
-      // 7a. Same client (c1 + same dotted Gmail) inquiring about a DIFFERENT service (digital_services) MUST SUCCEED!
-      const additionalServiceRes = await fetch(`${baseUrl}/api/inquiries`, {
+    // 7. Test Strict 3-Hour Rate Limit Policy: Blocks Any Second Submission from Same Device, Email, or Phone (429)
+    await step('7. Strict 3-hour cooldown blocks second submission from same device or email (429)', async () => {
+      // 7a. Immediate second submission from the SAME device (c1) with a different email must return 429
+      const secondDeviceRes = await fetch(`${baseUrl}/api/inquiries`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -366,22 +363,25 @@ async function runTests() {
           'X-Forwarded-For': '198.51.100.200'
         },
         body: JSON.stringify({
-          name: 'Maria Clara Santos',
-          email: 'mariasantos@gmail.com',
-          phone: '(555) 210-8899',
+          name: 'Maria Second Attempt',
+          email: 'maria.second@example-test.com',
+          phone: '(555) 210-9900',
           type: 'digital_services',
           service_requested: 'digital-services',
-          details: { message: 'Also asking about reels and social media management.', subject: 'digital-services' },
+          details: { message: 'Submitting from the same device within 3 hours.', subject: 'digital-services' },
           _ft: firstClientSession.formToken,
           turnstileToken: 'valid-dev-token'
         })
       });
-      assert.strictEqual(additionalServiceRes.status, 201, 'Legitimate client inquiring about an additional service must NOT be blocked');
+      assert.strictEqual(secondDeviceRes.status, 429, 'Same device within 3 hours must be blocked with 429');
+      const devLimitData = await secondDeviceRes.json();
+      assert.strictEqual(devLimitData.code, 'RATE_LIMIT_3H');
+      assert.strictEqual(devLimitData.followUpEmail, 'info@rockwelltaxdigital.com');
 
-      // 7b. Immediate (<60s) duplicate submission of the EXACT SAME service category by David Miller must return 429 + followUpEmail
+      // 7b. Second submission using the SAME email (david.miller@example-test.com) from a different device must return 429
       const freshDev = await initFreshFormClient('198.51.100.201');
       await sleep(2600);
-      const duplicateSameCategoryRes = await fetch(`${baseUrl}/api/inquiries`, {
+      const secondEmailRes = await fetch(`${baseUrl}/api/inquiries`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -392,15 +392,15 @@ async function runTests() {
           name: 'David Miller',
           email: 'DAVID.MILLER@example-test.com',
           phone: '(310) 555-0144',
-          type: '1099_tax',
-          service_requested: 'Self-Employed / 1099 Tax Return',
+          type: 'w2_tax',
+          service_requested: 'Individual Tax Return (W-2)',
           details: {
             fullName: 'David Miller',
             email: 'DAVID.MILLER@example-test.com',
             taxYear: '2026',
             filingStatus: 'qss',
             w2Count: '1-6',
-            selfEmployed: 'yes',
+            selfEmployed: 'no',
             otherIncome: 'no',
             states: 'California'
           },
@@ -408,10 +408,10 @@ async function runTests() {
           turnstileToken: 'valid-dev-token'
         })
       });
-      assert.strictEqual(duplicateSameCategoryRes.status, 429, 'Rapid duplicate of the same category must be blocked with 429');
-      const dupData = await duplicateSameCategoryRes.json();
-      assert.strictEqual(dupData.code, 'RATE_LIMIT_24H');
-      assert.strictEqual(dupData.followUpEmail, 'info@rockwelltaxdigital.com');
+      assert.strictEqual(secondEmailRes.status, 429, 'Same email within 3 hours must be blocked with 429');
+      const emailLimitData = await secondEmailRes.json();
+      assert.strictEqual(emailLimitData.code, 'RATE_LIMIT_3H');
+      assert.strictEqual(emailLimitData.followUpEmail, 'info@rockwelltaxdigital.com');
     });
 
     // 8. Concurrent Race-Condition Test (PostgreSQL Advisory Locks)
