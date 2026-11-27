@@ -205,8 +205,15 @@ async function runMigrations() {
         console.log('  ✅ Created least-privilege role: rockwell_app_user');
       } else {
         const escapedPass = appRolePass.replace(/'/g, "''");
-        await client.query(`ALTER ROLE rockwell_app_user WITH LOGIN PASSWORD '${escapedPass}' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION`);
-        console.log('  ✅ Updated credentials for least-privilege role: rockwell_app_user');
+        await client.query('SAVEPOINT sp_alter_app_role');
+        try {
+          await client.query(`ALTER ROLE rockwell_app_user WITH LOGIN PASSWORD '${escapedPass}' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION`);
+          await client.query('RELEASE SAVEPOINT sp_alter_app_role');
+          console.log('  ✅ Updated credentials for least-privilege role: rockwell_app_user');
+        } catch (roleErr) {
+          await client.query('ROLLBACK TO SAVEPOINT sp_alter_app_role');
+          console.log('  ℹ️ Role rockwell_app_user is Neon-managed (password managed via Neon Console/API); proceeding to table grants.');
+        }
       }
 
       const dbNameRes = await client.query('SELECT current_database() AS db');

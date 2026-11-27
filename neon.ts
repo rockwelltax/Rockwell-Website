@@ -1,3 +1,7 @@
+// Web Dev
+// Raymart Quirante, BSIT Student in Bulacan State University
+// Portfolio: https://www.martquirante.dev/
+
 import { defineConfig } from "@neon/config/v1";
 
 export default defineConfig({

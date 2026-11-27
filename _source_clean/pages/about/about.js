@@ -7,27 +7,7 @@
   'use strict';
 
   function initHowItems() {
-    const items = document.querySelectorAll('.how-item');
-    items.forEach(function (item) {
-      item.addEventListener('mouseenter', function () {
-        this.style.borderColor = 'var(--color-teal)';
-        this.style.boxShadow = 'var(--shadow-md)';
-      });
-      item.addEventListener('mouseleave', function () {
-        this.style.borderColor = '';
-        this.style.boxShadow = '';
-      });
-    });
-
-    const quote = document.querySelector('.about-quote');
-    if (quote) {
-      quote.addEventListener('mouseenter', function () {
-        this.style.borderLeftColor = 'var(--color-brown)';
-      });
-      quote.addEventListener('mouseleave', function () {
-        this.style.borderLeftColor = 'var(--color-teal)';
-      });
-    }
+    // Steps under "How We Work With You" are strictly static informational items (no hover/button effects)
   }
 
   function init() {

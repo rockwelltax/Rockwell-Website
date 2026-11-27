@@ -63,9 +63,13 @@ async function runTests() {
   });
   await ownerClient.connect();
 
-  const testAdminEmail = 'info@rockwelltaxdigital.com';
+  const testAdminEmail = 'security-suite-admin@rockwelltaxdigital.com';
   const testAdminPass = 'RockwellSecure#2026!';
   const passHash = await bcrypt.hash(testAdminPass, 10);
+  process.env.ADMIN_ALLOWED_EMAILS = [
+    process.env.ADMIN_ALLOWED_EMAILS || 'info@rockwelltaxdigital.com,info@rockwelldigital.com,kaelmendiola26@gmail.com',
+    testAdminEmail
+  ].join(',');
 
   await ownerClient.query('TRUNCATE TABLE inquiry_rate_limits, admin_sessions, security_audit_logs, password_resets, login_rate_limits RESTART IDENTITY CASCADE');
   await ownerClient.query(`DELETE FROM inquiries WHERE email LIKE '%@example-test.com' OR email LIKE '%@gmail.com' OR email LIKE '%@silvacpa-test.com'`);
@@ -247,6 +251,7 @@ async function runTests() {
       await sleep(2600);
 
       // Form 1: Contact (with legitimate multi-dot Gmail!)
+      // Form 1: Contact (with legitimate multi-dot Gmail + phone!)
       const resContact = await fetch(`${baseUrl}/api/inquiries`, {
         method: 'POST',
         headers: {
@@ -258,11 +263,13 @@ async function runTests() {
         body: JSON.stringify({
           name: 'Maria Clara Santos',
           email: 'm.a.r.i.a.santos@gmail.com',
+          phone: '(555) 210-8899',
           type: 'bookkeeping',
           service_requested: 'bookkeeping',
           details: {
             fullName: 'Maria Clara Santos',
             email: 'm.a.r.i.a.santos@gmail.com',
+            phone: '(555) 210-8899',
             subject: 'bookkeeping',
             message: 'Looking for monthly managed bookkeeping for our retail store.'
           },
@@ -272,7 +279,7 @@ async function runTests() {
       });
       assert.strictEqual(resContact.status, 201, 'Contact form with dotted Gmail on shared IP must succeed');
 
-      // Form 2: Start Your Tax Return
+      // Form 2: Start Your Tax Return (with phone!)
       const resTax = await fetch(`${baseUrl}/api/inquiries`, {
         method: 'POST',
         headers: {
@@ -284,13 +291,15 @@ async function runTests() {
         body: JSON.stringify({
           name: 'David Miller',
           email: 'david.miller@example-test.com',
+          phone: '(310) 555-0144',
           type: '1099_tax',
           service_requested: 'Self-Employed / 1099 Tax Return',
           details: {
             fullName: 'David Miller',
             email: 'david.miller@example-test.com',
+            phone: '(310) 555-0144',
             taxYear: '2026',
-            filingStatus: 'mfj',
+            filingStatus: 'qss',
             w2Count: '1-6',
             selfEmployed: 'yes',
             otherIncome: 'no',
@@ -332,12 +341,24 @@ async function runTests() {
         })
       });
       assert.strictEqual(resFirm.status, 201, 'Tax Firm Support form must succeed and save to DB');
+
+      // Verify phone numbers were persisted in inquiries table for all 3 forms
+      const phoneCheck = await db.query(
+        `SELECT email, phone FROM inquiries WHERE email IN ('m.a.r.i.a.santos@gmail.com', 'david.miller@example-test.com', 'rchen@silvacpa-test.com')`
+      );
+      assert.strictEqual(phoneCheck.rows.length, 3);
+      for (const row of phoneCheck.rows) {
+        assert(row.phone && row.phone.length >= 10, `Phone must be stored in DB for ${row.email}`);
+      }
     });
 
-    // 7. Test 24-Hour Per-Device & Per-Email Restrictions
-    await step('7. Repeat submissions within 24h from same Device Cookie OR same Email return 429 + followUpEmail', async () => {
-      // Same device cookie (c1), brand new email & IP
-      const sameDeviceRes = await fetch(`${baseUrl}/api/inquiries`, {
+    // 7. Test Smart 24-Hour Policy: Allows Legitimate Additional Inquiries, Blocks Rapid Duplicates & Daily Floods
+    await step('7. Smart 24h rate limit allows legitimate multi-service inquiries while blocking duplicate floods (429)', async () => {
+      // Wait >3s anti-burst window so legitimate client Maria can submit an additional inquiry for Digital Services
+      await sleep(3200);
+
+      // 7a. Same client (c1 + same dotted Gmail) inquiring about a DIFFERENT service (digital_services) MUST SUCCEED!
+      const additionalServiceRes = await fetch(`${baseUrl}/api/inquiries`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -346,23 +367,21 @@ async function runTests() {
         },
         body: JSON.stringify({
           name: 'Maria Clara Santos',
-          email: 'maria.second.email@example-test.com',
+          email: 'mariasantos@gmail.com',
+          phone: '(555) 210-8899',
           type: 'digital_services',
           service_requested: 'digital-services',
-          details: { message: 'Also asking about reels creation.', subject: 'digital-services' },
+          details: { message: 'Also asking about reels and social media management.', subject: 'digital-services' },
           _ft: firstClientSession.formToken,
           turnstileToken: 'valid-dev-token'
         })
       });
-      assert.strictEqual(sameDeviceRes.status, 429);
-      const sameDevData = await sameDeviceRes.json();
-      assert.strictEqual(sameDevData.code, 'RATE_LIMIT_24H');
-      assert.strictEqual(sameDevData.followUpEmail, 'info@rockwelltaxdigital.com');
+      assert.strictEqual(additionalServiceRes.status, 201, 'Legitimate client inquiring about an additional service must NOT be blocked');
 
-      // Fresh device cookie, but existing email (david.miller@example-test.com)
+      // 7b. Immediate (<60s) duplicate submission of the EXACT SAME service category by David Miller must return 429 + followUpEmail
       const freshDev = await initFreshFormClient('198.51.100.201');
       await sleep(2600);
-      const sameEmailRes = await fetch(`${baseUrl}/api/inquiries`, {
+      const duplicateSameCategoryRes = await fetch(`${baseUrl}/api/inquiries`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -372,14 +391,27 @@ async function runTests() {
         body: JSON.stringify({
           name: 'David Miller',
           email: 'DAVID.MILLER@example-test.com',
-          type: 'general_contact',
-          service_requested: 'general',
-          details: { message: 'Duplicate email inquiry within 24 hours.', subject: 'general' },
+          phone: '(310) 555-0144',
+          type: '1099_tax',
+          service_requested: 'Self-Employed / 1099 Tax Return',
+          details: {
+            fullName: 'David Miller',
+            email: 'DAVID.MILLER@example-test.com',
+            taxYear: '2026',
+            filingStatus: 'qss',
+            w2Count: '1-6',
+            selfEmployed: 'yes',
+            otherIncome: 'no',
+            states: 'California'
+          },
           _ft: freshDev.formToken,
           turnstileToken: 'valid-dev-token'
         })
       });
-      assert.strictEqual(sameEmailRes.status, 429);
+      assert.strictEqual(duplicateSameCategoryRes.status, 429, 'Rapid duplicate of the same category must be blocked with 429');
+      const dupData = await duplicateSameCategoryRes.json();
+      assert.strictEqual(dupData.code, 'RATE_LIMIT_24H');
+      assert.strictEqual(dupData.followUpEmail, 'info@rockwelltaxdigital.com');
     });
 
     // 8. Concurrent Race-Condition Test (PostgreSQL Advisory Locks)
@@ -586,17 +618,29 @@ async function runTests() {
 
     // 13. Built-in Cryptographic SVG CAPTCHA Verification & Replay Protection
     await step('13. Built-in SVG CAPTCHA rejects wrong/tampered/fast/replayed codes & accepts valid code once', async () => {
+      // Verify /api/inquiries?action=config returns captcha mode + SVG image when live Turnstile keys are unset
+      const prevSiteKey = process.env.TURNSTILE_SITE_KEY;
+      const prevSecKey = process.env.TURNSTILE_SECRET_KEY;
+      delete process.env.TURNSTILE_SITE_KEY;
+      delete process.env.TURNSTILE_SECRET_KEY;
+
       const cfgRes = await fetch(`${baseUrl}/api/inquiries?action=config&formAction=contact_inquiry`);
       const cfgJson = await cfgRes.json();
+
+      if (prevSiteKey) process.env.TURNSTILE_SITE_KEY = prevSiteKey;
+      if (prevSecKey) process.env.TURNSTILE_SECRET_KEY = prevSecKey;
+
       assert.strictEqual(cfgJson.securityMode, 'captcha');
       assert(cfgJson.captcha && cfgJson.captcha.svgDataUri.startsWith('data:image/svg+xml;base64,'));
       assert(!cfgJson.captcha._testAnswer, 'Raw CAPTCHA answer must never be exposed over HTTP');
 
+      // Generate internal test challenge to test verification & replay protection
       process.env.NODE_ENV = 'test_captcha_internal';
       const challenge = createCaptchaChallenge({ action: 'contact_inquiry' });
       process.env.NODE_ENV = 'development';
       assert(challenge._testAnswer && challenge._testAnswer.length === 5);
 
+      // Instant solve (<1.2s) must be rejected
       const tooFastRes = await verifyCaptchaChallenge({
         captchaToken: challenge.challengeToken,
         captchaAnswer: challenge._testAnswer,
@@ -608,6 +652,7 @@ async function runTests() {
 
       await sleep(1300);
 
+      // Wrong answer must be rejected without consuming the challenge
       const wrongAnsRes = await verifyCaptchaChallenge({
         captchaToken: challenge.challengeToken,
         captchaAnswer: 'ZZZZZ',
@@ -617,6 +662,7 @@ async function runTests() {
       assert.strictEqual(wrongAnsRes.ok, false);
       assert.strictEqual(wrongAnsRes.reason, 'captcha_wrong_answer');
 
+      // Tampered token signature must be rejected
       const tamperedRes = await verifyCaptchaChallenge({
         captchaToken: challenge.challengeToken.slice(0, -4) + 'ffff',
         captchaAnswer: challenge._testAnswer,
@@ -626,6 +672,7 @@ async function runTests() {
       assert.strictEqual(tamperedRes.ok, false);
       assert.strictEqual(tamperedRes.reason, 'captcha_signature_mismatch');
 
+      // Correct answer (case-insensitive) succeeds once
       const validRes = await verifyCaptchaChallenge({
         captchaToken: challenge.challengeToken,
         captchaAnswer: challenge._testAnswer.toLowerCase(),
@@ -634,6 +681,7 @@ async function runTests() {
       });
       assert.strictEqual(validRes.ok, true);
 
+      // Second replay of the exact same solved challenge must be rejected
       const replayRes = await verifyCaptchaChallenge({
         captchaToken: challenge.challengeToken,
         captchaAnswer: challenge._testAnswer,
@@ -647,7 +695,8 @@ async function runTests() {
     console.log(`\n🎉 ALL ${passed}/13 SECURITY & CONCURRENCY VERIFICATION SUITES PASSED!`);
   } finally {
     await ownerClient.query('TRUNCATE TABLE inquiry_rate_limits, admin_sessions, password_resets, login_rate_limits RESTART IDENTITY CASCADE').catch(() => {});
-    await ownerClient.query(`DELETE FROM inquiries WHERE email LIKE '%@example-test.com' OR email = 'm.a.r.i.a.santos@gmail.com' OR email = 'rchen@silvacpa-test.com'`).catch(() => {});
+    await ownerClient.query(`DELETE FROM admin_users WHERE email = 'security-suite-admin@rockwelltaxdigital.com'`).catch(() => {});
+    await ownerClient.query(`DELETE FROM inquiries WHERE email LIKE '%@example-test.com' OR email = 'm.a.r.i.a.santos@gmail.com' OR email = 'mariasantos@gmail.com' OR email = 'rchen@silvacpa-test.com'`).catch(() => {});
     await ownerClient.end();
     await db.pool.end();
     server.close();

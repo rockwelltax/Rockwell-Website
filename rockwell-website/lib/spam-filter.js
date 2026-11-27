@@ -19,7 +19,7 @@ const ALLOWED_TYPES = new Set([
 ]);
 
 const ALLOWED_TAX_YEARS = new Set(['2026', '2025', '2024', '2023', 'prior']);
-const ALLOWED_FILING_STATUSES = new Set(['single', 'mfj', 'mfs', 'hoh', 'not-sure']);
+const ALLOWED_FILING_STATUSES = new Set(['single', 'mfj', 'mfs', 'hoh', 'qss', 'not-sure']);
 const ALLOWED_W2_COUNTS = new Set(['0', '1-6', '7+']);
 const ALLOWED_YES_NO = new Set(['yes', 'no', 'not-sure']);
 
@@ -97,6 +97,7 @@ function isValidUsStateInput(val, details = {}) {
   const countryCode = String(details?.countryCode || '').trim().toUpperCase();
   const clean = String(val || '').trim();
 
+  // Structured worldwide location selector (any of the 250 ISO countries)
   if (countryCode && VALID_COUNTRY_CODES.has(countryCode)) {
     if (clean.length >= 2 && clean.length <= 250 && !containsHtmlOrSpamLinks(clean)) {
       return true;
@@ -115,6 +116,7 @@ function isValidUsStateInput(val, details = {}) {
     if (countryName.length >= 4 && lower.includes(countryName)) return true;
   }
 
+  // Check uppercase 2-letter US state or ISO country tokens (e.g. "NY", "CA, TX", "PH", "CA")
   const tokens = clean.split(/[\s,;/+&|-]+/).filter(Boolean);
   for (const tok of tokens) {
     const up = tok.toUpperCase();

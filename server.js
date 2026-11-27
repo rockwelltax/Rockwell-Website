@@ -18,6 +18,9 @@ const MIME_TYPES = {
   '.css': 'text/css; charset=utf-8',
   '.js': 'application/javascript; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
+  '.webmanifest': 'application/manifest+json; charset=utf-8',
+  '.xml': 'application/xml; charset=utf-8',
+  '.txt': 'text/plain; charset=utf-8',
   '.png': 'image/png',
   '.jpg': 'image/jpeg',
   '.jpeg': 'image/jpeg',
@@ -35,6 +38,21 @@ const server = http.createServer(async (req, res) => {
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+
+  // Strictly block search engine indexing of Admin Portal, Coming Soon gate, and API endpoints
+  const lowerReqPath = pathname.toLowerCase();
+  if (
+    lowerReqPath === '/admin' ||
+    lowerReqPath.startsWith('/admin/') ||
+    lowerReqPath === '/admin.html' ||
+    lowerReqPath.startsWith('/pages/admin') ||
+    lowerReqPath === '/coming-soon' ||
+    lowerReqPath === '/coming-soon.html' ||
+    lowerReqPath.startsWith('/pages/coming-soon') ||
+    lowerReqPath.startsWith('/api/')
+  ) {
+    res.setHeader('X-Robots-Tag', 'noindex, nofollow, noarchive, nosnippet, noimageindex');
+  }
 
   req.query = queryObj;
 

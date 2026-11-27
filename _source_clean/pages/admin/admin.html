@@ -3,11 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex" />
+  <meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex" />
+  <meta name="bingbot" content="noindex, nofollow, noarchive, nosnippet" />
   <title>Admin Portal &mdash; Rockwell Tax &amp; Digital Strategies Inc.</title>
-
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="../../assets/icons/favicon.png" />
-  <link rel="apple-touch-icon" href="../../assets/icons/apple-touch-icon.png" />
+  <!-- Search Engine & Browser Favicon Suite (Google 48px-Multiple Spec) -->
+  <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48 96x96" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/assets/icons/favicon-48x48.png" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/assets/icons/favicon-96x96.png" />
+  <link rel="icon" type="image/png" sizes="144x144" href="/assets/icons/favicon-144x144.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/assets/icons/favicon-192x192.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -55,7 +62,13 @@
               <label for="admin-password" class="form-label">Password</label>
               <button type="button" class="btn-text" id="btn-show-forgot">Forgot Password?</button>
             </div>
-            <input type="password" id="admin-password" class="form-control" placeholder="••••••••" required autocomplete="current-password" />
+            <div class="password-input-wrap">
+              <input type="password" id="admin-password" class="form-control" placeholder="••••••••" required autocomplete="current-password" />
+              <button type="button" class="password-toggle-btn" data-toggle-password="admin-password" aria-label="Show password" aria-pressed="false" title="Show password">
+                <svg class="icon-eye" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg class="icon-eye-off" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+              </button>
+            </div>
           </div>
 
           <button type="submit" id="btn-login" class="btn btn--primary btn--full">
@@ -98,12 +111,24 @@
 
           <div class="form-group">
             <label for="new-password" class="form-label">New Password</label>
-            <input type="password" id="new-password" class="form-control" placeholder="At least 6 characters" />
+            <div class="password-input-wrap">
+              <input type="password" id="new-password" class="form-control" placeholder="At least 8 characters" />
+              <button type="button" class="password-toggle-btn" data-toggle-password="new-password" aria-label="Show password" aria-pressed="false" title="Show password">
+                <svg class="icon-eye" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg class="icon-eye-off" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+              </button>
+            </div>
           </div>
 
           <div class="form-group">
             <label for="confirm-password" class="form-label">Confirm New Password</label>
-            <input type="password" id="confirm-password" class="form-control" placeholder="Re-enter new password" />
+            <div class="password-input-wrap">
+              <input type="password" id="confirm-password" class="form-control" placeholder="Re-enter new password" />
+              <button type="button" class="password-toggle-btn" data-toggle-password="confirm-password" aria-label="Show password" aria-pressed="false" title="Show password">
+                <svg class="icon-eye" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg class="icon-eye-off" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+              </button>
+            </div>
           </div>
 
           <button type="button" id="btn-submit-reset" class="btn btn--primary btn--full">
@@ -408,6 +433,7 @@
             <option value="reviewed">Reviewed</option>
             <option value="contacted">Contacted</option>
             <option value="completed">Completed</option>
+            <option value="spam_archived">Spam / Archived</option>
           </select>
         </div>
         <div class="modal-actions">

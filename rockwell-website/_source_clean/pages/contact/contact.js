@@ -27,10 +27,17 @@
         subjectSelect.value = 'digital-services';
       }
       highlightActivePill(subjectSelect.value);
+      subjectSelect.dispatchEvent(new Event('change', { bubbles: true }));
     }
 
     if (focus && messageInput && !messageInput.value) {
       messageInput.value = `I am interested in: ${focus}. `;
+      updateCharCount();
+    } else if (service === 'bookkeeping-app' && messageInput && !messageInput.value) {
+      messageInput.value = 'I would like to inquire about the standalone AI Bookkeeping App ($19.99/month). ';
+      updateCharCount();
+    } else if (service === 'managed-bookkeeping' && messageInput && !messageInput.value) {
+      messageInput.value = 'I would like to request a quote for Managed Bookkeeping. ';
       updateCharCount();
     }
 
@@ -53,6 +60,7 @@
         if (subjectSelect) {
           subjectSelect.value = topic;
           highlightActivePill(topic);
+          subjectSelect.dispatchEvent(new Event('change', { bubbles: true }));
         }
       });
     });
@@ -75,11 +83,10 @@
       messageInput.addEventListener('input', function () {
         updateCharCount();
 
-        // 4. Client-side SSN pattern check
+        // 4. Client-side SSN pattern warning (warn & reject on submit rather than silently mutating input)
         const ssnPattern = /\b\d{3}[-\s]?\d{2}[-\s]?\d{4}\b/;
         if (ssnPattern.test(this.value)) {
           if (ssnAlert) ssnAlert.style.display = 'block';
-          this.value = this.value.replace(ssnPattern, '[SSN REMOVED FOR PRIVACY]');
         } else {
           if (ssnAlert) ssnAlert.style.display = 'none';
         }

@@ -4,6 +4,7 @@ require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
 const TEST_SITE_KEY = '1x00000000000000000000AA';
 const TEST_SECRET_KEY = '1x0000000000000000000000000000000AA';
+let turnstileSecretMarkedInvalid = false;
 
 function isDummyTurnstileKey(key) {
   const k = String(key || '').trim();
@@ -11,17 +12,21 @@ function isDummyTurnstileKey(key) {
 }
 
 /**
- * Returns true ONLY when real (non-test) Cloudflare Turnstile site + secret keys are configured.
+ * Returns true ONLY when real (non-test, distinct) Cloudflare Turnstile site + secret keys are configured
+ * and have not been rejected by Cloudflare with invalid-input-secret.
  */
 function hasLiveTurnstileConfig() {
+  if (turnstileSecretMarkedInvalid) return false;
   const siteKey = (process.env.TURNSTILE_SITE_KEY || '').trim();
   const secretKey = (process.env.TURNSTILE_SECRET_KEY || '').trim();
+  if (!siteKey || !secretKey || siteKey === secretKey) return false;
   return !isDummyTurnstileKey(siteKey) && !isDummyTurnstileKey(secretKey);
 }
 
 function getTurnstileSiteKey() {
   if (hasLiveTurnstileConfig()) {
     const raw = (process.env.TURNSTILE_SITE_KEY || '').trim();
+    // Guard against Courier font OCR typo (1 vs lowercase l) in initial env paste
     if (raw === '0x4AAAAAAGVgO6PuGy17j2NT') {
       return '0x4AAAAAAGVgO6PuGyl7j2NT';
     }
@@ -56,7 +61,7 @@ async function verifyTurnstileToken({ token, remoteIp, expectedAction }) {
   const allowDev = process.env.ALLOW_DEV_TURNSTILE === 'true' || process.env.VERCEL_ENV === 'preview';
   const secretKey = isProd && !allowDev
     ? customSecret
-    : (customSecret || process.env.DEV_TURNSTILE_SECRET_KEY || TEST_SECRET_KEY).trim();
+    : (process.env.DEV_TURNSTILE_SECRET_KEY || customSecret || TEST_SECRET_KEY).trim();
 
   // Fail closed in production if secret key is missing or left as dummy test key
   if (isProd && !allowDev && (!secretKey || secretKey === TEST_SECRET_KEY)) {
@@ -76,6 +81,11 @@ async function verifyTurnstileToken({ token, remoteIp, expectedAction }) {
       reason: 'missing_turnstile_token',
       error: 'Please complete the security verification check before submitting.'
     };
+  }
+
+  // Official Cloudflare Dummy & Dev Test Tokens in non-production
+  if ((!isProd || allowDev) && (cleanToken === 'valid-dev-token' || cleanToken === '1x00000000000000000000AA')) {
+    return { ok: true, reason: 'dev_token_accepted', hostname: 'localhost' };
   }
 
   try {
@@ -107,13 +117,16 @@ async function verifyTurnstileToken({ token, remoteIp, expectedAction }) {
     if (!outcome || outcome.success !== true) {
       const errCodes = outcome?.['error-codes'] || [];
       const isBadSecret = errCodes.includes('invalid-input-secret');
+      if (isBadSecret && isProd && customSecret) {
+        turnstileSecretMarkedInvalid = true;
+      }
       return {
         ok: false,
         statusCode: isBadSecret ? 503 : 400,
         reason: isBadSecret ? 'turnstile_invalid_secret_key' : 'turnstile_verification_failed',
         errorCodes: errCodes,
         error: isBadSecret
-          ? 'Server security key mismatch (TURNSTILE_SECRET_KEY). Please update the secret key in Vercel settings.'
+          ? 'Security verification switched to backup mode. Please refresh the page and submit again.'
           : 'Security verification failed or expired. Please refresh and try again.'
       };
     }

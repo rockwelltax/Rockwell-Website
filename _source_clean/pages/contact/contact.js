@@ -33,6 +33,12 @@
     if (focus && messageInput && !messageInput.value) {
       messageInput.value = `I am interested in: ${focus}. `;
       updateCharCount();
+    } else if (service === 'bookkeeping-app' && messageInput && !messageInput.value) {
+      messageInput.value = 'I would like to inquire about the standalone AI Bookkeeping App ($19.99/month). ';
+      updateCharCount();
+    } else if (service === 'managed-bookkeeping' && messageInput && !messageInput.value) {
+      messageInput.value = 'I would like to request a quote for Managed Bookkeeping. ';
+      updateCharCount();
     }
 
     // 2. Quick Topic Pills Handler

@@ -906,13 +906,13 @@
     title.style.display = 'block';
     title.style.marginBottom = '0.35rem';
     title.style.color = '#29211D';
-    title.textContent = 'Recent Inquiry Already Logged — Need to Ask About Another Service?';
+    title.textContent = 'Recent Inquiries Already Logged — Send Direct Follow-Up';
 
     const desc = document.createElement('p');
     desc.style.margin = '0 0 0.75rem 0';
     desc.textContent =
       message +
-      ' To inquire about an additional service (such as Bookkeeping, Digital Services, or Firm Support) or add details right away, click below to email our team directly with your details pre-filled:';
+      ' To send additional notes right away without losing what you typed, click below to email our team directly with your details pre-filled:';
 
     const subj = encodeURIComponent(`Additional Service Inquiry: ${payload.service_requested || payload.type} — ${payload.name}`);
     const bodyLines = [
@@ -1143,7 +1143,7 @@
   }
 
   function init() {
-    document.querySelectorAll('form[data-validate]').forEach(initForm);
+    document.querySelectorAll('form[data-validate], #contact-form, #tax-inquiry-form, #firm-support-form').forEach(initForm);
     initSecurityConfig();
   }
 

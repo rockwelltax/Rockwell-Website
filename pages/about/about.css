@@ -91,44 +91,43 @@
   max-width: 100%;
 }
 
-/* ── How We Work ── */
+/* ── How We Work With You (Static Informational Steps — Non-Clickable) ── */
 .how-we-work { background: var(--color-bg-warm); }
 
 .how-we-work__grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: var(--space-8);
   margin-top: var(--space-12);
+  list-style: none;
+  padding: 0;
 }
 
 .how-item {
   padding: var(--space-8);
-  background: var(--color-white);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  transition: transform var(--transition-base), box-shadow var(--transition-base);
+  background: transparent;
+  border-top: 2px solid rgba(188, 161, 138, 0.55);
+  border-left: none;
+  border-right: none;
+  border-bottom: none;
+  border-radius: 0;
+  cursor: default;
 }
 
-.how-item:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-md);
-}
-
-.how-item__icon {
-  width: 52px;
-  height: 52px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--color-teal-10);
-  border-radius: var(--radius-md);
+.how-item__step-num {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
   color: var(--color-teal);
-  margin-bottom: var(--space-5);
+  margin-bottom: var(--space-3);
 }
 
 .how-item h3 {
-  font-size: var(--text-md);
+  font-size: var(--text-lg);
   margin-bottom: var(--space-3);
+  color: var(--color-brown);
 }
 
 .how-item p {

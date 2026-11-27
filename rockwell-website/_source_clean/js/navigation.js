@@ -35,11 +35,11 @@
 
     if (cleanPath === '/') {
       return path === '/' || path === '' || path.endsWith('/index.html') ||
-             (!path.includes('services') && !path.includes('about') && !path.includes('contact') && !path.includes('tax-return') && !path.includes('privacy') && !path.includes('terms') && !path.includes('admin'));
+             (!path.includes('services') && !path.includes('firm-support') && !path.includes('tax-preparation') && !path.includes('bookkeeping') && !path.includes('digital-services') && !path.includes('about') && !path.includes('contact') && !path.includes('tax-return') && !path.includes('privacy') && !path.includes('terms') && !path.includes('admin'));
     }
 
     if (cleanPath === '/services') {
-      return path.includes('services');
+      return path.includes('services') || path.includes('firm-support') || path.includes('tax-preparation') || path.includes('bookkeeping') || path.includes('digital-services');
     }
 
     if (cleanPath === '/about') {
@@ -152,7 +152,7 @@
       <a href="${homeHref}" class="nav-mobile__link${isHomeActive}">Home</a>
 
       <div class="nav-mobile__group">
-        <div class="nav-mobile__group-title">Services</div>
+        <a href="${servicesHref}" class="nav-mobile__group-title" style="display:block; text-decoration:none;">Services</a>
         <a href="${taxHref}" class="nav-mobile__sublink">Tax Preparation</a>
         <a href="${bkHref}" class="nav-mobile__sublink">Bookkeeping Services</a>
         <a href="${dsHref}" class="nav-mobile__sublink">Digital Services</a>
@@ -215,7 +215,7 @@
         <p class="footer-nav__heading">Services</p>
         <ul class="footer-nav__list" role="list">
           <li><a href="${taxHref}" class="footer-nav__link">Tax Preparation</a></li>
-          <li><a href="${bkHref}" class="footer-nav__link">Bookkeeping</a></li>
+          <li><a href="${bkHref}" class="footer-nav__link">Bookkeeping Services</a></li>
           <li><a href="${dsHref}" class="footer-nav__link">Digital Services</a></li>
           <li><a href="${startTaxHref}" class="footer-nav__link">Start Your Tax Return</a></li>
         </ul>
@@ -301,6 +301,8 @@
     let target = null;
     if (normalized === 'index.html' || normalized === '' || normalized === '/') {
       target = '/';
+    } else if (normalized.includes('firm-support')) {
+      target = '/firm-support';
     } else if (normalized.includes('tax-preparation')) {
       target = '/services/tax-preparation';
     } else if (normalized.includes('bookkeeping')) {

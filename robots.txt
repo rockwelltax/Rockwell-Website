@@ -1,0 +1,32 @@
+# Rockwell Tax & Digital Strategies Inc. — Search Engine Crawling Policy
+User-agent: *
+Allow: /
+Allow: /favicon.ico
+Allow: /favicon.png
+Allow: /site.webmanifest
+Allow: /assets/icons/
+Allow: /assets/images/
+Allow: /services
+Allow: /services/tax-preparation
+Allow: /services/bookkeeping
+Allow: /services/digital-services
+Allow: /firm-support
+Allow: /about
+Allow: /contact
+Allow: /start-your-tax-return
+Allow: /privacy-policy
+Allow: /terms-of-use
+
+# Strictly block Admin Portal, API endpoints, Coming Soon gate, and internal directories
+Disallow: /admin
+Disallow: /admin/
+Disallow: /admin.html
+Disallow: /pages/admin/
+Disallow: /coming-soon
+Disallow: /coming-soon.html
+Disallow: /pages/coming-soon/
+Disallow: /api/
+Disallow: /_source_clean/
+Disallow: /backups/
+
+Sitemap: https://www.rockwelltax.com/sitemap.xml

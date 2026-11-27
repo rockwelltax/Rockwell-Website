@@ -3,16 +3,36 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Firm Support &mdash; Rockwell Tax &amp; Digital Strategies Inc.</title>
-  <meta name="description" content="Dedicated back-office tax preparation, workpaper organization, and client intake support for CPA firms, Enrolled Agents, and accounting practices." />
-  <meta property="og:title" content="Tax Preparation Support for Accounting &amp; Tax Firms — Rockwell" />
-  <meta property="og:description" content="Back-office tax support, software data entry, and workpaper organization under strict confidentiality and mutual NDA." />
+  <title>Tax Firm Back-Office Support for CPAs &amp; Accounting Practices | Rockwell Tax &amp; Digital Strategies Inc.</title>
+  <meta name="description" content="Confidential back-office tax preparation, Drake/UltraTax/Lacerte/ProConnect/CCH software data entry, workpaper organization, and client intake support for CPA and tax firms by Rockwell Tax &amp; Digital Strategies Inc." />
+  <meta name="keywords" content="CPA firm back-office support, tax firm data entry support, Enrolled Agent practice support, Drake UltraTax Lacerte ProConnect tax preparation outsourcing, Rockwell Tax &amp; Digital Strategies Inc." />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+  <meta property="og:site_name" content="Rockwell Tax &amp; Digital Strategies Inc." />
+  <meta property="og:title" content="Tax Firm Back-Office Support — Rockwell Tax &amp; Digital Strategies Inc." />
+  <meta property="og:description" content="Back-office tax preparation, software data entry, and workpaper organization for CPA &amp; accounting firms under mutual NDA." />
   <meta property="og:type" content="website" />
-  <link rel="canonical" href="https://rockwelltax.com/firm-support" />
-
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="../../assets/icons/favicon.png" />
-  <link rel="apple-touch-icon" href="../../assets/icons/apple-touch-icon.png" />
+  <meta property="og:url" content="https://www.rockwelltax.com/firm-support" />
+  <meta property="og:image" content="https://www.rockwelltax.com/assets/images/rockwell-logo.png" />
+  <link rel="canonical" href="https://www.rockwelltax.com/firm-support" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.rockwelltax.com/" },
+      { "@type": "ListItem", "position": 2, "name": "Tax Preparation", "item": "https://www.rockwelltax.com/services/tax-preparation" },
+      { "@type": "ListItem", "position": 3, "name": "Tax Firm Support", "item": "https://www.rockwelltax.com/firm-support" }
+    ]
+  }
+  </script>
+  <!-- Search Engine & Browser Favicon Suite (Google 48px-Multiple Spec) -->
+  <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48 96x96" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/assets/icons/favicon-48x48.png" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/assets/icons/favicon-96x96.png" />
+  <link rel="icon" type="image/png" sizes="144x144" href="/assets/icons/favicon-144x144.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/assets/icons/favicon-192x192.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -20,13 +40,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
   <!-- Stylesheets -->
-  <link rel="stylesheet" href="../../css/variables.css" />
-  <link rel="stylesheet" href="../../css/global.css" />
-  <link rel="stylesheet" href="../../css/typography.css" />
-  <link rel="stylesheet" href="../../css/navigation.css" />
-  <link rel="stylesheet" href="../../css/footer.css" />
-  <link rel="stylesheet" href="../../css/animations.css" />
-  <link rel="stylesheet" href="../../css/responsive.css" />
+  <link rel="stylesheet" href="/css/variables.css" />
+  <link rel="stylesheet" href="/css/global.css" />
+  <link rel="stylesheet" href="/css/typography.css" />
+  <link rel="stylesheet" href="/css/navigation.css" />
+  <link rel="stylesheet" href="/css/footer.css" />
+  <link rel="stylesheet" href="/css/animations.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
   <link rel="stylesheet" href="/pages/contact/contact.css" />
   <script src="/js/site-guard.js"></script>
 </head>
@@ -40,10 +60,7 @@
         <div class="noscript-links">
           <a href="/">Home</a>
           <a href="/services">Services</a>
-          <a href="/services/tax-preparation">Tax Preparation</a>
-          <a href="/services/bookkeeping">Bookkeeping</a>
-          <a href="/services/digital-services">Digital Services</a>
-          <a href="/about">About</a>
+          <a href="/about">About Rockwell</a>
           <a href="/contact">Contact</a>
           <a href="/start-your-tax-return">Start Your Tax Return</a>
         </div>
@@ -109,9 +126,14 @@
             </p>
           </div>
 
-          <form id="firm-support-form" class="contact-form" novalidate>
-            <!-- Honeypot -->
-            <input type="text" name="_hp" style="display:none" tabindex="-1" autocomplete="off" />
+          <form id="firm-support-form" class="contact-form" novalidate data-validate aria-label="Tax firm support consultation form">
+            <!-- Honeypot & Anti-Bot Traps -->
+            <div style="position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden; opacity:0; pointer-events:none;" aria-hidden="true">
+              <label for="firm-hp-field">Leave this field empty</label>
+              <input type="text" id="firm-hp-field" name="_hp" tabindex="-1" autocomplete="off" />
+              <label for="firm-website-url">Company Website URL</label>
+              <input type="text" id="firm-website-url" name="website_url" tabindex="-1" autocomplete="off" />
+            </div>
 
             <!-- Firm Name -->
             <div class="form-group">
@@ -192,11 +214,19 @@
               <textarea id="firm-message" name="message" class="form-textarea" rows="4" placeholder="Tell us about your workflows, timeline, or specific support needed."></textarea>
             </div>
 
+            <!-- Anti-SSN Client Check Warning Banner -->
+            <div id="firm-ssn-alert" class="notice notice--security" style="display: none; border-color: #c0392b; color: #c0392b; margin-bottom: 1rem;">
+              <strong>Security Protection:</strong> Please remove any Social Security Numbers or Tax ID numbers before submitting.
+            </div>
+
+            <!-- Cloudflare Turnstile Security Slot -->
+            <div class="rockwell-turnstile-slot" data-turnstile-container data-turnstile-action="firm_support_inquiry" style="margin-top: 0.75rem;"></div>
+
             <button type="submit" class="btn btn--primary btn--lg btn--full" style="margin-top: 1rem;">
               Request Firm Consultation &rarr;
             </button>
             <p style="font-size: 0.8125rem; color: var(--color-text-muted); text-align: center; margin-top: 0.75rem;">
-              Strict confidentiality guaranteed. We will reply within 1 business day.
+              Your information will be handled with care and confidentiality. We will reply within 1 business day.
             </p>
           </form>
 
@@ -216,9 +246,9 @@
     </section>
   </main>
 
-  <script src="../../js/navigation.js"></script>
-  <script src="../../js/animations.js"></script>
-  <script src="../../js/utilities.js"></script>
-  <script src="../../js/form-validation.js"></script>
+  <script src="/js/navigation.js"></script>
+  <script src="/js/animations.js"></script>
+  <script src="/js/utilities.js"></script>
+  <script src="/js/form-validation.js"></script>
 </body>
 </html>
