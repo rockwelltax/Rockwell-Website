@@ -152,6 +152,24 @@
 
   /* ── 2. Auth Listeners ── */
   function setupAuthListeners() {
+    // Show / Hide Password Eye Toggles
+    document.querySelectorAll('[data-toggle-password]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        const targetId = this.getAttribute('data-toggle-password');
+        const input = document.getElementById(targetId);
+        if (!input) return;
+        const showing = input.type === 'password';
+        input.type = showing ? 'text' : 'password';
+        this.setAttribute('aria-pressed', showing ? 'true' : 'false');
+        this.setAttribute('aria-label', showing ? 'Hide password' : 'Show password');
+        this.setAttribute('title', showing ? 'Hide password' : 'Show password');
+        const eye = this.querySelector('.icon-eye');
+        const eyeOff = this.querySelector('.icon-eye-off');
+        if (eye) eye.style.display = showing ? 'none' : '';
+        if (eyeOff) eyeOff.style.display = showing ? '' : 'none';
+      });
+    });
+
     // Login form submit
     loginForm.addEventListener('submit', async function (e) {
       e.preventDefault();

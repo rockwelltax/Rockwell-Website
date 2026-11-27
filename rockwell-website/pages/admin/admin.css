@@ -140,6 +140,49 @@
   box-shadow: 0 0 0 3px rgba(56, 146, 169, 0.15);
 }
 
+.password-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input-wrap .form-control {
+  padding-right: 2.85rem;
+}
+
+.password-input-wrap .form-control::-ms-reveal,
+.password-input-wrap .form-control::-ms-clear {
+  display: none;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 0.65rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  padding: 0.3rem;
+  margin: 0;
+  color: #7A7068;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.password-toggle-btn:hover {
+  color: #3892A9;
+  background-color: rgba(56, 146, 169, 0.08);
+}
+
+.password-toggle-btn:focus-visible {
+  outline: 2px solid #3892A9;
+  outline-offset: 1px;
+}
+
 .form-control--sm {
   padding: 0.45rem 0.75rem;
   font-size: 0.8125rem;
