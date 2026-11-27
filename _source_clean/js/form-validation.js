@@ -42,14 +42,23 @@
     err.id = (field.id || field.name) + '-error';
     err.textContent = msg;
     field.setAttribute('aria-describedby', err.id);
-    field.parentNode.insertBefore(err, field.nextSibling);
+    const anchor = field._rwComboWrap || field;
+    anchor.parentNode.insertBefore(err, anchor.nextSibling);
     field.classList.add('is-invalid');
+    if (field._rwComboTrigger) {
+      field._rwComboTrigger.classList.remove('is-valid');
+      field._rwComboTrigger.classList.add('is-invalid');
+    }
   }
 
   function clearError(field) {
     field.setAttribute('aria-invalid', 'false');
     field.classList.remove('is-invalid');
     field.classList.remove('is-valid');
+    if (field._rwComboTrigger) {
+      field._rwComboTrigger.classList.remove('is-invalid');
+      field._rwComboTrigger.classList.remove('is-valid');
+    }
     const existing = document.getElementById((field.id || field.name) + '-error');
     if (existing) existing.remove();
     field.removeAttribute('aria-describedby');
@@ -58,6 +67,9 @@
   function markValid(field) {
     clearError(field);
     field.classList.add('is-valid');
+    if (field._rwComboTrigger) {
+      field._rwComboTrigger.classList.add('is-valid');
+    }
   }
 
   function validateField(field) {
@@ -363,13 +375,435 @@
     });
   }
 
+  /* ── Searchable Combo Box with Country Flag Support ── */
+  const openComboInstances = new Set();
+
+  function injectComboStyles() {
+    if (document.getElementById('rw-combobox-styles')) return;
+    const style = document.createElement('style');
+    style.id = 'rw-combobox-styles';
+    style.textContent = [
+      '.rw-cb-wrap{position:relative;width:100%;font-family:inherit;}',
+      '.rw-cb-native{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important;opacity:0!important;pointer-events:none!important;}',
+      '.rw-cb-trigger{width:100%;min-height:48px;padding:0.68rem 2.4rem 0.68rem 0.95rem;background:#FFFFFF;border:1.5px solid var(--color-border,#D6CFC7);border-radius:8px;font-family:inherit;font-size:0.9375rem;line-height:1.35;color:var(--color-brown,#29211D);text-align:left;cursor:pointer;display:flex;align-items:center;gap:0.6rem;position:relative;box-sizing:border-box;transition:border-color 0.18s ease,box-shadow 0.18s ease,background-color 0.18s ease;}',
+      '.rw-cb-trigger.is-placeholder{color:var(--color-text-muted,#7A7068);}',
+      '.rw-cb-trigger:hover:not(:disabled){border-color:#B5ABA0;}',
+      '.rw-cb-trigger:focus-visible,.rw-cb-wrap.is-open .rw-cb-trigger{outline:none;border-color:var(--color-teal,#1E6B7B);box-shadow:0 0 0 3px rgba(30,107,123,0.14);background:#FFFFFF;}',
+      '.rw-cb-trigger:disabled{background:#F4F1ED;color:#9A9087;cursor:not-allowed;opacity:0.8;}',
+      '.rw-cb-trigger.is-invalid{border-color:#C53B27!important;}',
+      '.rw-cb-trigger.is-valid{border-color:var(--color-teal,#1E6B7B);}',
+      '.rw-cb-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1 1 auto;}',
+      '.rw-cb-flag{width:21px;height:15px;object-fit:cover;border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,0.14);flex-shrink:0;display:inline-block;background:#EAECEF;}',
+      '.rw-cb-chevron{position:absolute;right:0.85rem;top:50%;transform:translateY(-50%);width:16px;height:16px;color:#6B625B;pointer-events:none;transition:transform 0.18s ease;}',
+      '.rw-cb-wrap.is-open .rw-cb-chevron{transform:translateY(-50%) rotate(180deg);color:var(--color-teal,#1E6B7B);}',
+      '.rw-cb-panel{position:absolute;top:calc(100% + 5px);left:0;right:0;z-index:1200;background:#FFFFFF;border:1px solid #CFDCE0;border-radius:10px;box-shadow:0 12px 30px rgba(25,33,38,0.16);overflow:hidden;display:none;}',
+      '.rw-cb-wrap.is-open .rw-cb-panel{display:block;}',
+      '.rw-cb-search-row{padding:0.55rem 0.65rem;border-bottom:1px solid #E6ECEF;background:#F8FAFB;display:flex;align-items:center;gap:0.45rem;}',
+      '.rw-cb-search-icon{width:15px;height:15px;color:#64748B;flex-shrink:0;}',
+      '.rw-cb-search-input{width:100%;border:1px solid #CBD5E1;border-radius:6px;padding:0.42rem 0.65rem;font-family:inherit;font-size:0.85rem;color:#29211D;background:#FFFFFF;outline:none;box-sizing:border-box;}',
+      '.rw-cb-search-input:focus{border-color:var(--color-teal,#1E6B7B);box-shadow:0 0 0 2px rgba(30,107,123,0.12);}',
+      '.rw-cb-list{max-height:235px;overflow-y:auto;margin:0;padding:0.3rem 0;list-style:none;}',
+      '.rw-cb-group{padding:0.42rem 0.85rem 0.2rem;font-size:0.69rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#64748B;user-select:none;}',
+      '.rw-cb-item{padding:0.5rem 0.85rem;font-size:0.885rem;color:#29211D;cursor:pointer;display:flex;align-items:center;gap:0.6rem;transition:background-color 0.1s ease;}',
+      '.rw-cb-item:hover,.rw-cb-item.is-active{background:#EDF6F8;color:#155263;}',
+      '.rw-cb-item.is-selected{background:#E2F1F5;color:#155263;font-weight:600;}',
+      '.rw-cb-item-text{flex:1 1 auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
+      '.rw-cb-check{font-size:0.82rem;color:var(--color-teal,#1E6B7B);font-weight:700;flex-shrink:0;}',
+      '.rw-cb-empty{padding:0.85rem;text-align:center;font-size:0.84rem;color:#64748B;}',
+      '.rw-cb-more{padding:0.45rem 0.85rem;text-align:center;font-size:0.75rem;color:#64748B;background:#F8FAFB;border-top:1px solid #EDF2F4;}'
+    ].join('\n');
+    document.head.appendChild(style);
+  }
+
+  function createFlagImg(isoCode) {
+    if (!isoCode || !/^[A-Za-z]{2}$/.test(isoCode)) return null;
+    const lower = isoCode.toLowerCase();
+    const img = document.createElement('img');
+    img.className = 'rw-cb-flag';
+    img.src = 'https://flagcdn.com/w40/' + lower + '.png';
+    img.srcset = 'https://flagcdn.com/w80/' + lower + '.png 2x';
+    img.alt = '';
+    img.loading = 'lazy';
+    img.decoding = 'async';
+    return img;
+  }
+
+  function enhanceSelectWithSearch(select) {
+    if (!select || select._rwComboWrap) return;
+    injectComboStyles();
+
+    const isCountry =
+      select.id === 'loc-country' || select.name === 'countryCode';
+
+    const wrap = document.createElement('div');
+    wrap.className = 'rw-cb-wrap';
+    select.parentNode.insertBefore(wrap, select);
+    wrap.appendChild(select);
+    select.classList.add('rw-cb-native');
+    select.tabIndex = -1;
+
+    const trigger = document.createElement('button');
+    trigger.type = 'button';
+    trigger.className = 'rw-cb-trigger is-placeholder';
+    trigger.setAttribute('aria-haspopup', 'listbox');
+    trigger.setAttribute('aria-expanded', 'false');
+
+    const triggerFlagSlot = document.createElement('span');
+    triggerFlagSlot.style.display = 'none';
+    const triggerLabel = document.createElement('span');
+    triggerLabel.className = 'rw-cb-label';
+    const chevron = document.createElement('span');
+    chevron.className = 'rw-cb-chevron';
+    chevron.setAttribute('aria-hidden', 'true');
+    chevron.innerHTML =
+      '<svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 7.5 10 12.5 15 7.5"/></svg>';
+
+    trigger.appendChild(triggerFlagSlot);
+    trigger.appendChild(triggerLabel);
+    trigger.appendChild(chevron);
+
+    const panel = document.createElement('div');
+    panel.className = 'rw-cb-panel';
+
+    const searchRow = document.createElement('div');
+    searchRow.className = 'rw-cb-search-row';
+    searchRow.innerHTML =
+      '<svg class="rw-cb-search-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5"/><line x1="12.5" y1="12.5" x2="17" y2="17"/></svg>';
+
+    const searchInput = document.createElement('input');
+    searchInput.type = 'text';
+    searchInput.className = 'rw-cb-search-input';
+    searchInput.setAttribute('data-cb-search', 'true');
+    searchInput.autocomplete = 'off';
+    searchInput.spellcheck = false;
+    searchInput.placeholder = isCountry ? 'Search country…' : 'Type to search…';
+    searchInput.setAttribute('aria-label', 'Filter options');
+    searchRow.appendChild(searchInput);
+
+    const listEl = document.createElement('ul');
+    listEl.className = 'rw-cb-list';
+    listEl.setAttribute('role', 'listbox');
+
+    panel.appendChild(searchRow);
+    panel.appendChild(listEl);
+
+    wrap.appendChild(trigger);
+    wrap.appendChild(panel);
+
+    select._rwComboWrap = wrap;
+    select._rwComboTrigger = trigger;
+
+    let activeIndex = -1;
+    let renderedSelectable = [];
+
+    function readOptionsSnapshot() {
+      const items = [];
+      let placeholderText = 'Select…';
+
+      Array.from(select.children).forEach(function (node) {
+        if (node.tagName === 'OPTGROUP') {
+          const groupLabel = node.label || '';
+          Array.from(node.children).forEach(function (opt) {
+            if (opt.tagName !== 'OPTION') return;
+            if (!opt.value && opt.disabled) {
+              placeholderText = opt.textContent.trim() || placeholderText;
+              return;
+            }
+            if (!opt.value) {
+              placeholderText = opt.textContent.trim() || placeholderText;
+              return;
+            }
+            items.push({
+              value: opt.value,
+              label: opt.textContent.trim(),
+              group: groupLabel,
+              disabled: opt.disabled
+            });
+          });
+        } else if (node.tagName === 'OPTION') {
+          if (!node.value) {
+            placeholderText = node.textContent.trim() || placeholderText;
+            return;
+          }
+          items.push({
+            value: node.value,
+            label: node.textContent.trim(),
+            group: '',
+            disabled: node.disabled
+          });
+        }
+      });
+
+      return { items: items, placeholderText: placeholderText };
+    }
+
+    function syncTriggerFromSelect() {
+      trigger.disabled = select.disabled;
+      const snap = readOptionsSnapshot();
+      const currentVal = select.value;
+      const selectedOpt = currentVal
+        ? Array.from(select.options).find((o) => o.value === currentVal)
+        : null;
+
+      triggerFlagSlot.innerHTML = '';
+      if (selectedOpt && selectedOpt.value) {
+        triggerLabel.textContent = selectedOpt.textContent.trim();
+        trigger.classList.remove('is-placeholder');
+        if (isCountry) {
+          const flag = createFlagImg(selectedOpt.value);
+          if (flag) {
+            triggerFlagSlot.appendChild(flag);
+            triggerFlagSlot.style.display = 'inline-flex';
+          } else {
+            triggerFlagSlot.style.display = 'none';
+          }
+        } else {
+          triggerFlagSlot.style.display = 'none';
+        }
+      } else {
+        triggerLabel.textContent = snap.placeholderText;
+        trigger.classList.add('is-placeholder');
+        triggerFlagSlot.style.display = 'none';
+      }
+    }
+
+    function renderList(query) {
+      const q = String(query || '').trim().toLowerCase();
+      const snap = readOptionsSnapshot();
+      const currentVal = select.value;
+      listEl.innerHTML = '';
+      renderedSelectable = [];
+      activeIndex = -1;
+
+      const matches = snap.items.filter(function (it) {
+        if (it.disabled) return false;
+        if (!q) return true;
+        if (it.label.toLowerCase().includes(q)) return true;
+        if (isCountry && it.value.toLowerCase().includes(q)) return true;
+        return false;
+      });
+
+      if (matches.length === 0) {
+        const empty = document.createElement('li');
+        empty.className = 'rw-cb-empty';
+        empty.textContent = 'No matching results found';
+        listEl.appendChild(empty);
+        return;
+      }
+
+      const MAX_VISIBLE = 160;
+      const slice = matches.slice(0, MAX_VISIBLE);
+      // Ensure __OTHER__ stays accessible at the bottom when truncated
+      if (matches.length > MAX_VISIBLE) {
+        const otherItem = matches.find((m) => m.value === '__OTHER__');
+        if (otherItem && !slice.includes(otherItem)) {
+          slice.push(otherItem);
+        }
+      }
+
+      let lastGroup = null;
+      const frag = document.createDocumentFragment();
+
+      slice.forEach(function (item) {
+        if (!q && item.group && item.group !== lastGroup) {
+          lastGroup = item.group;
+          const gEl = document.createElement('li');
+          gEl.className = 'rw-cb-group';
+          gEl.textContent = item.group;
+          frag.appendChild(gEl);
+        }
+
+        const li = document.createElement('li');
+        li.className = 'rw-cb-item' + (item.value === currentVal ? ' is-selected' : '');
+        li.setAttribute('role', 'option');
+        li.setAttribute('aria-selected', item.value === currentVal ? 'true' : 'false');
+        li.dataset.value = item.value;
+
+        if (isCountry) {
+          const flag = createFlagImg(item.value);
+          if (flag) li.appendChild(flag);
+        }
+
+        const txt = document.createElement('span');
+        txt.className = 'rw-cb-item-text';
+        txt.textContent = item.label;
+        li.appendChild(txt);
+
+        if (item.value === currentVal) {
+          const chk = document.createElement('span');
+          chk.className = 'rw-cb-check';
+          chk.textContent = '✓';
+          li.appendChild(chk);
+        }
+
+        const idx = renderedSelectable.length;
+        renderedSelectable.push({ el: li, value: item.value });
+
+        li.addEventListener('mousedown', function (e) {
+          e.preventDefault();
+          chooseValue(item.value);
+        });
+        li.addEventListener('mouseenter', function () {
+          setActiveItem(idx, false);
+        });
+
+        frag.appendChild(li);
+      });
+
+      if (matches.length > MAX_VISIBLE) {
+        const hint = document.createElement('li');
+        hint.className = 'rw-cb-more';
+        hint.textContent =
+          'Showing ' + MAX_VISIBLE + ' of ' + matches.length + ' — type above to narrow results';
+        frag.appendChild(hint);
+      }
+
+      listEl.appendChild(frag);
+    }
+
+    function setActiveItem(idx, scroll) {
+      if (idx < 0 || idx >= renderedSelectable.length) return;
+      renderedSelectable.forEach(function (entry, i) {
+        entry.el.classList.toggle('is-active', i === idx);
+      });
+      activeIndex = idx;
+      if (scroll) {
+        renderedSelectable[idx].el.scrollIntoView({ block: 'nearest' });
+      }
+    }
+
+    function chooseValue(val) {
+      select.value = val;
+      syncTriggerFromSelect();
+      closeDropdown();
+      select.dispatchEvent(new Event('change', { bubbles: true }));
+      select.dispatchEvent(new Event('blur', { bubbles: true }));
+      trigger.focus();
+    }
+
+    function openDropdown() {
+      if (select.disabled) return;
+      openComboInstances.forEach(function (closeFn) {
+        if (closeFn !== closeDropdown) closeFn();
+      });
+      openComboInstances.add(closeDropdown);
+      wrap.classList.add('is-open');
+      trigger.setAttribute('aria-expanded', 'true');
+      searchInput.value = '';
+      renderList('');
+
+      const isCoarsePointer =
+        window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+      if (!isCoarsePointer) {
+        setTimeout(function () {
+          searchInput.focus();
+        }, 10);
+      }
+    }
+
+    function closeDropdown() {
+      if (!wrap.classList.contains('is-open')) return;
+      wrap.classList.remove('is-open');
+      trigger.setAttribute('aria-expanded', 'false');
+      openComboInstances.delete(closeDropdown);
+    }
+
+    trigger.addEventListener('click', function () {
+      if (wrap.classList.contains('is-open')) {
+        closeDropdown();
+      } else {
+        openDropdown();
+      }
+    });
+
+    trigger.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        openDropdown();
+      }
+    });
+
+    searchInput.addEventListener('input', function () {
+      renderList(this.value);
+      if (renderedSelectable.length > 0) {
+        setActiveItem(0, false);
+      }
+    });
+
+    searchInput.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        const next = Math.min(activeIndex + 1, renderedSelectable.length - 1);
+        setActiveItem(next, true);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        const prev = Math.max(activeIndex - 1, 0);
+        setActiveItem(prev, true);
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (activeIndex >= 0 && renderedSelectable[activeIndex]) {
+          chooseValue(renderedSelectable[activeIndex].value);
+        } else if (renderedSelectable.length === 1) {
+          chooseValue(renderedSelectable[0].value);
+        }
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        closeDropdown();
+        trigger.focus();
+      }
+    });
+
+    // Support <label for="..."> clicking
+    if (select.id) {
+      const assocLabel = document.querySelector('label[for="' + select.id + '"]');
+      if (assocLabel) {
+        assocLabel.addEventListener('click', function (e) {
+          e.preventDefault();
+          if (!select.disabled) {
+            trigger.focus();
+            openDropdown();
+          }
+        });
+      }
+    }
+
+    select.addEventListener('change', syncTriggerFromSelect);
+
+    const observer = new MutationObserver(function () {
+      syncTriggerFromSelect();
+      if (wrap.classList.contains('is-open')) {
+        renderList(searchInput.value);
+      }
+    });
+    observer.observe(select, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['disabled']
+    });
+
+    syncTriggerFromSelect();
+  }
+
+  document.addEventListener('mousedown', function (e) {
+    if (openComboInstances.size === 0) return;
+    if (!e.target.closest('.rw-cb-wrap')) {
+      Array.from(openComboInstances).forEach(function (closeFn) {
+        closeFn();
+      });
+    }
+  });
+
   /* ── Init a form ── */
   function initForm(form) {
     if (!form || form.dataset.rwInitialized === 'true') return;
     form.dataset.rwInitialized = 'true';
 
+    // Upgrade all <select class="form-select"> into searchable combo boxes
+    form.querySelectorAll('select.form-select').forEach(enhanceSelectWithSearch);
+
     const textFields = form.querySelectorAll(
-      'input[type="text"]:not([name="_hp"]):not([name="website_url"]):not([data-captcha-input]), input[type="email"], input[type="tel"], textarea, select'
+      'input[type="text"]:not([name="_hp"]):not([name="website_url"]):not([data-captcha-input]):not([data-cb-search]), input[type="email"], input[type="tel"], textarea, select'
     );
 
     const ssnAlert =
@@ -415,9 +849,14 @@
       });
 
       if (!valid) {
-        const firstErr = form.querySelector('.is-invalid, .field-error');
+        const firstInvalid = form.querySelector('.is-invalid');
+        const firstErr = firstInvalid || form.querySelector('.field-error');
         if (firstErr) {
-          const target = firstErr.previousElementSibling || firstErr;
+          const target =
+            (firstInvalid && firstInvalid._rwComboTrigger) ||
+            firstInvalid ||
+            firstErr.previousElementSibling ||
+            firstErr;
           target.focus && target.focus();
           target.scrollIntoView && target.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }

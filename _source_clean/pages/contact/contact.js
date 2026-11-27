@@ -27,6 +27,7 @@
         subjectSelect.value = 'digital-services';
       }
       highlightActivePill(subjectSelect.value);
+      subjectSelect.dispatchEvent(new Event('change', { bubbles: true }));
     }
 
     if (focus && messageInput && !messageInput.value) {
@@ -53,6 +54,7 @@
         if (subjectSelect) {
           subjectSelect.value = topic;
           highlightActivePill(topic);
+          subjectSelect.dispatchEvent(new Event('change', { bubbles: true }));
         }
       });
     });
