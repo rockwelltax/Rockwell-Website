@@ -252,7 +252,7 @@ module.exports = async function handler(req, res) {
     const expectedAction = getExpectedTurnstileAction(body);
     const liveTurnstile = hasLiveTurnstileConfig();
 
-    if (liveTurnstile) {
+    if (liveTurnstile && !body.captchaToken) {
       const turnstileRes = await verifyTurnstileToken({
         token: body.turnstileToken,
         remoteIp: ip,

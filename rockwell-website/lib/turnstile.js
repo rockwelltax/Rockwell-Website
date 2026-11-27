@@ -21,7 +21,11 @@ function hasLiveTurnstileConfig() {
 
 function getTurnstileSiteKey() {
   if (hasLiveTurnstileConfig()) {
-    return (process.env.TURNSTILE_SITE_KEY || '').trim();
+    const raw = (process.env.TURNSTILE_SITE_KEY || '').trim();
+    if (raw === '0x4AAAAAAGVgO6PuGy17j2NT') {
+      return '0x4AAAAAAGVgO6PuGyl7j2NT';
+    }
+    return raw;
   }
   return '';
 }

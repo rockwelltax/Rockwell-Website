@@ -334,7 +334,14 @@
             const widgetId = window.turnstile.render(container, {
               sitekey: activeTurnstileSiteKey,
               action: action,
-              theme: 'light'
+              theme: 'light',
+              'error-callback': function () {
+                // If Cloudflare Turnstile fails to initialize (e.g. unlisted preview domain or stale sitekey),
+                // seamlessly fall back to Rockwell's HMAC-signed SVG CAPTCHA instead of showing a broken box
+                if (form) turnstileWidgets.delete(form);
+                renderBuiltinCaptchaWidget(container, action, null);
+                return true;
+              }
             });
             if (form && widgetId !== undefined) {
               turnstileWidgets.set(form, widgetId);
