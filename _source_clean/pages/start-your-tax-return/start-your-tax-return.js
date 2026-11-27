@@ -134,8 +134,6 @@
       input.addEventListener('input', function () {
         if (ssnPattern.test(this.value)) {
           if (ssnAlert) ssnAlert.style.display = 'block';
-          // Sanitize immediately to protect user data
-          this.value = this.value.replace(ssnPattern, '[SSN REMOVED FOR PRIVACY]');
         } else {
           if (ssnAlert) ssnAlert.style.display = 'none';
         }

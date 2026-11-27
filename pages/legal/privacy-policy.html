@@ -59,7 +59,7 @@
           </div>
 
           <h3>Information Collected Automatically</h3>
-          <p>When you visit our website, standard web server logs may record your IP address, browser type, pages visited, and time of visit. We use this information only to understand how our website is used and to maintain its security.</p>
+          <p>When you visit our website or submit a form, standard security logs and anti-abuse systems process limited technical request metadata, including your IP address, browser and platform headers, pages visited, and submission timestamps. We use this technical metadata strictly under legitimate security interest to prevent automated bot abuse, enforce inquiry rate limits, and maintain security audit logs.</p>
         </div>
 
         <div class="legal-block reveal">
@@ -93,8 +93,14 @@
         </div>
 
         <div class="legal-block reveal">
-          <h2>6. Cookies and Tracking</h2>
-          <p>Our website may use basic browser cookies to maintain functionality. We do not currently use third-party advertising cookies or behavioral tracking. If this changes, this policy will be updated.</p>
+          <h2>6. Cookies and Anti-Spam Security</h2>
+          <p>Our website uses strictly necessary first-party security cookies to protect client forms and administrative portals:</p>
+          <ul class="legal-list">
+            <li><strong>Inquiry Rate-Limit Cookie (<code>rw_did</code>):</strong> A cryptographically signed <code>HttpOnly</code> cookie retained for up to 24 hours to limit automated repeat form submissions to one inquiry per device every 24 hours.</li>
+            <li><strong>Cloudflare Turnstile Verification:</strong> Our public inquiry forms use Cloudflare Turnstile to confirm that submissions originate from human visitors rather than automated scripts, without using advertising or cross-site behavioral tracking cookies.</li>
+            <li><strong>Administrative Session Cookie:</strong> Used solely for authorized Rockwell personnel signing in to the administrative portal.</li>
+          </ul>
+          <p>We do not use third-party advertising cookies or sell visitor browsing data.</p>
         </div>
 
         <div class="legal-block reveal">

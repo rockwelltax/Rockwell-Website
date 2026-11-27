@@ -20,12 +20,10 @@
   const CACHE_TIME_KEY = 'rockwell_site_status_time';
   const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes cache
 
-  function checkAdminPreview() {
+  function hasPreviewQueryParam() {
     try {
       const urlParams = new URLSearchParams(window.location.search);
-      const hasExplicitPreview = urlParams.get('preview') === 'admin';
-      const adminToken = localStorage.getItem('rockwell_admin_token');
-      return hasExplicitPreview && !!adminToken;
+      return urlParams.get('preview') === 'admin';
     } catch (_) {
       return false;
     }
@@ -33,7 +31,6 @@
 
   // Check if session or recent local storage already knows the site is published
   function isKnownPublished() {
-    if (checkAdminPreview()) return true;
     try {
       if (sessionStorage.getItem(CACHE_KEY) === 'true') return true;
       const localStatus = localStorage.getItem(CACHE_KEY);
@@ -77,14 +74,16 @@
     window.location.replace('/coming-soon');
   }
 
-  // 2. Initial Gatekeeper Check from server
+  // 2. Initial Gatekeeper Check from server (requires server-verified HttpOnly session for Admin Preview)
   fetch('/api/site-status?t=' + Date.now(), {
+    credentials: 'same-origin',
     cache: 'no-store',
     headers: { 'Pragma': 'no-cache', 'Cache-Control': 'no-cache' }
   })
     .then(res => res.json())
     .then(data => {
       const isPublished = data && data.is_published;
+      const isServerVerifiedAdminPreview = hasPreviewQueryParam() && Boolean(data && data.is_admin_authenticated);
 
       if (!isPublished) {
         try {
@@ -93,16 +92,13 @@
         } catch (_) {}
 
         // Site is NOT published (either Coming Soon or Scheduled)
-        if (checkAdminPreview()) {
-          // Allow explicit preview with top indicator bar
+        if (isServerVerifiedAdminPreview) {
           revealPage();
           showAdminPreviewBanner(data.status, data.scheduled_at);
         } else {
-          // STRICT RULE: All visitors redirected to Coming Soon
           redirectToComingSoon();
         }
       } else {
-        // Site IS published -> cache confirmation & reveal immediately
         try {
           sessionStorage.setItem(CACHE_KEY, 'true');
           localStorage.setItem(CACHE_KEY, 'true');
@@ -112,7 +108,6 @@
       }
     })
     .catch(() => {
-      // In case of error/offline fallback: if already verified in session, keep browsing
       if (alreadyPublished) {
         revealPage();
       } else {
@@ -123,13 +118,14 @@
   // 3. Live Heartbeat Sync: automatically eject public visitors if site is unpublished
   function pollLiveStatus() {
     fetch('/api/site-status?t=' + Date.now(), {
+      credentials: 'same-origin',
       cache: 'no-store',
       headers: { 'Pragma': 'no-cache', 'Cache-Control': 'no-cache' }
     })
       .then(res => res.json())
       .then(data => {
         const isPublished = data && data.is_published;
-        const isAdminPreview = checkAdminPreview();
+        const isAdminPreview = hasPreviewQueryParam() && Boolean(data && data.is_admin_authenticated);
 
         if (!isPublished && !isAdminPreview) {
           try {

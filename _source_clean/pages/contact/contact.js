@@ -75,11 +75,10 @@
       messageInput.addEventListener('input', function () {
         updateCharCount();
 
-        // 4. Client-side SSN pattern check
+        // 4. Client-side SSN pattern warning (warn & reject on submit rather than silently mutating input)
         const ssnPattern = /\b\d{3}[-\s]?\d{2}[-\s]?\d{4}\b/;
         if (ssnPattern.test(this.value)) {
           if (ssnAlert) ssnAlert.style.display = 'block';
-          this.value = this.value.replace(ssnPattern, '[SSN REMOVED FOR PRIVACY]');
         } else {
           if (ssnAlert) ssnAlert.style.display = 'none';
         }

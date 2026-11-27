@@ -1,4 +1,6 @@
 const db = require('../lib/db');
+const { getClientIp, verifyAdminSession } = require('../lib/auth-token');
+const { logSecurityEvent } = require('../lib/audit');
 
 function parseBody(req) {
   if (req.body && typeof req.body === 'object') return req.body;
@@ -8,54 +10,31 @@ function parseBody(req) {
   return {};
 }
 
-function verifyAdmin(req) {
-  const authHeader = req.headers['authorization'] || '';
-  const token = authHeader.replace(/^Bearer\s+/i, '');
-  if (!token) return false;
-  try {
-    const decoded = Buffer.from(token, 'base64').toString('utf8');
-    const [email, exp] = decoded.split(':');
-    if (!email || !exp || Number(exp) <= Date.now()) return false;
-    const allowedAdmins = (process.env.ADMIN_EMAIL || 'info@rockwelltaxdigital.com,Kaelmendiola26@gmail.com')
-      .toLowerCase()
-      .split(',')
-      .map(e => e.trim());
-    return allowedAdmins.includes(email.toLowerCase()) || email.toLowerCase().includes('rockwell') || email.toLowerCase() === 'kaelmendiola26@gmail.com';
-  } catch (_) {
-    return false;
+function applyCorsHeaders(req, res) {
+  const origin = req.headers?.origin;
+  if (origin) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Vary', 'Origin');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
   }
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-CSRF-Token');
 }
 
 module.exports = async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  applyCorsHeaders(req, res);
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
 
-  // Ensure table exists & read current status
-  try {
-    await db.query(`
-      CREATE TABLE IF NOT EXISTS site_settings (
-        key VARCHAR(50) PRIMARY KEY,
-        value JSONB NOT NULL,
-        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
-  } catch (err) {
-    console.error('Failed to ensure site_settings table:', err);
-  }
-
   // ── GET /api/site-status ──────────────────────────────────
   if (req.method === 'GET') {
     try {
-      // Query PostgreSQL for current UTC time and publishing setting in 1 query
       const result = await db.query(`
-        SELECT 
-          NOW() AT TIME ZONE 'UTC' as db_time, 
-          (SELECT value FROM site_settings WHERE key = 'publishing') as value
+        SELECT
+          NOW() AT TIME ZONE 'UTC' AS db_time,
+          (SELECT value FROM site_settings WHERE key = 'publishing') AS value
       `);
 
       const dbTimeRaw = result.rows[0]?.db_time || new Date();
@@ -68,11 +47,9 @@ module.exports = async function handler(req, res) {
         updated_at: serverIsoTime
       };
 
-      // Check if scheduled launch has arrived (strictly according to server database clock)
       if (setting.status === 'scheduled' && setting.scheduled_at) {
         const schedTime = new Date(setting.scheduled_at).getTime();
         if (schedTime <= dbNow) {
-          // Time has passed on server -> auto-transition to 'published'
           setting.status = 'published';
           setting.scheduled_at = null;
           setting.updated_at = serverIsoTime;
@@ -90,7 +67,13 @@ module.exports = async function handler(req, res) {
         ? Math.max(0, Math.floor((new Date(setting.scheduled_at).getTime() - dbNow) / 1000))
         : 0;
 
-      // Prevent any caching across CDNs, browsers, or reverse proxies
+      // Also check if requester has an active server-verified admin session (for Admin Preview UX)
+      let isAdminAuthenticated = false;
+      if (req.headers?.cookie || req.headers?.authorization) {
+        const adminCheck = await verifyAdminSession(req, { requireCsrf: false });
+        isAdminAuthenticated = adminCheck.ok;
+      }
+
       res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
       res.setHeader('Pragma', 'no-cache');
       res.setHeader('Expires', '0');
@@ -99,6 +82,7 @@ module.exports = async function handler(req, res) {
         success: true,
         status: setting.status,
         is_published: isPublished,
+        is_admin_authenticated: isAdminAuthenticated,
         scheduled_at: setting.scheduled_at,
         remaining_seconds: remainingSeconds,
         server_time: serverIsoTime,
@@ -107,12 +91,12 @@ module.exports = async function handler(req, res) {
         updated_by: setting.updated_by || 'Admin'
       });
     } catch (err) {
-      console.error('Error fetching site status:', err);
-      // Fallback safe mode
+      console.error('Error fetching site status:', err.message);
       return res.status(200).json({
         success: true,
         status: 'coming_soon',
         is_published: false,
+        is_admin_authenticated: false,
         remaining_seconds: 0,
         server_time: new Date().toISOString(),
         error: 'Database read error, defaulting to safe coming soon mode'
@@ -120,30 +104,20 @@ module.exports = async function handler(req, res) {
     }
   }
 
-  // ── POST /api/site-status (Admin Only) ────────────────────
+  // ── POST /api/site-status (Admin Only + CSRF) ─────────────
   if (req.method === 'POST') {
-    if (!verifyAdmin(req)) {
-      return res.status(401).json({ error: 'Unauthorized: Admin privileges required to change site publication status.' });
+    const auth = await verifyAdminSession(req, { requireCsrf: true });
+    if (!auth.ok) {
+      return res.status(auth.statusCode).json({ error: auth.error });
     }
 
     try {
       const body = parseBody(req);
       const { status, scheduled_at } = body;
 
-      // Check PostgreSQL server time for authoritative scheduling comparison
-      const timeCheck = await db.query("SELECT NOW() AT TIME ZONE 'UTC' as db_time");
+      const timeCheck = await db.query("SELECT NOW() AT TIME ZONE 'UTC' AS db_time");
       const dbNow = new Date(timeCheck.rows[0]?.db_time || Date.now()).getTime();
 
-      // Extract admin email from token
-      const authHeader = req.headers['authorization'] || '';
-      const token = authHeader.replace(/^Bearer\s+/i, '');
-      let adminEmail = 'Admin';
-      try {
-        const decoded = Buffer.from(token, 'base64').toString('utf8');
-        adminEmail = decoded.split(':')[0] || 'Admin';
-      } catch (_) {}
-
-      // Validate status
       const validStatuses = ['coming_soon', 'scheduled', 'published'];
       if (!status || !validStatuses.includes(status)) {
         return res.status(400).json({
@@ -152,8 +126,6 @@ module.exports = async function handler(req, res) {
       }
 
       let validatedScheduledAt = null;
-
-      // If scheduled, strictly validate date against server database time
       if (status === 'scheduled') {
         if (!scheduled_at) {
           return res.status(400).json({
@@ -162,14 +134,12 @@ module.exports = async function handler(req, res) {
         }
 
         const scheduledTime = new Date(scheduled_at).getTime();
-
         if (isNaN(scheduledTime)) {
           return res.status(400).json({
             error: 'Invalid scheduled date format. Please supply a valid ISO date/time string.'
           });
         }
 
-        // Strict rule: past times NOT allowed based on server time
         if (scheduledTime <= dbNow + 5000) {
           return res.status(400).json({
             error: 'Cannot schedule launch in the past. Please select a future date and time.'
@@ -180,18 +150,29 @@ module.exports = async function handler(req, res) {
       }
 
       const newSetting = {
-        status: status,
+        status,
         scheduled_at: validatedScheduledAt,
         updated_at: new Date(dbNow).toISOString(),
-        updated_by: adminEmail
+        updated_by: auth.email
       };
 
-      await db.query(`
-        INSERT INTO site_settings (key, value, updated_at)
-        VALUES ('publishing', $1, NOW())
-        ON CONFLICT (key)
-        DO UPDATE SET value = EXCLUDED.value, updated_at = NOW();
-      `, [JSON.stringify(newSetting)]);
+      await db.query(
+        `INSERT INTO site_settings (key, value, updated_at)
+         VALUES ('publishing', $1, NOW())
+         ON CONFLICT (key)
+         DO UPDATE SET value = EXCLUDED.value, updated_at = NOW()`,
+        [JSON.stringify(newSetting)]
+      );
+
+      await logSecurityEvent({
+        eventType: 'site_status_changed',
+        severity: 'info',
+        actorEmail: auth.email,
+        ipAddress: getClientIp(req),
+        targetType: 'site_settings',
+        targetId: 'publishing',
+        metadata: { status, scheduledAt: validatedScheduledAt }
+      });
 
       return res.status(200).json({
         success: true,
@@ -203,7 +184,7 @@ module.exports = async function handler(req, res) {
         setting: newSetting
       });
     } catch (err) {
-      console.error('Error updating site status:', err);
+      console.error('Error updating site status:', err.message);
       return res.status(500).json({ error: 'Internal server error updating site status.' });
     }
   }

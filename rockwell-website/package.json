@@ -5,15 +5,23 @@
   "scripts": {
     "start": "node server.js",
     "init-db": "node scripts/init-db.js",
+    "migrate": "node scripts/migrate-db.js",
+    "backup": "node scripts/backup-db.js",
+    "test:security": "node scripts/test-security.js",
     "obfuscate": "node scripts/obfuscate.js",
     "build": "node scripts/obfuscate.js"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1178.0",
+    "@aws-sdk/s3-request-presigner": "^3.1178.0",
     "@neon/config": "^1.14.3",
     "@neon/env": "^2.1.6",
     "bcryptjs": "^3.0.2",
     "dotenv": "^16.4.7",
     "pg": "^8.13.3",
     "resend": "^4.1.2"
+  },
+  "devDependencies": {
+    "javascript-obfuscator": "^5.10.1"
   }
 }

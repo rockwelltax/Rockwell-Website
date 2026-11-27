@@ -16,8 +16,8 @@
   const API_INQUIRIES = `${API_BASE}/api/inquiries`;
   const API_SITE_STATUS = `${API_BASE}/api/site-status`;
 
-  // State
-  let authToken = localStorage.getItem('rockwell_admin_token') || null;
+  // State (HttpOnly session cookie is managed by browser; CSRF token kept in sessionStorage/memory)
+  let csrfToken = sessionStorage.getItem('rockwell_admin_csrf') || null;
   let allInquiries = [];
   let currentFilter = 'all';
   let currentSearch = '';
@@ -109,23 +109,35 @@
   const toastContainer = document.getElementById('admin-toast-container');
 
   /* ── 1. App Initialization ── */
-  function init() {
+  async function init() {
     setupAuthListeners();
     setupDashboardListeners();
 
-    if (authToken) {
-      try {
-        const decoded = atob(authToken);
-        const [email] = decoded.split(':');
-        if (email) userDisplayEmail.textContent = email;
-      } catch (_) {}
-      showDashboard();
-      fetchInquiries();
-      fetchPublishingStatus();
-      startPublishingLiveSync();
-    } else {
-      showAuth();
-    }
+    // Clean up any legacy unsigned token in localStorage
+    try { localStorage.removeItem('rockwell_admin_token'); } catch (_) {}
+
+    try {
+      const res = await fetch(`${API_AUTH}?action=session`, {
+        method: 'GET',
+        credentials: 'same-origin',
+        cache: 'no-store'
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.authenticated) {
+          csrfToken = data.csrfToken || null;
+          if (csrfToken) sessionStorage.setItem('rockwell_admin_csrf', csrfToken);
+          if (data.user?.email) userDisplayEmail.textContent = data.user.email;
+          showDashboard();
+          fetchInquiries();
+          fetchPublishingStatus();
+          startPublishingLiveSync();
+          return;
+        }
+      }
+    } catch (_) {}
+
+    showAuth();
   }
 
   function showAuth() {
@@ -160,6 +172,7 @@
       try {
         const res = await fetch(`${API_AUTH}?action=login`, {
           method: 'POST',
+          credentials: 'same-origin',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password })
         });
@@ -172,8 +185,8 @@
           return;
         }
 
-        authToken = data.token;
-        localStorage.setItem('rockwell_admin_token', authToken);
+        csrfToken = data.csrfToken || null;
+        if (csrfToken) sessionStorage.setItem('rockwell_admin_csrf', csrfToken);
         userDisplayEmail.textContent = data.user?.email || email;
 
         btn.disabled = false;
@@ -254,8 +267,8 @@
         return;
       }
 
-      if (!newPassword || newPassword.length < 6) {
-        showForgotAlert('Password must be at least 6 characters long.', 'error');
+      if (!newPassword || newPassword.length < 8) {
+        showForgotAlert('Password must be at least 8 characters long.', 'error');
         return;
       }
 
@@ -331,10 +344,21 @@
 
   /* ── 3. Dashboard Listeners ── */
   function setupDashboardListeners() {
-    // Logout
-    btnLogout.addEventListener('click', function () {
+    // Logout (revokes server session & clears HttpOnly cookie)
+    btnLogout.addEventListener('click', async function () {
+      try {
+        await fetch(`${API_AUTH}?action=logout`, {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': csrfToken || ''
+          }
+        });
+      } catch (_) {}
+      csrfToken = null;
+      sessionStorage.removeItem('rockwell_admin_csrf');
       localStorage.removeItem('rockwell_admin_token');
-      authToken = null;
       showAuth();
     });
 
@@ -399,9 +423,10 @@
       try {
         const res = await fetch(API_INQUIRIES, {
           method: 'PATCH',
+          credentials: 'same-origin',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${authToken}`
+            'X-CSRF-Token': csrfToken || ''
           },
           body: JSON.stringify({ id: activeModalInquiry.id, status: newStatus })
         });
@@ -440,8 +465,9 @@
         try {
           const res = await fetch(`${API_INQUIRIES}?id=${encodeURIComponent(activeModalInquiry.id)}`, {
             method: 'DELETE',
+            credentials: 'same-origin',
             headers: {
-              'Authorization': `Bearer ${authToken}`
+              'X-CSRF-Token': csrfToken || ''
             }
           });
           const data = await res.json();
@@ -485,14 +511,12 @@
 
     try {
       const res = await fetch(API_INQUIRIES, {
-        headers: {
-          'Authorization': `Bearer ${authToken}`
-        }
+        credentials: 'same-origin'
       });
 
       if (res.status === 401) {
-        localStorage.removeItem('rockwell_admin_token');
-        authToken = null;
+        sessionStorage.removeItem('rockwell_admin_csrf');
+        csrfToken = null;
         showAuth();
         return;
       }
@@ -712,6 +736,8 @@
         return '<span class="badge badge--status-contacted">Contacted</span>';
       case 'completed':
         return '<span class="badge badge--status-completed">Completed</span>';
+      case 'spam_archived':
+        return '<span class="badge">Spam / Archived</span>';
       default:
         return `<span class="badge">${escapeHtml(status || 'new')}</span>`;
     }
@@ -818,6 +844,7 @@
   async function fetchPublishingStatus() {
     try {
       const res = await fetch(`${API_SITE_STATUS}?t=${Date.now()}`, {
+        credentials: 'same-origin',
         cache: 'no-store',
         headers: { 'Pragma': 'no-cache', 'Cache-Control': 'no-cache' }
       });
@@ -1143,9 +1170,10 @@
       try {
         const res = await fetch(API_SITE_STATUS, {
           method: 'POST',
+          credentials: 'same-origin',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${authToken}`
+            'X-CSRF-Token': csrfToken || ''
           },
           body: JSON.stringify({
             status: 'scheduled',
@@ -1191,9 +1219,10 @@
       try {
         const res = await fetch(API_SITE_STATUS, {
           method: 'POST',
+          credentials: 'same-origin',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${authToken}`
+            'X-CSRF-Token': csrfToken || ''
           },
           body: JSON.stringify({ status })
         });

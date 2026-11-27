@@ -3,8 +3,13 @@ require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 const { Resend } = require('resend');
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY || '';
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'info@rockwelltax.com,info@rockwelltaxdigital.com,Kaelmendiola26@gmail.com';
 const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null;
+
+// Strictly route ALL admin inquiry notifications to info@rockwelltaxdigital.com.
+// Never read legacy ADMIN_EMAIL here so old multi-recipient env vars cannot leak notifications.
+const INQUIRY_NOTIFICATION_EMAIL = (
+  process.env.INQUIRY_NOTIFICATION_EMAIL || 'info@rockwelltaxdigital.com'
+).trim();
 
 // Verified domain sender from rockwelltax.com
 const FROM_EMAIL = process.env.FROM_EMAIL || 'Rockwell Tax & Digital <notifications@rockwelltax.com>';
@@ -112,7 +117,6 @@ function wrapEmailTemplate(contentHtml, preheaderText = '') {
       color: #7a7068;
       line-height: 1.5;
     }
-    /* Dark Theme Support */
     @media (prefers-color-scheme: dark) {
       body {
         background-color: #1a1614 !important;
@@ -161,18 +165,13 @@ function wrapEmailTemplate(contentHtml, preheaderText = '') {
     <tr>
       <td align="center">
         <div class="email-container">
-          <!-- Header -->
           <div class="email-header">
             <h1 class="email-header-title">Rockwell</h1>
             <p class="email-header-sub">Tax &amp; Digital Strategies Inc.</p>
           </div>
-
-          <!-- Body -->
           <div class="email-body">
             ${contentHtml}
           </div>
-
-          <!-- Footer -->
           <div class="email-footer">
             <p style="margin: 0 0 8px 0; font-weight: 600; color: #29211D;">Rockwell Tax &amp; Digital Strategies Inc.</p>
             <p style="margin: 0 0 10px 0;">Clear answers &bull; Honest pricing &bull; Confidentiality &amp; compliance</p>
@@ -187,7 +186,7 @@ function wrapEmailTemplate(contentHtml, preheaderText = '') {
 }
 
 /**
- * 1. Send Client Confirmation Email
+ * 1. Send Client Confirmation Email (To Client's Email, Reply-To info@rockwelltaxdigital.com)
  */
 async function sendClientConfirmation({ to, name, type, details = {} }) {
   let typeLabel = 'Inquiry';
@@ -220,7 +219,13 @@ async function sendClientConfirmation({ to, name, type, details = {} }) {
       <li><strong>Secure Document Exchange:</strong> If you proceed with tax preparation, you will receive private access to an approved, encrypted document upload portal.</li>
     </ol>
 
-    <p style="margin-top: 24px;">If you have any urgent questions in the meantime, feel free to reply directly to this email.</p>
+    <div class="email-card" style="border-left: 3px solid #3892A9;">
+      <p style="margin: 0; font-size: 13.5px; line-height: 1.55;">
+        <strong>Need to inquire about another service or update your details?</strong><br>
+        To protect client security, our web forms accept one inquiry per 24 hours. If you would also like to ask about Bookkeeping, Digital Services, or Firm Support—or add details right away—simply <strong>reply directly to this email</strong> or write to <a href="mailto:${escapeHtml(INQUIRY_NOTIFICATION_EMAIL)}" style="color:#3892A9;">${escapeHtml(INQUIRY_NOTIFICATION_EMAIL)}</a>.
+      </p>
+    </div>
+
     <p style="margin-bottom: 0;">Warm regards,<br><strong>Rockwell Tax &amp; Digital Strategies Team</strong></p>
   `;
 
@@ -232,11 +237,10 @@ async function sendClientConfirmation({ to, name, type, details = {} }) {
       return { success: false, error: 'Resend API key missing' };
     }
 
-    const replyToEmail = ADMIN_EMAIL.split(',')[0].trim();
     const res = await resend.emails.send({
       from: FROM_EMAIL,
       to: [to],
-      replyTo: replyToEmail,
+      replyTo: INQUIRY_NOTIFICATION_EMAIL,
       subject: `Inquiry Received: ${typeLabel} — Rockwell Tax & Digital Strategies`,
       html
     });
@@ -246,7 +250,6 @@ async function sendClientConfirmation({ to, name, type, details = {} }) {
       return { success: false, error: res.error.message };
     }
 
-    console.log(`✅ Confirmation email sent to ${to}:`, res.data?.id);
     return { success: true, id: res.data?.id };
   } catch (err) {
     console.error(`❌ Failed to send confirmation email to ${to}:`, err.message);
@@ -255,7 +258,7 @@ async function sendClientConfirmation({ to, name, type, details = {} }) {
 }
 
 /**
- * 2. Send Admin Notification Email
+ * 2. Send Admin Notification Email (Exclusively to info@rockwelltaxdigital.com, Reply-To Client)
  */
 async function sendAdminNotification({ inquiry }) {
   const { name, email, phone, type, service_requested, details = {} } = inquiry;
@@ -267,7 +270,7 @@ async function sendAdminNotification({ inquiry }) {
 
   const body = `
     <h2 style="font-family: Georgia, serif; font-size: 20px; color: #29211D; margin-top: 0;">New Inquiry Received!</h2>
-    <p>A new client has submitted an inquiry on the Rockwell website.</p>
+    <p>A new client has submitted a verified inquiry on the Rockwell website.</p>
     
     <div class="email-card">
       <table style="width:100%; border-collapse:collapse; font-size:14px;">
@@ -281,7 +284,7 @@ async function sendAdminNotification({ inquiry }) {
     </div>
 
     <p style="text-align:center;">
-      <a href="https://www.rockwelltax.com/admin" class="btn-primary">View in Admin Dashboard &rarr;</a>
+      <a href="https://rockwelltaxdigital.com/admin" class="btn-primary">View in Admin Dashboard &rarr;</a>
     </p>
   `;
 
@@ -293,7 +296,10 @@ async function sendAdminNotification({ inquiry }) {
       return { success: false, error: 'Resend API key missing' };
     }
 
-    const adminRecipients = ADMIN_EMAIL.split(',').map(e => e.trim()).filter(Boolean);
+    const adminRecipients = INQUIRY_NOTIFICATION_EMAIL.split(',')
+      .map((e) => e.trim())
+      .filter(Boolean);
+
     const res = await resend.emails.send({
       from: FROM_EMAIL,
       to: adminRecipients,
@@ -307,10 +313,9 @@ async function sendAdminNotification({ inquiry }) {
       return { success: false, error: res.error.message };
     }
 
-    console.log(`✅ Admin notification email sent to ${adminRecipients.join(', ')}:`, res.data?.id);
-    return { success: true, id: res.data?.id };
+    return { success: true, id: res.data?.id, recipients: adminRecipients };
   } catch (err) {
-    console.error(`❌ Failed to send admin notification to ${ADMIN_EMAIL}:`, err.message);
+    console.error(`❌ Failed to send admin notification:`, err.message);
     return { success: false, error: err.message };
   }
 }
@@ -326,7 +331,7 @@ async function sendPasswordResetCode({ to, code }) {
     <p>Please enter the following 6-digit verification code to proceed:</p>
     
     <div class="code-box">
-      ${code}
+      ${escapeHtml(code)}
     </div>
 
     <p style="color: #b33924; font-weight: 600; text-align: center;">
@@ -358,7 +363,6 @@ async function sendPasswordResetCode({ to, code }) {
       return { success: false, error: res.error.message };
     }
 
-    console.log(`✅ Password reset code sent to ${to}:`, res.data?.id);
     return { success: true, id: res.data?.id };
   } catch (err) {
     console.error(`❌ Failed to send reset code to ${to}:`, err.message);
@@ -370,12 +374,12 @@ function formatKey(key) {
   return key
     .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
     .replace(/_/g, ' ')
-    .replace(/\b\w/g, l => l.toUpperCase());
+    .replace(/\b\w/g, (l) => l.toUpperCase());
 }
 
 function escapeHtml(str) {
   if (!str) return '';
-  return str.replace(/[&<>"']/g, function (m) {
+  return String(str).replace(/[&<>"']/g, function (m) {
     switch (m) {
       case '&': return '&amp;';
       case '<': return '&lt;';
@@ -388,6 +392,7 @@ function escapeHtml(str) {
 }
 
 module.exports = {
+  INQUIRY_NOTIFICATION_EMAIL,
   sendClientConfirmation,
   sendAdminNotification,
   sendPasswordResetCode

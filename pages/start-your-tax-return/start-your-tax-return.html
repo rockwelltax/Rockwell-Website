@@ -162,6 +162,13 @@
             data-validate
             aria-label="Tax inquiry questionnaire"
           >
+            <!-- Honeypot & Anti-Bot Traps -->
+            <div style="position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden; opacity:0; pointer-events:none;" aria-hidden="true">
+              <label for="tax-hp-field">Leave this field empty</label>
+              <input type="text" id="tax-hp-field" name="_hp" tabindex="-1" autocomplete="off" />
+              <label for="tax-website-url">Company Website URL</label>
+              <input type="text" id="tax-website-url" name="website_url" tabindex="-1" autocomplete="off" />
+            </div>
 
             <!-- 1. Name -->
             <div class="form-group">
@@ -326,6 +333,9 @@
             <div id="ssn-alert" class="notice notice--security" style="display: none; border-color: #c0392b; color: #c0392b; margin-top: 1rem;">
               <strong>Warning:</strong> We noticed numbers resembling a Social Security Number. Never submit an SSN in this form. Tax documents will be collected via a separate secure portal after payment.
             </div>
+
+            <!-- Cloudflare Turnstile Security Slot -->
+            <div class="rockwell-turnstile-slot" data-turnstile-container data-turnstile-action="tax_return_inquiry" style="margin-top: 1rem;"></div>
 
             <!-- Submit Button -->
             <div class="form-submit-group">

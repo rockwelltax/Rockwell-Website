@@ -158,6 +158,13 @@
             data-validate
             aria-label="General consultation and inquiry form"
           >
+            <!-- Honeypot & Anti-Bot Traps -->
+            <div style="position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden; opacity:0; pointer-events:none;" aria-hidden="true">
+              <label for="contact-hp-field">Leave this field empty</label>
+              <input type="text" id="contact-hp-field" name="_hp" tabindex="-1" autocomplete="off" />
+              <label for="contact-website-url">Company Website URL</label>
+              <input type="text" id="contact-website-url" name="website_url" tabindex="-1" autocomplete="off" />
+            </div>
 
             <!-- Name -->
             <div class="form-group">
@@ -224,6 +231,9 @@
             <div id="contact-ssn-alert" class="notice notice--security" style="display: none; border-color: #c0392b; color: #c0392b; margin-bottom: 1rem;">
               <strong>Security Reminder:</strong> Please do not enter Social Security numbers here. Documents and sensitive tax records are collected through a separate approved secure portal after payment.
             </div>
+
+            <!-- Cloudflare Turnstile Security Slot -->
+            <div class="rockwell-turnstile-slot" data-turnstile-container data-turnstile-action="contact_inquiry" style="margin-bottom: 1rem;"></div>
 
             <!-- Submit -->
             <div class="form-submit-group">

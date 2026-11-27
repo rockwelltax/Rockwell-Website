@@ -109,9 +109,14 @@
             </p>
           </div>
 
-          <form id="firm-support-form" class="contact-form" novalidate>
-            <!-- Honeypot -->
-            <input type="text" name="_hp" style="display:none" tabindex="-1" autocomplete="off" />
+          <form id="firm-support-form" class="contact-form" novalidate data-validate aria-label="Tax firm support consultation form">
+            <!-- Honeypot & Anti-Bot Traps -->
+            <div style="position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden; opacity:0; pointer-events:none;" aria-hidden="true">
+              <label for="firm-hp-field">Leave this field empty</label>
+              <input type="text" id="firm-hp-field" name="_hp" tabindex="-1" autocomplete="off" />
+              <label for="firm-website-url">Company Website URL</label>
+              <input type="text" id="firm-website-url" name="website_url" tabindex="-1" autocomplete="off" />
+            </div>
 
             <!-- Firm Name -->
             <div class="form-group">
@@ -191,6 +196,14 @@
               </label>
               <textarea id="firm-message" name="message" class="form-textarea" rows="4" placeholder="Tell us about your workflows, timeline, or specific support needed."></textarea>
             </div>
+
+            <!-- Anti-SSN Client Check Warning Banner -->
+            <div id="firm-ssn-alert" class="notice notice--security" style="display: none; border-color: #c0392b; color: #c0392b; margin-bottom: 1rem;">
+              <strong>Security Protection:</strong> Please remove any Social Security Numbers or Tax ID numbers before submitting.
+            </div>
+
+            <!-- Cloudflare Turnstile Security Slot -->
+            <div class="rockwell-turnstile-slot" data-turnstile-container data-turnstile-action="firm_support_inquiry" style="margin-top: 0.75rem;"></div>
 
             <button type="submit" class="btn btn--primary btn--lg btn--full" style="margin-top: 1rem;">
               Request Firm Consultation &rarr;
