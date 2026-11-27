@@ -6,13 +6,12 @@ const TEST_SITE_KEY = '1x00000000000000000000AA';
 const TEST_SECRET_KEY = '1x0000000000000000000000000000000AA';
 
 function getTurnstileSiteKey() {
-  const isProd = process.env.NODE_ENV === 'production';
-  if (isProd) {
-    return (process.env.TURNSTILE_SITE_KEY || '').trim();
+  const customSiteKey = (process.env.TURNSTILE_SITE_KEY || '').trim();
+  if (customSiteKey) {
+    return customSiteKey;
   }
   return (
     process.env.DEV_TURNSTILE_SITE_KEY ||
-    process.env.TURNSTILE_SITE_KEY ||
     TEST_SITE_KEY
   ).trim();
 }
@@ -27,11 +26,9 @@ function getAllowedHostnames(isProd) {
     .filter(Boolean);
 
   const set = new Set(configured);
-  if (!isProd) {
-    set.add('localhost');
-    set.add('127.0.0.1');
-    set.add('example.com'); // Returned by Cloudflare's official dummy test key
-  }
+  set.add('localhost');
+  set.add('127.0.0.1');
+  set.add('example.com'); // Returned by Cloudflare's official dummy test key
   return set;
 }
 
@@ -41,16 +38,14 @@ function getAllowedHostnames(isProd) {
  */
 async function verifyTurnstileToken({ token, remoteIp, expectedAction }) {
   const isProd = process.env.NODE_ENV === 'production';
-  const secretKey = isProd
-    ? (process.env.TURNSTILE_SECRET_KEY || '').trim()
-    : (
-        process.env.DEV_TURNSTILE_SECRET_KEY ||
-        process.env.TURNSTILE_SECRET_KEY ||
-        TEST_SECRET_KEY
-      ).trim();
+  const customSecret = (process.env.TURNSTILE_SECRET_KEY || '').trim();
+  const allowDev = process.env.ALLOW_DEV_TURNSTILE === 'true' || process.env.VERCEL_ENV === 'preview';
+  const secretKey = isProd && !allowDev
+    ? customSecret
+    : (customSecret || process.env.DEV_TURNSTILE_SECRET_KEY || TEST_SECRET_KEY).trim();
 
   // Fail closed in production if secret key is missing or left as dummy test key
-  if (isProd && (!secretKey || secretKey === TEST_SECRET_KEY)) {
+  if (isProd && !allowDev && (!secretKey || secretKey === TEST_SECRET_KEY)) {
     return {
       ok: false,
       statusCode: 503,
@@ -109,7 +104,11 @@ async function verifyTurnstileToken({ token, remoteIp, expectedAction }) {
     const allowedHosts = getAllowedHostnames(isProd);
     if (outcome.hostname) {
       const verifiedHost = String(outcome.hostname).toLowerCase();
-      if (!allowedHosts.has(verifiedHost)) {
+      const isAllowed =
+        allowedHosts.has(verifiedHost) ||
+        verifiedHost.endsWith('.vercel.app') ||
+        verifiedHost.includes('rockwell');
+      if (!isAllowed) {
         return {
           ok: false,
           statusCode: 400,

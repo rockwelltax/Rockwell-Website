@@ -150,7 +150,7 @@ module.exports = async function handler(req, res) {
          pubSetting.scheduled_at &&
          new Date(pubSetting.scheduled_at).getTime() <= dbNow);
 
-      if (!isSiteLive && process.env.COMING_SOON_BLOCK_INQUIRIES !== 'false') {
+      if (!isSiteLive && process.env.COMING_SOON_BLOCK_INQUIRIES === 'true') {
         const adminCheck = await verifyAdminSession(req, { requireCsrf: false });
         if (!adminCheck.ok) {
           await logSecurityEvent({
