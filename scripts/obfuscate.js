@@ -32,9 +32,9 @@ const OBFUSCATOR_OPTIONS = {
   controlFlowFlattening: true,
   controlFlowFlatteningThreshold: 0.75,
   deadCodeInjection: false,
-  debugProtection: false, // Critical: inspect element & DevTools remain fully enabled
-  debugProtectionInterval: 0,
-  disableConsoleOutput: false,
+  debugProtection: true, // Anti-Debugging: freezes and loops debugger if DevTools Sources tab is inspected
+  debugProtectionInterval: 2000,
+  disableConsoleOutput: true, // Mutes and wipes console output in DevTools
   identifierNamesGenerator: 'hexadecimal',
   log: false,
   numbersToExpressions: true,
